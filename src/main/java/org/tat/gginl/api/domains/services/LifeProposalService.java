@@ -23,6 +23,8 @@ import org.tat.gginl.api.common.TLFBuilder;
 import org.tat.gginl.api.common.TranCode;
 import org.tat.gginl.api.common.Utils;
 import org.tat.gginl.api.common.emumdata.AgentCommissionEntryType;
+import org.tat.gginl.api.common.emumdata.ClassificationOfHealth;
+import org.tat.gginl.api.common.emumdata.CustomerStatus;
 import org.tat.gginl.api.common.emumdata.DoubleEntry;
 import org.tat.gginl.api.common.emumdata.Gender;
 import org.tat.gginl.api.common.emumdata.IdType;
@@ -149,6 +151,9 @@ public class LifeProposalService {
 
   @Value("${farmerProductId}")
   private String productId;
+  
+  @Value("${studentLifeProductId}")
+  private String studentLifeProductId;
 
   @Transactional(propagation = Propagation.REQUIRED)
   public List<LifePolicy> createGroupFarmerProposalToPolicy(
@@ -693,10 +698,10 @@ public class LifeProposalService {
               new AgentCommission(lifePolicy.getId(), PolicyReferenceType.STUDENT_LIFE_POLICY,
             		  lifePolicy.getAgent(), firstAgentCommission, new Date());
           TLF tlf5 = addNewTLF_For_AgentCommissionDr(ac, false, lifePolicy.getBranch(), payment,
-              payment.getId(), false, "KYT", lifePolicy.getSalePoint(), lifePolicy.getProposalNo());
+              payment.getId(), false, "KYT", lifePolicy.getSalePoint(), lifePolicy.getPolicyNo());
           TLFList.add(tlf5);
           TLF tlf6 = addNewTLF_For_AgentCommissionCredit(ac, false, lifePolicy.getBranch(), payment,
-              payment.getId(), false, "KYT", lifePolicy.getSalePoint(), lifePolicy.getProposalNo());
+              payment.getId(), false, "KYT", lifePolicy.getSalePoint(), lifePolicy.getPolicyNo());
           TLFList.add(tlf6);
         }
       }
@@ -859,9 +864,9 @@ public class LifeProposalService {
     nrBf.append(customerName);
     nrBf.append(" for Sum Insured ");
     nrBf.append(Utils.getCurrencyFormatString(si));
-    if(PolicyReferenceType.STUDENT_LIFE_POLICY.equals(payment.getReferenceType())) {
+    if(PolicyReferenceType.GROUP_FARMER_PROPOSAL.equals(payment.getReferenceType())) {
     	nrBf.append(" and for total number of insured person ");
-    	 nrBf.append(Integer.toString(totalInsuredPerson));
+    	nrBf.append(Integer.toString(totalInsuredPerson));
     }
    
     nrBf.append(" and the premium amount of ");
@@ -1287,8 +1292,7 @@ public class LifeProposalService {
       if(paymentTypeOptional.isPresent()) {
     	  lifeProposal.setPaymentType(paymentTypeOptional.get());
       }
-      lifeProposal.getProposalInsuredPersonList()
-          .add(createInsuredPersonForStudentLife(insuredPerson));
+      lifeProposal.getProposalInsuredPersonList().add(createInsuredPersonForStudentLife(insuredPerson));
       String proposalNo = customIdRepo.getNextId("STUDENT_LIFE_PROPOSAL_NO_ID_GEN", null);
       lifeProposal.setProposalNo(proposalNo);
       lifeProposal.setPrefix("ISLIF001");
@@ -1327,13 +1331,14 @@ public class LifeProposalService {
 
   private ProposalInsuredPerson createInsuredPersonForStudentLife(
       StudentLifeProposalInsuredPersonDTO dto) {
-    Optional<Product> productOptional = productRepo.findById(productId);
+    Optional<Product> productOptional = productRepo.findById(studentLifeProductId);
     Optional<Township> townshipOptional = townshipRepo.findById(dto.getTownshipId());
     Optional<Occupation> occupationOptional = occupationRepo.findById(dto.getOccupationID());
     Optional<Customer> customerOptional = customerRepo.findById(dto.getCustomerID());
     Optional<GradeInfo> gradeOptional = gradeInfoRepository.findById(dto.getGradeInfo());
     Optional<School> school =schoolRepository.findById(dto.getSchoolId());
-
+    CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
+    recorder.setCreatedDate(new Date());
     ResidentAddress residentAddress = new ResidentAddress();
     residentAddress.setResidentAddress(dto.getResidentAddress());
     residentAddress.setResidentTownship(townshipOptional.get());
@@ -1344,8 +1349,9 @@ public class LifeProposalService {
     name.setLastName(dto.getLastName());
 
     ProposalInsuredPerson insuredPerson = new ProposalInsuredPerson();
-
-    insuredPerson.setProduct(productOptional.get());
+    if(productOptional.isPresent()) {
+    	insuredPerson.setProduct(productOptional.get());
+    }
     insuredPerson.setInitialId(dto.getInitialId());
     insuredPerson.setBpmsInsuredPersonId(dto.getBpmsInsuredPersonId());
     insuredPerson.setProposedSumInsured(dto.getProposedSumInsured());
@@ -1353,12 +1359,16 @@ public class LifeProposalService {
     insuredPerson.setApprovedSumInsured(dto.getApprovedSumInsured());
     insuredPerson.setApprovedPremium(dto.getApprovedPremium());
     insuredPerson.setBasicTermPremium(dto.getBasicTermPremium());
-    insuredPerson.setIdType(dto.getIdType());
+    insuredPerson.setIdType(IdType.valueOf(dto.getIdType()));
     insuredPerson.setIdNo(dto.getIdNo());
+    insuredPerson.setClsOfHealth(ClassificationOfHealth.FIRSTCLASS);
     insuredPerson.setParentName(dto.getFatherName());
     insuredPerson.setParentIdNo(dto.getMotherIdNo());
-    insuredPerson.setParentIdType(dto.getMotherIdType());
+    insuredPerson.setParentIdType(IdType.valueOf(dto.getMotherIdType()));
     insuredPerson.setDateOfBirth(dto.getDateOfBirth());
+    insuredPerson.setAge(DateUtils.getAgeForNextYear(dto.getDateOfBirth()));
+    insuredPerson.setRecorder(recorder);
+    insuredPerson.setGender(Gender.valueOf(dto.getGender()));
     int maxTerm = productOptional.get().getMaxTerm();
     int periodYears=(maxTerm - insuredPerson.getAgeForNextYear() + 1);
     insuredPerson.setPeriodMonth(periodYears * 12);
@@ -1378,7 +1388,7 @@ public class LifeProposalService {
     insuredPerson.setFatherName(dto.getFatherName());
     insuredPerson.setStartDate(dto.getStartDate());
     insuredPerson.setEndDate(dto.getEndDate());
-    insuredPerson.setGender(dto.getGender());
+    insuredPerson.setGender(Gender.valueOf(dto.getGender()));
     insuredPerson.setResidentAddress(residentAddress);
     insuredPerson.setName(name);
 

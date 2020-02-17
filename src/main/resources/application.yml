@@ -21,6 +21,9 @@ server:
    port: ${PORT:8081} # This is the default port anyway, but you can change it here
    
 farmerProductId: ISPRD003001000009376125072017
+
+studentLifeProductId: ISPRD003000009607306082019
+
 fileDir: D
 
 security:
