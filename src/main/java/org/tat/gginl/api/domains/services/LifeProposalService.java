@@ -35,6 +35,7 @@ import org.tat.gginl.api.domains.AgentCommission;
 import org.tat.gginl.api.domains.Bank;
 import org.tat.gginl.api.domains.Branch;
 import org.tat.gginl.api.domains.Customer;
+import org.tat.gginl.api.domains.GradeInfo;
 import org.tat.gginl.api.domains.GroupFarmerProposal;
 import org.tat.gginl.api.domains.InsuredPersonBeneficiaries;
 import org.tat.gginl.api.domains.LifePolicy;
@@ -48,6 +49,7 @@ import org.tat.gginl.api.domains.ProposalInsuredPerson;
 import org.tat.gginl.api.domains.RelationShip;
 import org.tat.gginl.api.domains.SaleMan;
 import org.tat.gginl.api.domains.SalePoint;
+import org.tat.gginl.api.domains.School;
 import org.tat.gginl.api.domains.TLF;
 import org.tat.gginl.api.domains.Township;
 import org.tat.gginl.api.domains.repository.AgentCommissionRepository;
@@ -55,6 +57,7 @@ import org.tat.gginl.api.domains.repository.AgentRepository;
 import org.tat.gginl.api.domains.repository.BankRepository;
 import org.tat.gginl.api.domains.repository.BranchRepository;
 import org.tat.gginl.api.domains.repository.CustomerRepository;
+import org.tat.gginl.api.domains.repository.GradeInfoRepository;
 import org.tat.gginl.api.domains.repository.GroupFarmerRepository;
 import org.tat.gginl.api.domains.repository.LifePolicyRepository;
 import org.tat.gginl.api.domains.repository.LifeProposalRepository;
@@ -66,6 +69,7 @@ import org.tat.gginl.api.domains.repository.ProductRepository;
 import org.tat.gginl.api.domains.repository.RelationshipRepository;
 import org.tat.gginl.api.domains.repository.SaleManRepository;
 import org.tat.gginl.api.domains.repository.SalePointRepository;
+import org.tat.gginl.api.domains.repository.SchoolRepository;
 import org.tat.gginl.api.domains.repository.TLFRepository;
 import org.tat.gginl.api.domains.repository.TownshipRepository;
 import org.tat.gginl.api.dto.groupFarmerDTO.FarmerProposalDTO;
@@ -134,6 +138,14 @@ public class LifeProposalService {
 
   @Autowired
   private GroupFarmerRepository groupFarmerRepository;
+  
+  @Autowired
+  private GradeInfoRepository gradeInfoRepository;
+  
+  @Autowired
+  private SchoolRepository schoolRepository;
+  
+
 
   @Value("${farmerProductId}")
   private String productId;
@@ -1140,8 +1152,7 @@ public class LifeProposalService {
   public List<LifePolicy> createStudentLifeProposalToPolicy(
       StudentLifeProposalDTO studentLifeProposalDTO) {
     // convert groupFarmerProposalDTO to lifeproposal
-    List<LifeProposal> studentLifeProposalList =
-        convertStudentLifeProposalDTOToProposal(studentLifeProposalDTO);
+    List<LifeProposal> studentLifeProposalList = convertStudentLifeProposalDTOToProposal(studentLifeProposalDTO);
 
     // convert lifeproposal to lifepolicy
     List<LifePolicy> policyList = convertStudentLifeProposalToPolicy(studentLifeProposalList);
@@ -1187,6 +1198,25 @@ public class LifeProposalService {
     studentLifeProposalDTO.getProposalInsuredPersonList().forEach(insuredPerson -> {
 
       LifeProposal lifeProposal = new LifeProposal();
+      
+      if (studentLifeProposalDTO.getPaymentChannel().equalsIgnoreCase("TRF")) {
+          lifeProposal.setPaymentChannel(PaymentChannel.TRANSFER);
+          lifeProposal.setToBank(studentLifeProposalDTO.getToBank());
+          lifeProposal.setFromBank(studentLifeProposalDTO.getFromBank());
+        } else if (studentLifeProposalDTO.getPaymentChannel().equalsIgnoreCase("CSH")) {
+          lifeProposal.setPaymentChannel(PaymentChannel.CASHED);
+        } else if (studentLifeProposalDTO.getPaymentChannel().equalsIgnoreCase("CHQ")) {
+          lifeProposal.setPaymentChannel(PaymentChannel.CHEQUE);
+          lifeProposal.setChequeNo(studentLifeProposalDTO.getChequeNo());
+          lifeProposal.setToBank(studentLifeProposalDTO.getToBank());
+          lifeProposal.setFromBank(studentLifeProposalDTO.getFromBank());
+        } else if (studentLifeProposalDTO.getPaymentChannel().equalsIgnoreCase("RCV")) {
+          lifeProposal.setPaymentChannel(PaymentChannel.SUNDRY);
+          lifeProposal.setToBank(studentLifeProposalDTO.getToBank());
+          lifeProposal.setFromBank(studentLifeProposalDTO.getFromBank());
+        }
+       
+      lifeProposal.setComplete(true);
       lifeProposal.setProposalType(ProposalType.UNDERWRITING);
       lifeProposal.setSubmittedDate(studentLifeProposalDTO.getSubmittedDate());
       lifeProposal.setBranch(branchOptional.get());
@@ -1217,8 +1247,17 @@ public class LifeProposalService {
       LifePolicy policy = new LifePolicy(proposal);
       String policyNo = customIdRepo.getNextId("STUDENT_LIFE_POLICY_NO", null);
       policy.setPolicyNo(policyNo);
+      policy.setPaymentChannel(proposal.getPaymentChannel());
+      policy.setFromBank(proposal.getFromBank());
+      policy.setToBank(proposal.getToBank());
+      policy.setChequeNo(proposal.getChequeNo());
       policy.setActivedPolicyStartDate(policy.getPolicyInsuredPersonList().get(0).getStartDate());
       policy.setActivedPolicyEndDate(policy.getPolicyInsuredPersonList().get(0).getEndDate());
+      policy.setCommenmanceDate(proposal.getSubmittedDate());
+      policy.setLastPaymentTerm(1);
+      CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
+      recorder.setCreatedDate(new Date());
+      policy.setRecorder(recorder);
       policyList.add(policy);
     });
     return policyList;
@@ -1231,6 +1270,8 @@ public class LifeProposalService {
     Optional<Township> townshipOptional = townshipRepo.findById(dto.getTownshipId());
     Optional<Occupation> occupationOptional = occupationRepo.findById(dto.getOccupationID());
     Optional<Customer> customerOptional = customerRepo.findById(dto.getCustomerID());
+    Optional<GradeInfo> gradeOptional = gradeInfoRepository.findById(dto.getGradeInfo());
+    Optional<School> school =schoolRepository.findById(dto.getSchoolId());
 
     ResidentAddress residentAddress = new ResidentAddress();
     residentAddress.setResidentAddress(dto.getResidentAddress());
@@ -1253,6 +1294,22 @@ public class LifeProposalService {
     insuredPerson.setBasicTermPremium(dto.getBasicTermPremium());
     insuredPerson.setIdType(dto.getIdType());
     insuredPerson.setIdNo(dto.getIdNo());
+    insuredPerson.setParentName(dto.getFatherName());
+    insuredPerson.setParentIdNo(dto.getMotherIdNo());
+    insuredPerson.setParentIdType(dto.getMotherIdType());
+    
+    if(school.isPresent()) {
+        insuredPerson.setSchool(school.get());
+    }
+    if(gradeOptional.isPresent()) {
+    	insuredPerson.setGradeInfo(gradeOptional.get());
+    }
+    if(occupationOptional.isPresent()) {
+    	insuredPerson.setOccupation(occupationOptional.get());
+    }
+    if(customerOptional.isPresent()) {
+        insuredPerson.setCustomer(customerOptional.get());
+    }
     insuredPerson.setFatherName(dto.getFatherName());
     insuredPerson.setStartDate(dto.getStartDate());
     insuredPerson.setEndDate(dto.getEndDate());
@@ -1260,8 +1317,6 @@ public class LifeProposalService {
     insuredPerson.setGender(dto.getGender());
     insuredPerson.setResidentAddress(residentAddress);
     insuredPerson.setName(name);
-    insuredPerson.setOccupation(occupationOptional.get());
-    insuredPerson.setCustomer(customerOptional.get());
 
     String insPersonCodeNo = customIdRepo.getNextId("LIFE_INSUREDPERSON_CODENO_ID_GEN", null);
     insuredPerson.setInsPersonCodeNo(insPersonCodeNo);
@@ -1291,21 +1346,24 @@ public class LifeProposalService {
       recorder.setCreatedDate(new Date());
       if (PaymentChannel.CASHED.equals(lifePolicy.getPaymentChannel())) {
         receiptNo = customIdRepo.getNextId("CASH_RECEIPT_ID_GEN", null);
+        payment.setPaymentChannel(PaymentChannel.CASHED);
       } else if (PaymentChannel.CHEQUE.equals(lifePolicy.getPaymentChannel())) {
         payment.setPO(true);
+        payment.setPaymentChannel(PaymentChannel.CHEQUE);
         receiptNo = customIdRepo.getNextId("CHEQUE_RECEIPT_ID_GEN", null);
+        payment.setChequeNo(lifePolicy.getChequeNo());
       } else if (PaymentChannel.TRANSFER.equals(lifePolicy.getPaymentChannel())) {
+        payment.setPoNo(lifePolicy.getChequeNo());
+        payment.setPaymentChannel(PaymentChannel.TRANSFER);
         receiptNo = customIdRepo.getNextId("TRANSFER_RECEIPT_ID_GEN", null);
-      } else {
+      } else if (PaymentChannel.SUNDRY.equals(lifePolicy.getPaymentChannel())) {
+        payment.setPaymentChannel(PaymentChannel.SUNDRY);
         receiptNo = customIdRepo.getNextId("CHEQUE_RECEIPT_ID_GEN", null);
         payment.setPO(true);
       }
-
       payment.setReceiptNo(receiptNo);
-      payment.setChequeNo(lifePolicy.getChequeNo());
       payment.setPaymentType(lifePolicy.getPaymentType());
-      payment.setPaymentChannel(lifePolicy.getPaymentChannel());
-      payment.setReferenceType(PolicyReferenceType.FARMER_POLICY);
+      payment.setReferenceType(PolicyReferenceType.STUDENT_LIFE_POLICY);
       payment.setConfirmDate(new Date());
       payment.setPaymentDate(new Date());
       if (toBankOptional.isPresent()) {
@@ -1328,7 +1386,7 @@ public class LifeProposalService {
       payment.setHomeAddOnPremium(payment.getAddOnPremium());
       payment.setCommonCreateAndUpateMarks(recorder);
       paymentList.add(payment);
-
+      
     });
     return paymentList;
   }

@@ -47,13 +47,28 @@ public class StudentLifeProposalDTO {
   @ApiModelProperty(position = 11, example = "11", required = true)
   @NotBlank(message = "salePointId is mandatory")
   private String salePointId;
+  
+	@ApiModelProperty(position = 12, example = "TRF", required = true)
+	private String paymentChannel;
+	
+	@ApiModelProperty(position = 13, example = "ISSYS010005000000021118072016", required = true)
+	private String toBank;
+	
+	@ApiModelProperty(position = 14, example = "ISSYS0100001000000000713032013", required = true)
+	private String fromBank;
+	
+	@ApiModelProperty(position = 15, example = "CH34345345", required = true)
+	private String chequeNo;
+	
 
   @ApiModelProperty(position = 12, example = "1234", required = true)
   @NotBlank(message = "userId is mandatory")
   private String userId;
 
-  @ApiModelProperty(position = 13, example = "1", required = true)
-  @NotBlank(message = "EntityId is mandatory")
-  private String entityId;
+//  @ApiModelProperty(position = 13, example = "1", required = true)
+//  @NotBlank(message = "EntityId is mandatory")
+//  private String entityId;
+  
+  
 
 }

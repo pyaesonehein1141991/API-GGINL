@@ -1,6 +1,9 @@
 package org.tat.gginl.api.dto.studentLifeDTO;
 
 import java.util.Date;
+
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.tat.gginl.api.common.emumdata.Gender;
@@ -115,13 +118,15 @@ public class StudentLifeProposalInsuredPersonDTO {
   private String motherName;
 
   @ApiModelProperty(position = 27, example = "NRCNO")
-  private String motherIdType;
+  private IdType motherIdType;
 
   @ApiModelProperty(position = 28, example = "1628943")
   private String motherIdNo;
 
   @ApiModelProperty(position = 29, example = "1999-12-16")
-  private String motherDOB;
+  private Date motherDOB;
+  
+
 
 
 
