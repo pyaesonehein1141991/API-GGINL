@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.tat.gginl.api.domains.LifePolicy;
 import org.tat.gginl.api.domains.services.LifeProposalService;
 import org.tat.gginl.api.dto.ResponseDTO;
+import org.tat.gginl.api.dto.groupFarmerDTO.GroupFarmerResponseDTO;
 import org.tat.gginl.api.dto.studentLifeDTO.StudentLifeProposalDTO;
 import org.tat.gginl.api.dto.studentLifeDTO.StudentLifeReponseDTO;
 import io.swagger.annotations.Api;
@@ -43,10 +44,15 @@ public class StudentLifeController {
     policyList.forEach(policy -> {
       StudentLifeReponseDTO dto = StudentLifeReponseDTO.builder()
           .bpmsInsuredPersonId(policy.getPolicyInsuredPersonList().get(0).getBpmsInsuredPersonId())
-          .policyNo(policy.getPolicyNo()).build();
+          .proposalNo(policy.getLifeProposal().getProposalNo())
+          .policyNo(policy.getPolicyNo())
+          .customerId(policy.getPolicyInsuredPersonList().get(0).isNewCustomer()?policy.getPolicyInsuredPersonList().get(0).getCustomer().getId():null)
+          .build();
 
       responseList.add(dto);
     });
+    
+    
 
     ResponseDTO<Object> responseDTO =
         ResponseDTO.builder().responseStatus("Success!").responseBody(responseList).build();

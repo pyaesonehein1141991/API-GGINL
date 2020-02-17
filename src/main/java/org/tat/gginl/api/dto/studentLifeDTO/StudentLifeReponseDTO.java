@@ -11,5 +11,7 @@ public class StudentLifeReponseDTO {
 
 	private String bpmsInsuredPersonId;
 	private String policyNo;
+	private String proposalNo;
+	private String customerId;
 
 }

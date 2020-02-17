@@ -200,6 +200,7 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 
 	public PolicyInsuredPerson(ProposalInsuredPerson insuredPerson) {
 		this.dateOfBirth = insuredPerson.getDateOfBirth();
+		this.recorder=insuredPerson.getRecorder();
 		this.clsOfHealth = insuredPerson.getClsOfHealth();
 		this.sumInsured = insuredPerson.getProposedSumInsured();
 		this.periodMonth = insuredPerson.getPeriodMonth();

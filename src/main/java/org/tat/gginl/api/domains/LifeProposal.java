@@ -144,6 +144,7 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
 	
 	@Transient
 	private String chequeNo;
+	
 
 	@Version
 	private int version;
@@ -854,6 +855,7 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
 	public void setChequeNo(String chequeNo) {
 		this.chequeNo = chequeNo;
 	}
+
 	
 	
 

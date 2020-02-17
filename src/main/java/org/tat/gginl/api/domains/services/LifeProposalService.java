@@ -309,7 +309,6 @@ public class LifeProposalService {
           lifeProposal.setOrganization(organizationOptional.get());
         }
         if (paymentTypeOptional.isPresent()) {
-
           lifeProposal.setPaymentType(paymentTypeOptional.get());
         }
 
@@ -415,7 +414,6 @@ public class LifeProposalService {
     customer.setName(dto.getName());
     customer.setOccupation(dto.getOccupation());
     customer.setRecorder(dto.getRecorder());
-
     customer = customerRepo.save(customer);
     return customer;
   }
@@ -1277,9 +1275,9 @@ public class LifeProposalService {
       if(referralOptional.isPresent()) {
     	  lifeProposal.setReferral(referralOptional.get());
       }
-      if(customerOptional.isPresent()) {
-          lifeProposal.setCustomer(customerOptional.get());
-      }
+      if (customerOptional.isPresent()) {
+    	  lifeProposal.setCustomer(customerOptional.get());
+        } 
       if(agentOptional.isPresent()) {
           lifeProposal.setAgent(agentOptional.get());
       }
@@ -1382,15 +1380,19 @@ public class LifeProposalService {
     if(occupationOptional.isPresent()) {
     	insuredPerson.setOccupation(occupationOptional.get());
     }
-    if(customerOptional.isPresent()) {
-        insuredPerson.setCustomer(customerOptional.get());
-    }
     insuredPerson.setFatherName(dto.getFatherName());
     insuredPerson.setStartDate(dto.getStartDate());
     insuredPerson.setEndDate(dto.getEndDate());
     insuredPerson.setGender(Gender.valueOf(dto.getGender()));
     insuredPerson.setResidentAddress(residentAddress);
     insuredPerson.setName(name);
+    
+    if (customerOptional.isPresent()) {
+        insuredPerson.setCustomer(customerOptional.get());
+      } else {
+        insuredPerson.setCustomer(createNewCustomer(insuredPerson));
+        insuredPerson.setNewCustomer(true);
+      }
 
     String insPersonCodeNo = customIdRepo.getNextId("LIFE_INSUREDPERSON_CODENO_ID_GEN", null);
     insuredPerson.setInsPersonCodeNo(insPersonCodeNo);
