@@ -124,6 +124,7 @@ public class StudentLifeProposalInsuredPersonDTO {
   private String motherIdNo;
 
   @ApiModelProperty(position = 29, example = "1999-12-16")
+  @JsonDeserialize(using = DateHandler.class)
   private Date motherDOB;
   
 

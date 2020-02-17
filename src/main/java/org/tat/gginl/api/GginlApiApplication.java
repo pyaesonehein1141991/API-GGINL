@@ -31,7 +31,7 @@ public class GginlApiApplication implements CommandLineRunner {
 		SpringApplication application = new SpringApplication(GginlApiApplication.class);
 	    Properties properties = new Properties();
 		properties.setProperty("spring.main.banner-mode", "log");
-		properties.setProperty("logging.file", "C:/APILOG.log");
+		properties.setProperty("logging.file", "D:/APILOG.log");
 		properties.setProperty("logging.level.com.microsoft.sqlserver.jdbc", "info");
 		properties.setProperty("logging.level.com.microsoft.sqlserver.jdbc.internals", "debug");
 		properties.setProperty("logging.level.root", "WARN");
