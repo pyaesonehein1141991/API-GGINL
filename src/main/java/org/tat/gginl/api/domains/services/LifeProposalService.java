@@ -1435,8 +1435,6 @@ public class LifeProposalService {
       StudentLifeProposalInsuredPersonDTO dto) {
     Optional<Product> productOptional = productRepo.findById(studentLifeProductId);
     Optional<Township> townshipOptional = townshipRepo.findById(dto.getTownshipId());
-    Optional<Occupation> occupationOptional = occupationRepo.findById(dto.getOccupationID());
-    Optional<Customer> customerOptional = customerRepo.findById(dto.getCustomerID());
     Optional<GradeInfo> gradeOptional = gradeInfoRepository.findById(dto.getGradeInfo());
     Optional<School> school =schoolRepository.findById(dto.getSchoolId());
     CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
@@ -1481,23 +1479,12 @@ public class LifeProposalService {
     if(gradeOptional.isPresent()) {
     	insuredPerson.setGradeInfo(gradeOptional.get());
     }
-    if(occupationOptional.isPresent()) {
-    	insuredPerson.setOccupation(occupationOptional.get());
-    }
     insuredPerson.setFatherName(dto.getFatherName());
     insuredPerson.setStartDate(dto.getStartDate());
     insuredPerson.setEndDate(dto.getEndDate());
     insuredPerson.setGender(Gender.valueOf(dto.getGender()));
     insuredPerson.setResidentAddress(residentAddress);
     insuredPerson.setName(name);
-    
-    if (customerOptional.isPresent()) {
-        insuredPerson.setCustomer(customerOptional.get());
-      } else {
-        insuredPerson.setCustomer(createNewCustomer(insuredPerson));
-        insuredPerson.setNewCustomer(true);
-      }
-
     String insPersonCodeNo = customIdRepo.getNextId("LIFE_INSUREDPERSON_CODENO_ID_GEN", null);
     insuredPerson.setInsPersonCodeNo(insPersonCodeNo);
     insuredPerson.setPrefix("ISLIF008");
