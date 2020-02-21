@@ -6,7 +6,10 @@ import java.util.List;
 
 import org.tat.gginl.api.common.emumdata.InputType;
 import org.tat.gginl.api.common.emumdata.SurveyType;
+import org.tat.gginl.api.configuration.DateHandler;
 import org.tat.gginl.api.domains.ResourceQuestion;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 public class SurveyQuestionAnswerDTO extends CommonDTO implements Comparable<Object> {
 	private boolean option;
@@ -24,6 +27,7 @@ public class SurveyQuestionAnswerDTO extends CommonDTO implements Comparable<Obj
 	private SurveyType surveyType;
 
 	// Form Data
+	@JsonDeserialize(using = DateHandler.class)
 	private Date answerDate;
 	private ResourceQuestionAnswerDTO selectedResourceQAnsDTO;
 	private List<ResourceQuestionAnswerDTO> selectedResourceQAnsDTOList;

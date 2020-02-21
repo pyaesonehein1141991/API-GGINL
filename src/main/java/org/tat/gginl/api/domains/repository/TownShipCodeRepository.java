@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.tat.gginl.api.domains.TownshipCode;
 
 public interface TownShipCodeRepository  extends JpaRepository<TownshipCode,String>{
@@ -12,4 +13,7 @@ public interface TownShipCodeRepository  extends JpaRepository<TownshipCode,Stri
 	
 	@Query(value = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'TownShipCode'",nativeQuery = true)
 	List<Object> findAllColumnName();
+	
+	@Query("select t from TownshipCode  t where t.townshipcodeno =:townshipcodeno  and t.stateCode.id =:stateCodeid ")
+	public TownshipCode findByTownshipcodeno(@Param("townshipcodeno") String townshipcodeno ,@Param("stateCodeid") String stateCodeid);
 }

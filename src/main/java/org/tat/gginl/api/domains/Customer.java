@@ -608,25 +608,10 @@ public class Customer implements Serializable {
 
 	@Access(value = AccessType.PROPERTY)
 	public String getFullIdNo() {
-		String result = "";
-		if (!IdType.STILL_APPLYING.equals(idType)) {
-			if (stateCode != null) {
-				result = result + stateCode.getCodeNo() + "/";
-			}
-			if (townshipCode != null) {
-				result = result + townshipCode.getTownshipcodeno();
-			}
-			if (idConditionType != null) {
-				result = result + "(" + idConditionType.getLabel() + ")";
-			}
-			if (result.isEmpty() && idNo != null) {
-				return idNo;
-			} else {
-				return result + idNo;
-			}
-		} else
-			return null;
+		return fullIdNo;
 	}
+	
+	
 
 	public String setFullIdNo() {
 		if (idType.equals(IdType.NRCNO)) {

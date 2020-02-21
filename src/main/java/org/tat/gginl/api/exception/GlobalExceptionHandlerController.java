@@ -48,4 +48,11 @@ public class GlobalExceptionHandlerController {
 	logger.error("IOEXception :");
     res.sendError(HttpStatus.BAD_REQUEST.value(), "Something went wrong");
   }
+  
+  
+  @ExceptionHandler(DAOException.class)
+  public void handleDAOException(HttpServletResponse res,DAOException e) throws IOException {
+	logger.error("DAOException :");
+    res.sendError(HttpStatus.NOT_FOUND.value(),e.getMessage());
+  }
 }

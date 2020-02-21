@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringTokenizer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.tat.gginl.api.common.COACode;
 import org.tat.gginl.api.common.CommonCreateAndUpateMarks;
-import org.tat.gginl.api.common.DateUtils;
+import org.tat.gginl.api.common.DateUtils;import org.tat.gginl.api.common.IDataModel;
 import org.tat.gginl.api.common.Name;
 import org.tat.gginl.api.common.PolicyInsuredPerson;
 import org.tat.gginl.api.common.PolicyInsuredPersonBeneficiaries;
@@ -27,7 +29,9 @@ import org.tat.gginl.api.common.emumdata.ClassificationOfHealth;
 import org.tat.gginl.api.common.emumdata.CustomerStatus;
 import org.tat.gginl.api.common.emumdata.DoubleEntry;
 import org.tat.gginl.api.common.emumdata.Gender;
+import org.tat.gginl.api.common.emumdata.IdConditionType;
 import org.tat.gginl.api.common.emumdata.IdType;
+import org.tat.gginl.api.common.emumdata.MaritalStatus;
 import org.tat.gginl.api.common.emumdata.PaymentChannel;
 import org.tat.gginl.api.common.emumdata.PolicyReferenceType;
 import org.tat.gginl.api.common.emumdata.ProposalType;
@@ -36,6 +40,7 @@ import org.tat.gginl.api.domains.Agent;
 import org.tat.gginl.api.domains.AgentCommission;
 import org.tat.gginl.api.domains.Bank;
 import org.tat.gginl.api.domains.Branch;
+import org.tat.gginl.api.domains.Country;
 import org.tat.gginl.api.domains.Customer;
 import org.tat.gginl.api.domains.GradeInfo;
 import org.tat.gginl.api.domains.GroupFarmerProposal;
@@ -52,12 +57,15 @@ import org.tat.gginl.api.domains.RelationShip;
 import org.tat.gginl.api.domains.SaleMan;
 import org.tat.gginl.api.domains.SalePoint;
 import org.tat.gginl.api.domains.School;
+import org.tat.gginl.api.domains.StateCode;
 import org.tat.gginl.api.domains.TLF;
 import org.tat.gginl.api.domains.Township;
+import org.tat.gginl.api.domains.TownshipCode;
 import org.tat.gginl.api.domains.repository.AgentCommissionRepository;
 import org.tat.gginl.api.domains.repository.AgentRepository;
 import org.tat.gginl.api.domains.repository.BankRepository;
 import org.tat.gginl.api.domains.repository.BranchRepository;
+import org.tat.gginl.api.domains.repository.CountryRepository;
 import org.tat.gginl.api.domains.repository.CustomerRepository;
 import org.tat.gginl.api.domains.repository.GradeInfoRepository;
 import org.tat.gginl.api.domains.repository.GroupFarmerRepository;
@@ -72,7 +80,9 @@ import org.tat.gginl.api.domains.repository.RelationshipRepository;
 import org.tat.gginl.api.domains.repository.SaleManRepository;
 import org.tat.gginl.api.domains.repository.SalePointRepository;
 import org.tat.gginl.api.domains.repository.SchoolRepository;
+import org.tat.gginl.api.domains.repository.StateCodeRepository;
 import org.tat.gginl.api.domains.repository.TLFRepository;
+import org.tat.gginl.api.domains.repository.TownShipCodeRepository;
 import org.tat.gginl.api.domains.repository.TownshipRepository;
 import org.tat.gginl.api.dto.groupFarmerDTO.FarmerProposalDTO;
 import org.tat.gginl.api.dto.groupFarmerDTO.GroupFarmerProposalInsuredPersonBeneficiariesDTO;
@@ -147,6 +157,17 @@ public class LifeProposalService {
   @Autowired
   private SchoolRepository schoolRepository;
   
+  @Autowired
+  private StateCodeRepository stateCodeRepository ;
+
+  @Autowired
+  private BranchService branchService;
+  
+  @Autowired
+  private TownShipCodeRepository townShipCodeRepository;
+
+  @Autowired
+  private CountryRepository  countryRepository;
 
 
   @Value("${farmerProductId}")
@@ -1235,13 +1256,14 @@ public class LifeProposalService {
   public List<LifeProposal> convertStudentLifeProposalDTOToProposal(
       StudentLifeProposalDTO studentLifeProposalDTO) {
 
-    Optional<Branch> branchOptional = branchRepo.findById(studentLifeProposalDTO.getBranchId());
+    Optional<Branch> branchOptional = branchService.finById(studentLifeProposalDTO.getBranchId());
     Optional<Customer> referralOptional = customerRepo.findById(studentLifeProposalDTO.getReferralID());
     Optional<Customer> customerOptional = customerRepo.findById(studentLifeProposalDTO.getCustomerID());
     Optional<PaymentType> paymentTypeOptional = paymentTypeRepo.findById(studentLifeProposalDTO.getPaymentTypeId());
     Optional<Agent> agentOptional = agentRepo.findById(studentLifeProposalDTO.getAgentID());
     Optional<SaleMan> saleManOptional = saleManRepo.findById(studentLifeProposalDTO.getSaleManId());
     Optional<SalePoint> salePointOptional = salePointRepo.findById(studentLifeProposalDTO.getSalePointId());
+  
 
     List<LifeProposal> lifeProposalList = new ArrayList<>();
     studentLifeProposalDTO.getProposalInsuredPersonList().forEach(insuredPerson -> {
@@ -1264,7 +1286,13 @@ public class LifeProposalService {
           lifeProposal.setToBank(studentLifeProposalDTO.getToBank());
           lifeProposal.setFromBank(studentLifeProposalDTO.getFromBank());
         }
-       
+      
+      if(studentLifeProposalDTO.getCustomerID() ==null || studentLifeProposalDTO.getCustomerID().isEmpty()) {
+    	Customer customer  = createCustomer(studentLifeProposalDTO);
+    	lifeProposal.setCustomer(customer);
+      }else if (customerOptional.isPresent()) {
+        lifeProposal.setCustomer(customerOptional.get());
+      }
       lifeProposal.setComplete(true);
       lifeProposal.setProposalType(ProposalType.UNDERWRITING);
       lifeProposal.setSubmittedDate(studentLifeProposalDTO.getSubmittedDate());
@@ -1275,9 +1303,7 @@ public class LifeProposalService {
       if(referralOptional.isPresent()) {
     	  lifeProposal.setReferral(referralOptional.get());
       }
-      if (customerOptional.isPresent()) {
-    	  lifeProposal.setCustomer(customerOptional.get());
-        } 
+      
       if(agentOptional.isPresent()) {
           lifeProposal.setAgent(agentOptional.get());
       }
@@ -1325,6 +1351,84 @@ public class LifeProposalService {
     });
     return policyList;
   }
+  
+  private Customer createCustomer(StudentLifeProposalDTO studentLifeProposalDTO) {
+		 Customer customer =new Customer();
+	  try {
+	  
+  	  Optional<Township> townshipOptional = townshipRepo.findById(studentLifeProposalDTO.getResidentTownshipId());
+      Optional<Country> countryOptional = countryRepository.findById(studentLifeProposalDTO.getNationalityId());
+      Optional<Township> officeTownshipOptional = townshipRepo.findById(studentLifeProposalDTO.getOfficeTownshipId());
+      Optional<Occupation> occupationOptional =occupationRepo.findById(studentLifeProposalDTO.getOccupationId());
+
+	  customer.setInitialId(studentLifeProposalDTO.getSalutation());
+	  customer.getName().setFirstName(studentLifeProposalDTO.getFirstName());
+	  customer.getName().setMiddleName(studentLifeProposalDTO.getMiddleName());
+	  customer.getName().setLastName(studentLifeProposalDTO.getLastName());
+	  customer.setFatherName(studentLifeProposalDTO.getFatherName());
+	  customer.setIdType(IdType.valueOf(studentLifeProposalDTO.getIdType()));
+	  customer.setIdNo(studentLifeProposalDTO.getIdNo());
+	  customer.setFullIdNo(studentLifeProposalDTO.getIdNo());
+	  customer.setDateOfBirth(studentLifeProposalDTO.getDateOfBirth());
+	  customer.setGender(Gender.valueOf(studentLifeProposalDTO.getGender()));
+	  customer.getContentInfo().setMobile(studentLifeProposalDTO.getPhone());
+	  customer.getContentInfo().setPhone(studentLifeProposalDTO.getPhone());
+	  customer.getContentInfo().setEmail(studentLifeProposalDTO.getEmail());
+	  loadStateCodeAndTownShipCode(customer);
+	  customer.setMaritalStatus(MaritalStatus.valueOf(studentLifeProposalDTO.getMartialStatus()));
+	  if(occupationOptional.isPresent()) {
+		  customer.setOccupation(occupationOptional.get());
+	  }
+	  if(officeTownshipOptional.isPresent()) {
+		  customer.getOfficeAddress().setTownship(officeTownshipOptional.get());
+	  }
+	  	 customer.getOfficeAddress().setOfficeAddress(studentLifeProposalDTO.getOfficeAddress());
+	  if(countryOptional.isPresent()) {
+		  customer.setCountry(countryOptional.get());
+	  }
+	  if(townshipOptional.isPresent()) {
+		  customer.getResidentAddress().setResidentTownship(townshipOptional.get());
+	  }
+	  	customer.getResidentAddress().setResidentAddress(studentLifeProposalDTO.getResidentAddress());
+	  	customer.setPrefix("ISSYS001");
+	  	customer = customerRepo.save(customer);
+	  }catch (Exception e) {
+		// TODO: handle exception
+	  }
+	  return customer;
+    }
+  
+  public void loadStateCodeAndTownShipCode(Customer customer) {
+	  String provinceCode="";
+	  String townshipCode="";
+	  String idConditionType="";
+	  String idNo="";
+	  String fullIdNo="";
+		if (customer.getIdType().equals(IdType.NRCNO) && customer.getIdNo() != null) {
+			StringTokenizer token = new StringTokenizer(customer.getIdNo(), "/()");
+			provinceCode = token.nextToken();
+			townshipCode = token.nextToken();
+			idConditionType = token.nextToken();
+			idNo = token.nextToken();
+			fullIdNo = provinceCode == null ? "" : fullIdNo;
+		} else if (customer.getIdType().equals(IdType.FRCNO) || customer.getIdType().equals(IdType.PASSPORTNO)) {
+			idNo = fullIdNo == null ? "" : fullIdNo;
+		}
+		StateCode  stateCode =stateCodeRepository.findByCodeNo(provinceCode);
+		TownshipCode tcode=townShipCodeRepository.findByTownshipcodeno(townshipCode,stateCode.getId());
+		if(stateCode !=null) {
+			customer.setStateCode(stateCode);
+		}
+		if(townshipCode !=null) {
+			customer.setTownshipCode(tcode);
+		}
+		customer.setIdConditionType(IdConditionType.valueOf(idConditionType));
+	
+	}
+
+   
+    
+  
 
 
   private ProposalInsuredPerson createInsuredPersonForStudentLife(
