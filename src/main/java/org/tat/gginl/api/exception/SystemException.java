@@ -6,10 +6,16 @@ public class SystemException extends TransactionSystemException {
 	private static final long serialVersionUID = -4310366412683752065L;
 	private String errorCode;
 	private Object response;
+	private int statusCode;
 
 	public SystemException(String errorCode, String message) {
 		super(message);
 		this.errorCode = errorCode;
+	}
+	
+	public SystemException(int  errorCode, String message) {
+		super(message);
+		this.statusCode = errorCode;
 	}
 
 	public SystemException(String errorCode, String message, Throwable throwable) {
@@ -31,4 +37,9 @@ public class SystemException extends TransactionSystemException {
 	public Object getResponse() {
 		return response;
 	}
+
+	public int getStatusCode() {
+		return statusCode;
+	}
+	
 }

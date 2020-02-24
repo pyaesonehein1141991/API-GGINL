@@ -101,7 +101,7 @@ public class StudentLifeProposalDTO {
   @ApiModelProperty(position = 5, example = "ISSYS001000005575112092016")
   private String referralID;
 
-  @ApiModelProperty(position = 6, example = "ISSYS033000009784102042019")
+  @ApiModelProperty(position = 6, example = "ISSYS001000018029701042019")
   private String customerID;
 
   @ApiModelProperty(position = 7, example = "ISSYS0090001000000000429032013", required = true)

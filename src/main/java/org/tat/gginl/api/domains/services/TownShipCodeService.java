@@ -1,15 +1,16 @@
 package org.tat.gginl.api.domains.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.tat.gginl.api.domains.SalePoint;
 import org.tat.gginl.api.domains.TownshipCode;
 import org.tat.gginl.api.domains.repository.TownShipCodeRepository;
-import org.tat.gginl.api.domains.repository.TownshipRepository;
+import org.tat.gginl.api.exception.DAOException;
+import org.tat.gginl.api.exception.ErrorCode;
 
 @Service
 public class TownShipCodeService {
@@ -32,6 +33,19 @@ public class TownShipCodeService {
 		return repository.findAllColumnName();
 	}
 	
+	
+	@Transactional
+	public Optional<TownshipCode> findByTownshipcodeno(String townshipcodeno,String stateCodeId) {
+		if(townshipcodeno !=null || stateCodeId !=null ) {
+			if(repository.findByTownshipcodeno(townshipcodeno,stateCodeId).isEmpty()) {
+				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, townshipcodeno + "," +stateCodeId + " not found in TownShipCode");
+			}else {
+				return repository.findByTownshipcodeno(townshipcodeno,stateCodeId);
+			 }
+			} else {
+			 return Optional.empty();
+		 }
+	}
 	
 	
 

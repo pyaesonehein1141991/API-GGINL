@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.context.annotation.Bean;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -50,9 +51,13 @@ public class GlobalExceptionHandlerController {
   }
   
   
-  @ExceptionHandler(DAOException.class)
-  public void handleDAOException(HttpServletResponse res,DAOException e) throws IOException {
-	logger.error("DAOException :");
-    res.sendError(HttpStatus.NOT_FOUND.value(),e.getMessage());
+  @ExceptionHandler(SystemException.class)
+  public void handleDAOException(HttpServletResponse res,SystemException e) throws IOException {
+	logger.error("SystemException :");
+	if(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND.equals(e.getErrorCode())) {
+		  res.sendError(HttpStatus.NOT_FOUND.value(),e.getMessage());
+	  }else {
+		 res.sendError(HttpStatus.BAD_REQUEST.value(), "Something went wrong");
+	  }
   }
 }

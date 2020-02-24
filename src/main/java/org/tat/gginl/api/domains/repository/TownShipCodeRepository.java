@@ -1,6 +1,7 @@
 package org.tat.gginl.api.domains.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,5 +16,5 @@ public interface TownShipCodeRepository  extends JpaRepository<TownshipCode,Stri
 	List<Object> findAllColumnName();
 	
 	@Query("select t from TownshipCode  t where t.townshipcodeno =:townshipcodeno  and t.stateCode.id =:stateCodeid ")
-	public TownshipCode findByTownshipcodeno(@Param("townshipcodeno") String townshipcodeno ,@Param("stateCodeid") String stateCodeid);
+	public Optional<TownshipCode> findByTownshipcodeno(@Param("townshipcodeno") String townshipcodeno ,@Param("stateCodeid") String stateCodeid);
 }

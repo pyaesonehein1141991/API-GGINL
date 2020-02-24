@@ -2,7 +2,10 @@ package org.tat.gginl.api.controller.studentLifeController;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.validation.Valid;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.tat.gginl.api.domains.LifePolicy;
 import org.tat.gginl.api.domains.services.LifeProposalService;
 import org.tat.gginl.api.dto.ResponseDTO;
-import org.tat.gginl.api.dto.groupFarmerDTO.GroupFarmerResponseDTO;
 import org.tat.gginl.api.dto.studentLifeDTO.StudentLifeProposalDTO;
 import org.tat.gginl.api.dto.studentLifeDTO.StudentLifeReponseDTO;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -26,6 +29,10 @@ public class StudentLifeController {
 
   @Autowired
   private LifeProposalService lifeProposalService;
+  
+  @Autowired
+  private ModelMapper mapper;
+ 
 
   @PostMapping("/submitproposal")
   @ApiResponses(value = {@ApiResponse(code = 400, message = "Something went wrong"),
@@ -34,9 +41,10 @@ public class StudentLifeController {
   public ResponseDTO<Object> submitproposal(
       @Valid @RequestBody StudentLifeProposalDTO studentLifeProposalDTO) {
     List<LifePolicy> policyList = new ArrayList<>();
+    StudentLifeProposalDTO a = mapper.map(studentLifeProposalDTO, StudentLifeProposalDTO.class);
 
-    // create farmer proposal
-    policyList = lifeProposalService.createStudentLifeProposalToPolicy(studentLifeProposalDTO);
+// create farmer proposal
+    policyList = lifeProposalService.createStudentLifeProposalToPolicy(a);
 
     // create response object
     List<StudentLifeReponseDTO> responseList = new ArrayList<>();
