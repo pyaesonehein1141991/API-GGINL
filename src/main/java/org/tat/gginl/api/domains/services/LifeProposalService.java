@@ -1323,6 +1323,7 @@ public class LifeProposalService {
     Optional<Township> townshipOptional = townShipService.findById(dto.getTownshipId());
     Optional<GradeInfo> gradeOptional = gradeInfoService.findById(dto.getGradeInfo());
     Optional<School> school =schoolService.findById(dto.getSchoolId());
+    Optional<RelationShip> relationShip=relationshipService.findById(dto.getRelationshipId());
     CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
     recorder.setCreatedDate(new Date());
     ResidentAddress residentAddress = new ResidentAddress();
@@ -1338,6 +1339,9 @@ public class LifeProposalService {
     if(productOptional.isPresent()) {
     	insuredPerson.setProduct(productOptional.get());
     }
+    if(relationShip.isPresent()) {
+    	insuredPerson.setRelationship(relationShip.get());
+    }
     insuredPerson.setInitialId(dto.getInitialId());
     insuredPerson.setBpmsInsuredPersonId(dto.getBpmsInsuredPersonId());
     insuredPerson.setProposedSumInsured(dto.getProposedSumInsured());
@@ -1348,8 +1352,9 @@ public class LifeProposalService {
     insuredPerson.setIdType(IdType.valueOf(dto.getIdType()));
     insuredPerson.setIdNo(dto.getIdNo());
     insuredPerson.setClsOfHealth(ClassificationOfHealth.FIRSTCLASS);
-    insuredPerson.setParentName(dto.getFatherName());
+    insuredPerson.setParentName(dto.getMotherName());
     insuredPerson.setParentIdNo(dto.getMotherIdNo());
+    insuredPerson.setParentDOB(dto.getMotherDOB());
     insuredPerson.setParentIdType(IdType.valueOf(dto.getMotherIdType()));
     insuredPerson.setDateOfBirth(dto.getDateOfBirth());
     insuredPerson.setAge(DateUtils.getAgeForNextYear(dto.getDateOfBirth()));
