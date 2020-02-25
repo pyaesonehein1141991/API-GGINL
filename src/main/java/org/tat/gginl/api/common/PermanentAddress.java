@@ -15,7 +15,7 @@ public class PermanentAddress implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String permanentAddress;
 	@OneToOne
-	@JoinColumn(name = "PERMANENTTOWNSHIPID", referencedColumnName = "ID",insertable = false, updatable = false)
+	@JoinColumn(name = "PERMANENTTOWNSHIPID", referencedColumnName = "ID")
 	private Township township;
 
 	public PermanentAddress() {

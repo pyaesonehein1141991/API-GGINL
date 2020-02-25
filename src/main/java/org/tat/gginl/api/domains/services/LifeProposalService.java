@@ -1,6 +1,7 @@
 package org.tat.gginl.api.domains.services;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,7 @@ import org.tat.gginl.api.common.emumdata.IdType;
 import org.tat.gginl.api.common.emumdata.MaritalStatus;
 import org.tat.gginl.api.common.emumdata.PaymentChannel;
 import org.tat.gginl.api.common.emumdata.PolicyReferenceType;
+import org.tat.gginl.api.common.emumdata.PolicyStatus;
 import org.tat.gginl.api.common.emumdata.ProposalType;
 import org.tat.gginl.api.common.emumdata.Status;
 import org.tat.gginl.api.domains.Agent;
@@ -1166,7 +1168,6 @@ public class LifeProposalService {
         }
       
       lifeProposal.getProposalInsuredPersonList().add(createInsuredPersonForStudentLife(insuredPerson));
-     
       if(studentLifeProposalDTO.getCustomerID() ==null || studentLifeProposalDTO.getCustomerID().isEmpty()) {
     	Customer customer  = createCustomer(studentLifeProposalDTO);
     	lifeProposal.setCustomer(customer);
@@ -1197,7 +1198,9 @@ public class LifeProposalService {
       if(paymentTypeOptional.isPresent()) {
     	  lifeProposal.setPaymentType(paymentTypeOptional.get());
       }
-
+      CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
+      recorder.setCreatedDate(new Date());
+      lifeProposal.setRecorder(recorder);
       String proposalNo = customIdRepo.getNextId("STUDENT_LIFE_PROPOSAL_NO_ID_GEN", null);
       lifeProposal.setProposalNo(proposalNo);
       lifeProposal.setPrefix("ISLIF001");
@@ -1224,6 +1227,11 @@ public class LifeProposalService {
       policy.setActivedPolicyEndDate(policy.getPolicyInsuredPersonList().get(0).getEndDate());
       policy.setCommenmanceDate(proposal.getSubmittedDate());
       policy.setLastPaymentTerm(1);
+      Calendar cal = Calendar.getInstance();
+	  cal.setTime(policy.getPolicyInsuredPersonList().get(0).getEndDate());
+	  cal.add(Calendar.YEAR, -3);
+	  policy.setPaymentEndDate(cal.getTime());
+      policy.setPolicyStatus(PolicyStatus.INFORCE);
       CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
       recorder.setCreatedDate(new Date());
       policy.setRecorder(recorder);
@@ -1266,8 +1274,10 @@ public class LifeProposalService {
 	  }
 	  if(townshipOptional.isPresent()) {
 		  customer.getResidentAddress().setResidentTownship(townshipOptional.get());
+		  customer.getPermanentAddress().setTownship(townshipOptional.get());
 	  }
 	  	customer.getResidentAddress().setResidentAddress(studentLifeProposalDTO.getResidentAddress());
+	  	customer.getPermanentAddress().setPermanentAddress(studentLifeProposalDTO.getResidentAddress());
 	  	customer.setPrefix("ISSYS001");
 	  	customer = customerRepo.save(customer);
 		return customer;
