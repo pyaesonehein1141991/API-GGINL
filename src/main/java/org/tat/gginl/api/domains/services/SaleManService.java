@@ -14,35 +14,36 @@ import org.tat.gginl.api.exception.ErrorCode;
 
 @Service
 public class SaleManService {
-	
+
 	@Autowired
 	private SaleManRepository saleManRepository;
-	
-	public List<SaleMan> findAll(){
+
+	public List<SaleMan> findAll() {
 		return saleManRepository.findAll();
 	}
-	
-	public List<Object[]> findAllNativeObject(){
+
+	public List<Object[]> findAllNativeObject() {
 		return saleManRepository.findAllNativeObject();
 	}
-	
-	public List<Object> findAllColumnName(){
+
+	public List<Object> findAllColumnName() {
 		return saleManRepository.findAllColumnName();
 	}
-	
+
 	@Transactional
-	public Optional<SaleMan>  findById(String id) throws DAOException {
-		if(!StringUtils.isBlank(id)) {
-		if(saleManRepository.findById(id).isEmpty()) {
-			throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in SaleMan");
-		}else {
-			return saleManRepository.findById(id);
-		 }
-		} else {
-		 return Optional.empty();
-	 }
-	
+	public Optional<SaleMan> findById(String id) throws DAOException {
+		if (!StringUtils.isBlank(id)) {
+			if (saleManRepository.findById(id).isPresent()) {
+				return saleManRepository.findById(id);
+			}
+			else {
+				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in SaleMan");
+			}
 		}
-	
+		else {
+			return Optional.empty();
+		}
+
+	}
 
 }

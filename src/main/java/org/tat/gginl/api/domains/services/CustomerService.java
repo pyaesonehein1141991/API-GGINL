@@ -18,33 +18,28 @@ public class CustomerService {
 	@Autowired
 	private CustomerRepository customerRepository;
 
-	
-	public List<Object[]> findAllNativeObject(Date createdDate,
-			Date updatedDate){
-		return customerRepository.findAllNativeObject(createdDate, updatedDate,
-				createdDate, updatedDate);
+	public List<Object[]> findAllNativeObject(Date createdDate, Date updatedDate) {
+		return customerRepository.findAllNativeObject(createdDate, updatedDate, createdDate, updatedDate);
 	}
-	
-	public List<Object> findAllColumnName(){
+
+	public List<Object> findAllColumnName() {
 		return customerRepository.findAllColumnName();
 	}
-	
-	
 
 	@Transactional
-	public Optional<Customer>  findById(String id) throws DAOException {
-		if(!StringUtils.isBlank(id)) {
-		if(customerRepository.findById(id).isEmpty()) {
-			throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in Customer");
-		}else {
-			return customerRepository.findById(id);
-		 }
-		} else {
-		 return Optional.empty();
-	 }
-	
+	public Optional<Customer> findById(String id) throws DAOException {
+		if (!StringUtils.isBlank(id)) {
+			if (customerRepository.findById(id).isPresent()) {
+				return customerRepository.findById(id);
+			}
+			else {
+				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in Customer");
+			}
 		}
-	
+		else {
+			return Optional.empty();
+		}
+
+	}
+
 }
-
-

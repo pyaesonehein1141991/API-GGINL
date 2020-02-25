@@ -14,33 +14,35 @@ import org.tat.gginl.api.exception.ErrorCode;
 
 @Service
 public class OrganizationService {
-	
+
 	@Autowired
 	private OrganizationRepository organizationRepository;
-	
-	public List<Organization> findAll(){
+
+	public List<Organization> findAll() {
 		return organizationRepository.findAll();
 	}
-	
-	public List<Object[]> findAllNativeObject(){
+
+	public List<Object[]> findAllNativeObject() {
 		return organizationRepository.findAllNativeObject();
 	}
-	
-	public List<Object> findAllColumnName(){
+
+	public List<Object> findAllColumnName() {
 		return organizationRepository.findAllColumnName();
 	}
-	
+
 	@Transactional
-	public Optional<Organization>  findById(String id) throws DAOException {
-		if(!StringUtils.isBlank(id)) {
-		if(organizationRepository.findById(id).isEmpty()) {
-			throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in Organization");
-		}else {
-			return organizationRepository.findById(id);
-		 }
-		} else {
-		 return Optional.empty();
-	 }
-	
+	public Optional<Organization> findById(String id) throws DAOException {
+		if (!StringUtils.isBlank(id)) {
+			if (organizationRepository.findById(id).isPresent()) {
+				return organizationRepository.findById(id);
+			}
+			else {
+				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in Organization");
+			}
 		}
+		else {
+			return Optional.empty();
+		}
+
+	}
 }

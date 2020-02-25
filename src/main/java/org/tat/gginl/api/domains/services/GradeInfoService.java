@@ -14,35 +14,36 @@ import org.tat.gginl.api.exception.ErrorCode;
 
 @Service
 public class GradeInfoService {
-	
+
 	@Autowired
 	private GradeInfoRepository gradeInfoRepository;
-	
-	public List<GradeInfo> findAll(){
+
+	public List<GradeInfo> findAll() {
 		return gradeInfoRepository.findAll();
 	}
-	
-	public List<Object[]> findAllNativeObject(){
+
+	public List<Object[]> findAllNativeObject() {
 		return gradeInfoRepository.findAllNativeObject();
 	}
-	
-	public List<Object> findAllColumnName(){
+
+	public List<Object> findAllColumnName() {
 		return gradeInfoRepository.findAllColumnName();
 	}
-	
-	
+
 	@Transactional
-	public Optional<GradeInfo>  findById(String id) throws DAOException {
-		if(!StringUtils.isBlank(id)) {
-		if(gradeInfoRepository.findById(id).isEmpty()) {
-			throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in GradeInfo");
-		}else {
-			return gradeInfoRepository.findById(id);
-		 }
-		} else {
-		 return Optional.empty();
-	 }
-	
+	public Optional<GradeInfo> findById(String id) throws DAOException {
+		if (!StringUtils.isBlank(id)) {
+			if (gradeInfoRepository.findById(id).isPresent()) {
+				return gradeInfoRepository.findById(id);
+			}
+			else {
+				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in GradeInfo");
+			}
 		}
+		else {
+			return Optional.empty();
+		}
+
+	}
 
 }

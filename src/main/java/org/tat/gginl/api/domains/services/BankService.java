@@ -14,34 +14,36 @@ import org.tat.gginl.api.exception.ErrorCode;
 
 @Service
 public class BankService {
-	
+
 	@Autowired
 	private BankRepository bankRepository;
-	
-	public List<Bank> findAll(){
+
+	public List<Bank> findAll() {
 		return bankRepository.findAll();
 	}
-	
-	public List<Object[]> findAllNativeObject(){
+
+	public List<Object[]> findAllNativeObject() {
 		return bankRepository.findAllNativeObject();
 	}
-	
-	public List<Object> findAllColumnName(){
+
+	public List<Object> findAllColumnName() {
 		return bankRepository.findAllColumnName();
 	}
-	
+
 	@Transactional
-	public Optional<Bank>  findById(String id) throws DAOException {
-		if(!StringUtils.isBlank(id)) {
-		if(bankRepository.findById(id).isEmpty()) {
-			throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in bank");
-		}else {
-			return bankRepository.findById(id);
-		 }
-		} else {
-		 return Optional.empty();
-	 }
-	
+	public Optional<Bank> findById(String id) throws DAOException {
+		if (!StringUtils.isBlank(id)) {
+			if (bankRepository.findById(id).isPresent()) {
+				return bankRepository.findById(id);
+			}
+			else {
+				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in bank");
+			}
 		}
+		else {
+			return Optional.empty();
+		}
+
+	}
 
 }

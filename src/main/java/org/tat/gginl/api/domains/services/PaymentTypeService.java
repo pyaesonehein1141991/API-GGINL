@@ -14,36 +14,36 @@ import org.tat.gginl.api.exception.ErrorCode;
 
 @Service
 public class PaymentTypeService {
-  
+
 	@Autowired
 	private PaymentTypeRepository paymentTypeRepository;
-	
-	
-	public List<PaymentType> findAll(){
+
+	public List<PaymentType> findAll() {
 		return paymentTypeRepository.findAll();
 	}
-	
-	public List<Object[]> findAllNativeObject(){
+
+	public List<Object[]> findAllNativeObject() {
 		return paymentTypeRepository.findAllNativeObject();
 	}
-	
-	public List<Object> findAllColumnName(){
+
+	public List<Object> findAllColumnName() {
 		return paymentTypeRepository.findAllColumnName();
 	}
-	
-	
+
 	@Transactional
-	public Optional<PaymentType>  findById(String id) throws DAOException {
-		if(!StringUtils.isBlank(id)) {
-		if(paymentTypeRepository.findById(id).isEmpty()) {
-			throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in PamentType");
-		}else {
-			return paymentTypeRepository.findById(id);
-		 }
-		} else {
-		 return Optional.empty();
-	 }
-	
+	public Optional<PaymentType> findById(String id) throws DAOException {
+		if (!StringUtils.isBlank(id)) {
+			if (paymentTypeRepository.findById(id).isPresent()) {
+				return paymentTypeRepository.findById(id);
+			}
+			else {
+				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in PamentType");
+			}
 		}
-	
+		else {
+			return Optional.empty();
+		}
+
+	}
+
 }

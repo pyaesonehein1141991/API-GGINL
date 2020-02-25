@@ -14,35 +14,35 @@ import org.tat.gginl.api.exception.ErrorCode;
 
 @Service
 public class CountryService {
-	
+
 	@Autowired
 	private CountryRepository countryRepository;
-	
 
-	
-	public List<Country> findAll(){
+	public List<Country> findAll() {
 		return countryRepository.findAll();
 	}
-	
-	public List<Object[]> findAllNativeObject(){
+
+	public List<Object[]> findAllNativeObject() {
 		return countryRepository.findAllNativeObject();
 	}
-	
-	public List<Object> findAllColumnName(){
+
+	public List<Object> findAllColumnName() {
 		return countryRepository.findAllColumnName();
 	}
-	
+
 	@Transactional
-	public Optional<Country>  findById(String id) throws DAOException {
-		if(!StringUtils.isBlank(id)) {
-		if(countryRepository.findById(id).isEmpty()) {
-			throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in Country");
-		}else {
-			return countryRepository.findById(id);
-		 }
-		} else {
-		 return Optional.empty();
-	 }
-	
+	public Optional<Country> findById(String id) throws DAOException {
+		if (!StringUtils.isBlank(id)) {
+			if (countryRepository.findById(id).isPresent()) {
+				return countryRepository.findById(id);
+			}
+			else {
+				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in Country");
+			}
 		}
+		else {
+			return Optional.empty();
+		}
+
 	}
+}

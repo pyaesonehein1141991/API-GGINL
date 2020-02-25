@@ -14,39 +14,38 @@ import org.tat.gginl.api.exception.ErrorCode;
 
 @Service
 public class TownShipCodeService {
-	
+
 	@Autowired
 	private TownShipCodeRepository repository;
-	
-	
+
 	@Transactional
 	public List<TownshipCode> findAll() {
 		return repository.findAll();
 	}
-	
-	
-	public List<Object[]> findAllNativeObject(){
+
+	public List<Object[]> findAllNativeObject() {
 		return repository.findAllNativeObject();
 	}
-	
-	public List<Object> findAllColumnName(){
+
+	public List<Object> findAllColumnName() {
 		return repository.findAllColumnName();
 	}
-	
-	
+
 	@Transactional
-	public Optional<TownshipCode> findByTownshipcodeno(String townshipcodeno,String stateCodeId) {
-		if(townshipcodeno !=null || stateCodeId !=null ) {
-			if(repository.findByTownshipcodeno(townshipcodeno,stateCodeId).isEmpty()) {
-				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, townshipcodeno + "," +stateCodeId + " not found in TownShipCode");
-			}else {
-				return repository.findByTownshipcodeno(townshipcodeno,stateCodeId);
-			 }
-			} else {
-			 return Optional.empty();
-		 }
+	public Optional<TownshipCode> findByTownshipcodeno(String townshipcodeno, String stateCodeId) {
+		if (townshipcodeno != null || stateCodeId != null) {
+			if (repository.findByTownshipcodeno(townshipcodeno, stateCodeId).isPresent()) {
+				return repository.findByTownshipcodeno(townshipcodeno, stateCodeId);
+			}
+			else {
+				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND,
+						townshipcodeno + "," + stateCodeId + " not found in TownShipCode");
+			}
+
+		}
+		else {
+			return Optional.empty();
+		}
 	}
-	
-	
 
 }
