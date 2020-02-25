@@ -54,9 +54,8 @@ public class StudentLifeController {
           .bpmsInsuredPersonId(policy.getPolicyInsuredPersonList().get(0).getBpmsInsuredPersonId())
           .proposalNo(policy.getLifeProposal().getProposalNo())
           .policyNo(policy.getPolicyNo())
-          .customerId(policy.getPolicyInsuredPersonList().get(0).isNewCustomer()?policy.getPolicyInsuredPersonList().get(0).getCustomer().getId():null)
+          .customerId(policy.getPolicyInsuredPersonList().get(0).isNewCustomer()?policy.getCustomer().getId():null)
           .build();
-
       responseList.add(dto);
     });
     

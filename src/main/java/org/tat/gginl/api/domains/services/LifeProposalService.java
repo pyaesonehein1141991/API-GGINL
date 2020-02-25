@@ -183,8 +183,7 @@ public class LifeProposalService {
       // create lifepolicy and return policynoList
       policyList = lifePolicyRepo.saveAll(policyList);
 
-      List<Payment> paymentList =
-          convertGroupFarmerToPayment(groupFarmerProposal, groupFarmerProposalDTO);
+      List<Payment> paymentList = convertGroupFarmerToPayment(groupFarmerProposal, groupFarmerProposalDTO);
       paymentRepository.saveAll(paymentList);
 
       if (null != groupFarmerProposalDTO.getAgentID()) {
@@ -1166,9 +1165,12 @@ public class LifeProposalService {
           lifeProposal.setFromBank(studentLifeProposalDTO.getFromBank());
         }
       
+      lifeProposal.getProposalInsuredPersonList().add(createInsuredPersonForStudentLife(insuredPerson));
+     
       if(studentLifeProposalDTO.getCustomerID() ==null || studentLifeProposalDTO.getCustomerID().isEmpty()) {
     	Customer customer  = createCustomer(studentLifeProposalDTO);
     	lifeProposal.setCustomer(customer);
+    	lifeProposal.getProposalInsuredPersonList().get(0).setNewCustomer(true);
       }else if (customerOptional.isPresent()) {
         lifeProposal.setCustomer(customerOptional.get());
       }
@@ -1195,7 +1197,7 @@ public class LifeProposalService {
       if(paymentTypeOptional.isPresent()) {
     	  lifeProposal.setPaymentType(paymentTypeOptional.get());
       }
-      lifeProposal.getProposalInsuredPersonList().add(createInsuredPersonForStudentLife(insuredPerson));
+
       String proposalNo = customIdRepo.getNextId("STUDENT_LIFE_PROPOSAL_NO_ID_GEN", null);
       lifeProposal.setProposalNo(proposalNo);
       lifeProposal.setPrefix("ISLIF001");
