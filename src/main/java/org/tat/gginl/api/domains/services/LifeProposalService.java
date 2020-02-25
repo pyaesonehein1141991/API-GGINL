@@ -1154,6 +1154,7 @@ public class LifeProposalService {
           lifeProposal.setPaymentChannel(PaymentChannel.TRANSFER);
           lifeProposal.setToBank(studentLifeProposalDTO.getToBank());
           lifeProposal.setFromBank(studentLifeProposalDTO.getFromBank());
+          lifeProposal.setChequeNo(studentLifeProposalDTO.getChequeNo());
         } else if (studentLifeProposalDTO.getPaymentChannel().equalsIgnoreCase("CSH")) {
           lifeProposal.setPaymentChannel(PaymentChannel.CASHED);
         } else if (studentLifeProposalDTO.getPaymentChannel().equalsIgnoreCase("CHQ")) {
@@ -1223,6 +1224,7 @@ public class LifeProposalService {
       policy.setFromBank(proposal.getFromBank());
       policy.setToBank(proposal.getToBank());
       policy.setChequeNo(proposal.getChequeNo());
+   
       policy.setActivedPolicyStartDate(policy.getPolicyInsuredPersonList().get(0).getStartDate());
       policy.setActivedPolicyEndDate(policy.getPolicyInsuredPersonList().get(0).getEndDate());
       policy.setCommenmanceDate(proposal.getSubmittedDate());
