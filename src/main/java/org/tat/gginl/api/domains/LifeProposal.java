@@ -41,8 +41,6 @@ import org.tat.gginl.api.common.emumdata.ProposalStatus;
 import org.tat.gginl.api.common.emumdata.ProposalType;
 import org.tat.gginl.api.common.emumdata.UserType;
 
-
-
 @Entity
 @Table(name = TableName.LIFEPROPOSAL)
 @TableGenerator(name = "LIFEPROPOSAL_GEN", table = "ID_GEN", pkColumnName = "GEN_NAME", valueColumnName = "GEN_VAL", pkColumnValue = "LIFEPROPOSAL_GEN", allocationSize = 10)
@@ -132,26 +130,25 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
 
 	@Transient
 	private String tempId;
-	
+
 	@Transient
 	private PaymentChannel paymentChannel;
-	
+
 	@Transient
 	private String fromBank;
-	
+
 	@Transient
 	private String toBank;
-	
+
 	@Transient
 	private String chequeNo;
-	
 
 	@Version
 	private int version;
 
 	@Embedded
 	private CommonCreateAndUpateMarks recorder;
-	
+
 	public LifeProposal() {
 		tempId = System.nanoTime() + "";
 	}
@@ -296,7 +293,7 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
 		if (this.proposalInsuredPersonList == null) {
 			proposalInsuredPersonList = new ArrayList<ProposalInsuredPerson>();
 		}
-	//	proposalInsuredPerson.setLifeProposal(this);
+		// proposalInsuredPerson.setLifeProposal(this);
 		this.proposalInsuredPersonList.add(proposalInsuredPerson);
 	}
 
@@ -678,7 +675,6 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
 		this.groupFarmerProposal = groupFarmerProposal;
 	}
 
-	
 	public CommonCreateAndUpateMarks getRecorder() {
 		return recorder;
 	}
@@ -855,8 +851,4 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
 	public void setChequeNo(String chequeNo) {
 		this.chequeNo = chequeNo;
 	}
-
-	
-	
-
 }

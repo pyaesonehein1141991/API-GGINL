@@ -23,7 +23,9 @@ server:
 farmerProductId: ISPRD003001000009376125072017
 
 studentLifeProductId: ISPRD003000009607306082019
-shorttermendowmentLifeProductId: ISPRD003001000009575103082018       
+shorttermendowmentLifeProductId: ISPRD003001000009575103082018
+groupLifeProductId: ISPRD0030001000000002431032013      
+       
 
 fileDir: D
 

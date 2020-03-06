@@ -17,7 +17,6 @@ import lombok.Data;
 @Data
 public class GroupFarmerProposalDTO {
 
-
 	@ApiModelProperty(position = 0, example = "2019-12-16", required = true)
 	@NotNull(message = "SubmittedDate is mandatory")
 	@JsonDeserialize(using = DateHandler.class)
@@ -32,7 +31,6 @@ public class GroupFarmerProposalDTO {
 	@NotNull(message = "No of Insuredperson is mandatory")
 	private int noOfInsuredPerson;
 
-
 	@ApiModelProperty(position = 3, example = "1", required = true)
 	@NotNull(message = "Total SI is mandatory")
 	private double totalSI;
@@ -41,7 +39,7 @@ public class GroupFarmerProposalDTO {
 	@NotBlank(message = "Branch is mandatory")
 	private String branchId;
 
-	@ApiModelProperty(position = 5, example = "ISSYS002000009755110052019", required = true)
+	@ApiModelProperty(position = 5, example = "ISSYS002000009756317052019", required = true)
 	@NotBlank(message = "agentID is mandatory")
 	private String agentId;
 
@@ -55,17 +53,13 @@ public class GroupFarmerProposalDTO {
 	@NotBlank(message = "Organization Id is mandatory")
 	private String organizationId;
 
-
 	@ApiModelProperty(position = 10, example = "11", required = true)
 	@NotBlank(message = "salePointId is mandatory")
 	private String salePointId;
-	
+
 	@Valid
 	@ApiModelProperty(position = 11, required = true)
 	@NotNull(message = "FarmerProposal is mandatory")
 	private List<FarmerProposalDTO> farmerProposalDTO;
 
-
-	
-	
 }
