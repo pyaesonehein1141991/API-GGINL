@@ -18,53 +18,51 @@ import org.tat.gginl.api.dto.studentLifeDTO.StudentLifeProposalDTO;
 import org.tat.gginl.api.dto.studentLifeDTO.StudentLifeReponseDTO;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-
 @RestController
-@RequestMapping("/studnetlife")
+@RequestMapping("/studentlife")
 @Api(tags = "StudnetLife Proposal")
 public class StudentLifeController {
 
-  @Autowired
-  private LifeProposalService lifeProposalService;
-  
-  @Autowired
-  private ModelMapper mapper;
- 
+	@Autowired
+	private LifeProposalService lifeProposalService;
 
-  @PostMapping("/submitproposal")
-  @ApiResponses(value = {@ApiResponse(code = 400, message = "Something went wrong"),
-      @ApiResponse(code = 403, message = "Access denied"),
-      @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
-  public ResponseDTO<Object> submitproposal(
-      @Valid @RequestBody StudentLifeProposalDTO studentLifeProposalDTO) {
-    List<LifePolicy> policyList = new ArrayList<>();
-    StudentLifeProposalDTO a = mapper.map(studentLifeProposalDTO, StudentLifeProposalDTO.class);
+	@Autowired
+	private ModelMapper mapper;
+
+	@PostMapping("/submitproposal")
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Something went wrong"),
+			@ApiResponse(code = 403, message = "Access denied"),
+			@ApiResponse(code = 500, message = "Expired or invalid JWT token") })
+	@ApiOperation(value = "${StudentLifeController.submitProposal}")
+	public ResponseDTO<Object> submitproposal(@Valid @RequestBody StudentLifeProposalDTO studentLifeProposalDTO) {
+		List<LifePolicy> policyList = new ArrayList<>();
+		StudentLifeProposalDTO a = mapper.map(studentLifeProposalDTO, StudentLifeProposalDTO.class);
 
 // create farmer proposal
-    policyList = lifeProposalService.createStudentLifeProposalToPolicy(a);
+		policyList = lifeProposalService.createStudentLifeProposalToPolicy(a);
 
-    // create response object
-    List<StudentLifeReponseDTO> responseList = new ArrayList<>();
+		// create response object
+		List<StudentLifeReponseDTO> responseList = new ArrayList<>();
 
-    policyList.forEach(policy -> {
-      StudentLifeReponseDTO dto = StudentLifeReponseDTO.builder()
-          .bpmsInsuredPersonId(policy.getPolicyInsuredPersonList().get(0).getBpmsInsuredPersonId())
-          .proposalNo(policy.getLifeProposal().getProposalNo())
-          .policyNo(policy.getPolicyNo())
-          .customerId(policy.getPolicyInsuredPersonList().get(0).isNewCustomer()?policy.getCustomer().getId():null)
-          .build();
-      responseList.add(dto);
-    });
-    
-    
+		policyList.forEach(policy -> {
+			StudentLifeReponseDTO dto = StudentLifeReponseDTO.builder()
+					.bpmsInsuredPersonId(policy.getPolicyInsuredPersonList().get(0).getBpmsInsuredPersonId())
+					.proposalNo(policy.getLifeProposal().getProposalNo()).policyNo(policy.getPolicyNo())
+					.customerId(
+							policy.getPolicyInsuredPersonList().get(0).isNewCustomer() ? policy.getCustomer().getId()
+									: null)
+					.build();
+			responseList.add(dto);
+		});
 
-    ResponseDTO<Object> responseDTO =
-        ResponseDTO.builder().responseStatus("Success!").responseBody(responseList).build();
+		ResponseDTO<Object> responseDTO = ResponseDTO.builder().responseStatus("Success!").responseBody(responseList)
+				.build();
 
-    return responseDTO;
-  }
+		return responseDTO;
+	}
 
 }
