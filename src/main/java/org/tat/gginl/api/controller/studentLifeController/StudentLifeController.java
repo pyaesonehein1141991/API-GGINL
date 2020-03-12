@@ -19,6 +19,7 @@ import org.tat.gginl.api.dto.studentLifeDTO.StudentLifeReponseDTO;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
@@ -38,7 +39,8 @@ public class StudentLifeController {
 			@ApiResponse(code = 403, message = "Access denied"),
 			@ApiResponse(code = 500, message = "Expired or invalid JWT token") })
 	@ApiOperation(value = "${StudentLifeController.submitProposal}")
-	public ResponseDTO<Object> submitproposal(@Valid @RequestBody StudentLifeProposalDTO studentLifeProposalDTO) {
+	public ResponseDTO<Object> submitproposal(
+			@ApiParam("Submit Studentlife Proposal") @Valid @RequestBody StudentLifeProposalDTO studentLifeProposalDTO) {
 		List<LifePolicy> policyList = new ArrayList<>();
 		StudentLifeProposalDTO a = mapper.map(studentLifeProposalDTO, StudentLifeProposalDTO.class);
 
