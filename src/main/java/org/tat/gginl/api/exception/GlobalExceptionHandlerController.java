@@ -56,7 +56,10 @@ public class GlobalExceptionHandlerController {
 	logger.error("SystemException :");
 	if(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND.equals(e.getErrorCode())) {
 		  res.sendError(HttpStatus.NOT_FOUND.value(),e.getMessage());
-	  }else {
+	  }else if(ErrorCode.NRC_FORMAT_NOT_MATCH.equals(e.getErrorCode())){
+		  res.sendError(HttpStatus.BAD_REQUEST.value(),e.getMessage());
+	  }
+	else {
 		 res.sendError(HttpStatus.BAD_REQUEST.value(), "Something went wrong");
 	  }
   }

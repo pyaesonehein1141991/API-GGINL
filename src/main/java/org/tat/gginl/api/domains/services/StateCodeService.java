@@ -34,15 +34,14 @@ public class StateCodeService {
 	}
 
 	@Transactional
-	public Optional<StateCode> findByCodeNo(String townshipcodeno) {
-		if (townshipcodeno != null) {
-			if (stateCodeRepository.findByCodeNo(townshipcodeno).isPresent()) {
+	public Optional<StateCode> findByCodeNo(String statCode) {
+		if (statCode != null) {
+			if (stateCodeRepository.findByCodeNo(statCode).isPresent()) {
 
-				return stateCodeRepository.findByCodeNo(townshipcodeno);
+				return stateCodeRepository.findByCodeNo(statCode);
 			}
 			else {
-				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND,
-						townshipcodeno + " not found in StateCode");
+				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND,"State Code" + statCode + " not found in StateCode");
 			}
 		}
 		else {

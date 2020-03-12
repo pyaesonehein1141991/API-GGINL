@@ -42,7 +42,7 @@ public class StudentLifeController {
 		List<LifePolicy> policyList = new ArrayList<>();
 		StudentLifeProposalDTO a = mapper.map(studentLifeProposalDTO, StudentLifeProposalDTO.class);
 
-// create farmer proposal
+		// create farmer proposal
 		policyList = lifeProposalService.createStudentLifeProposalToPolicy(a);
 
 		// create response object
