@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +76,7 @@ import org.tat.gginl.api.dto.groupFarmerDTO.GroupFarmerProposalInsuredPersonDTO;
 import org.tat.gginl.api.dto.studentLifeDTO.StudentLifeProposalDTO;
 import org.tat.gginl.api.dto.studentLifeDTO.StudentLifeProposalInsuredPersonDTO;
 import org.tat.gginl.api.exception.DAOException;
+import org.tat.gginl.api.exception.ErrorCode;
 import org.tat.gginl.api.exception.SystemException;
 
 @Service
@@ -1155,7 +1157,7 @@ public class LifeProposalService {
           lifeProposal.setToBank(studentLifeProposalDTO.getToBank());
           lifeProposal.setFromBank(studentLifeProposalDTO.getFromBank());
           lifeProposal.setChequeNo(studentLifeProposalDTO.getChequeNo());
-        } else if (studentLifeProposalDTO.getPaymentChannel().equalsIgnoreCase("CSH")) {
+      } else if (studentLifeProposalDTO.getPaymentChannel().equalsIgnoreCase("CSH")) {
           lifeProposal.setPaymentChannel(PaymentChannel.CASHED);
         } else if (studentLifeProposalDTO.getPaymentChannel().equalsIgnoreCase("CHQ")) {
           lifeProposal.setPaymentChannel(PaymentChannel.CHEQUE);
@@ -1224,7 +1226,6 @@ public class LifeProposalService {
       policy.setFromBank(proposal.getFromBank());
       policy.setToBank(proposal.getToBank());
       policy.setChequeNo(proposal.getChequeNo());
-   
       policy.setActivedPolicyStartDate(policy.getPolicyInsuredPersonList().get(0).getStartDate());
       policy.setActivedPolicyEndDate(policy.getPolicyInsuredPersonList().get(0).getEndDate());
       policy.setCommenmanceDate(proposal.getSubmittedDate());
@@ -1293,30 +1294,41 @@ public class LifeProposalService {
 	  String idConditionType="";
 	  String idNo="";
 	  String fullIdNo="";
+		Optional <StateCode>  stateCode=Optional.empty();
+		Optional<TownshipCode> tcode=Optional.empty();
 	  try {
-		if (customer.getIdType().equals(IdType.NRCNO) && customer.getIdNo() != null) {
+		
+		if (customer.getIdType().equals(IdType.NRCNO) && customer.getIdNo() != null  ) {
+			Pattern pattern=Pattern.compile("[0-9]{1,2}/[aA-aZ]*\\([aA-zZ]{1}\\)[0-9]{6}");
+			if(pattern.matcher(customer.getIdNo()).matches()) {
 			StringTokenizer token = new StringTokenizer(customer.getIdNo(), "/()");
 			provinceCode = token.nextToken();
 			townshipCode = token.nextToken();
 			idConditionType = token.nextToken();
 			idNo = token.nextToken();
 			fullIdNo = provinceCode == null ? "" : fullIdNo;
+			stateCode = stateCodeService.findByCodeNo(provinceCode);
+			tcode = townShipCodeService.findByTownshipcodeno(townshipCode,stateCode.get().getId());
+			customer.setIdConditionType(IdConditionType.valueOf(idConditionType));
+			}else {
+				throw new SystemException(ErrorCode.NRC_FORMAT_NOT_MATCH," NRC format (" + customer.getIdNo() + ") is invalid ");
+			 }
 		} else if (customer.getIdType().equals(IdType.FRCNO) || customer.getIdType().equals(IdType.PASSPORTNO)) {
 			idNo = fullIdNo == null ? "" : fullIdNo;
 		}
-		Optional <StateCode>  stateCode =stateCodeService.findByCodeNo(provinceCode);
-		Optional<TownshipCode> tcode=townShipCodeService.findByTownshipcodeno(townshipCode,stateCode.get().getId());
+	
 		if(stateCode.isPresent()) {
 			customer.setStateCode(stateCode.get());
 		 }
 		if(tcode.isPresent()) {
 			customer.setTownshipCode(tcode.get());
 		}
-		customer.setIdConditionType(IdConditionType.valueOf(idConditionType));
+		
 	  }catch(DAOException e) {
 		  throw new SystemException(e.getErrorCode(), e.getMessage());
 	  }
 	}
+  
 
 
   private ProposalInsuredPerson createInsuredPersonForStudentLife(StudentLifeProposalInsuredPersonDTO dto) {
@@ -1351,13 +1363,18 @@ public class LifeProposalService {
     insuredPerson.setApprovedSumInsured(dto.getApprovedSumInsured());
     insuredPerson.setApprovedPremium(dto.getApprovedPremium());
     insuredPerson.setBasicTermPremium(dto.getBasicTermPremium());
+    if(validInsuredPersonIdNo(dto.getIdNo(),dto.getIdType())) {
     insuredPerson.setIdType(IdType.valueOf(dto.getIdType()));
     insuredPerson.setIdNo(dto.getIdNo());
+    }
     insuredPerson.setClsOfHealth(ClassificationOfHealth.FIRSTCLASS);
     insuredPerson.setParentName(dto.getMotherName());
-    insuredPerson.setParentIdNo(dto.getMotherIdNo());
     insuredPerson.setParentDOB(dto.getMotherDOB());
+ 
+    if(validInsuredPersonIdNo(dto.getMotherIdNo(),dto.getMotherIdType())){
+    insuredPerson.setParentIdNo(dto.getMotherIdNo());
     insuredPerson.setParentIdType(IdType.valueOf(dto.getMotherIdType()));
+    }
     insuredPerson.setDateOfBirth(dto.getDateOfBirth());
     insuredPerson.setAge(DateUtils.getAgeForNextYear(dto.getDateOfBirth()));
     insuredPerson.setRecorder(recorder);
@@ -1386,6 +1403,41 @@ public class LifeProposalService {
 		throw new SystemException(e.getErrorCode(),e.getMessage());
 	}
   }
+  
+  public boolean validInsuredPersonIdNo(String idNo,String idType) {
+	  String provinceCode="";
+	  String townshipCode="";
+	  String fullIdNo="";
+	  boolean valid=true;
+		Optional <StateCode>  stateCode=Optional.empty();
+		Optional<TownshipCode> tcode=Optional.empty();
+	  try {
+		
+		if (IdType.valueOf(idType).equals(IdType.NRCNO) && idNo != null  ) {
+			Pattern pattern=Pattern.compile("[0-9]{1,2}/[aA-aZ]*\\([aA-zZ]{1}\\)[0-9]{6}");
+			if(pattern.matcher(idNo).matches()) {
+			StringTokenizer token = new StringTokenizer(idNo, "/()");
+			provinceCode = token.nextToken();
+			townshipCode = token.nextToken();
+			idNo = token.nextToken();
+			fullIdNo = provinceCode == null ? "" : fullIdNo;
+			stateCode = stateCodeService.findByCodeNo(provinceCode);
+			tcode = townShipCodeService.findByTownshipcodeno(townshipCode,stateCode.get().getId());
+			}else {
+				valid=false;
+				throw new SystemException(ErrorCode.NRC_FORMAT_NOT_MATCH," NRC format (" + idNo + ") is invalid");
+			 }
+		} else if (IdType.valueOf(idType).equals(IdType.FRCNO) || IdType.valueOf(idType).equals(IdType.PASSPORTNO)) {
+			idNo = fullIdNo == null ? "" : fullIdNo;
+		}
+		
+	  }catch(DAOException e) {
+		  valid=false;
+		  throw new SystemException(e.getErrorCode(), e.getMessage());
+	  }
+	  return valid;
+  }
+	
 
   // for student life payment
   private List<Payment> convertStudentLifePolicyToPayment(List<LifePolicy> studentlifePolicyList) {

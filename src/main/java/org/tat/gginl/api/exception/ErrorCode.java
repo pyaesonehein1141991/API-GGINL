@@ -43,5 +43,7 @@ public class ErrorCode {
 	
 	/*No Access For Viewing Report*/
 	public static final String NO_ACCESS_FOR_VIEWING_REPORT = "NO_ACCESS_FOR_VIEWING_REPORT";
+	
+	public static final String NRC_FORMAT_NOT_MATCH= "NRC_FORMAT_NOT_MATCH";
 
 }

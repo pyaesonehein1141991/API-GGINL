@@ -41,7 +41,7 @@ public class StudentLifeProposalDTO {
 	private Date dateOfBirth;
 
 	@ApiModelProperty(position = 6, example = "Aung", required = true)
-//	@NotBlank(message = "FatherName is mandatory")
+    @NotBlank(message = "FatherName is mandatory")
 	private String fatherName;
 
 	@ApiModelProperty(position = 7, example = "098888888", required = true)

@@ -39,9 +39,8 @@ public class TownShipCodeService {
 			}
 			else {
 				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND,
-						townshipcodeno + "," + stateCodeId + " not found in TownShipCode");
+						  " not found  TownShipCode ("+ townshipcodeno + ") in StateCode");
 			}
-
 		}
 		else {
 			return Optional.empty();
