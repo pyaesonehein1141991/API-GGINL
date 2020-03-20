@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping("/studentlife")
-@Api(tags = "StudentLife Proposal")
+@Api(tags = "StudnetLife Proposal")
 public class StudentLifeController {
 
 	@Autowired
@@ -38,7 +38,8 @@ public class StudentLifeController {
 			@ApiResponse(code = 403, message = "Access denied"),
 			@ApiResponse(code = 500, message = "Expired or invalid JWT token") })
 	@ApiOperation(value = "${StudentLifeController.submitProposal}")
-	public ResponseDTO<Object> submitproposal(@Valid @RequestBody StudentLifeProposalDTO studentLifeProposalDTO) {
+	public ResponseDTO<Object> submitproposal(
+			@ApiParam("Submit Studentlife Proposal") @Valid @RequestBody StudentLifeProposalDTO studentLifeProposalDTO) {
 		List<LifePolicy> policyList = new ArrayList<>();
 		StudentLifeProposalDTO a = mapper.map(studentLifeProposalDTO, StudentLifeProposalDTO.class);
 
