@@ -433,6 +433,9 @@ public class TLF implements Serializable {
 	}
 
 	public CommonCreateAndUpateMarks getCommonCreateAndUpateMarks() {
+	if(commonCreateAndUpateMarks == null) {
+	  commonCreateAndUpateMarks=new CommonCreateAndUpateMarks();
+	}
 		return commonCreateAndUpateMarks;
 	}
 

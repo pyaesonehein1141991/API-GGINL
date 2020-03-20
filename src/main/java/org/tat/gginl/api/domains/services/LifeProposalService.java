@@ -1315,7 +1315,7 @@ public class LifeProposalService {
 			 }
 		} else if (customer.getIdType().equals(IdType.FRCNO) || customer.getIdType().equals(IdType.PASSPORTNO)) {
 			idNo = fullIdNo == null ? "" : fullIdNo;
-		}
+		} 
 	
 		if(stateCode.isPresent()) {
 			customer.setStateCode(stateCode.get());

@@ -38,7 +38,7 @@ public class SecurityUser {
   private String password;
 
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "SECURITYUSER_ROLE", joinColumns = @JoinColumn(referencedColumnName = "ID", name = "USERID"))
+  @CollectionTable(name = " ", joinColumns = @JoinColumn(referencedColumnName = "ID", name = "USERID"))
   List<Role> roles;
   
 

@@ -58,6 +58,8 @@ public class GlobalExceptionHandlerController {
 		  res.sendError(HttpStatus.NOT_FOUND.value(),e.getMessage());
 	  }else if(ErrorCode.NRC_FORMAT_NOT_MATCH.equals(e.getErrorCode())){
 		  res.sendError(HttpStatus.BAD_REQUEST.value(),e.getMessage());
+	  }else if(ErrorCode.PAYMENT_ALREADY_CONFIRMED.equals(e.getErrorCode())) {
+		  res.sendError(HttpStatus.BAD_REQUEST.value(),e.getMessage());
 	  }
 	else {
 		 res.sendError(HttpStatus.BAD_REQUEST.value(), "Something went wrong");

@@ -45,5 +45,7 @@ public class ErrorCode {
 	public static final String NO_ACCESS_FOR_VIEWING_REPORT = "NO_ACCESS_FOR_VIEWING_REPORT";
 	
 	public static final String NRC_FORMAT_NOT_MATCH= "NRC_FORMAT_NOT_MATCH";
+	
+	public static final String PAYMENT_ALREADY_CONFIRMED = "PAYMENT_ALREADY_CONFIRMED";
 
 }

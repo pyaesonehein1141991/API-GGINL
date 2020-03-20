@@ -63,6 +63,8 @@ public enum PolicyReferenceType {
 	GROUP_MICRO_HEALTH_BILL_COLLECTION("Group Micro Health Bill Collection"),
 
 	STUDENT_LIFE_POLICY("Student Life Policy"),
+	
+	PUBLIC_TERM_LIFE_POLICY("Public Term Life Policy"),
 
 	STUDENT_LIFE_POLICY_BILL_COLLECTION("Student Life Policy Bill Collection");
 
