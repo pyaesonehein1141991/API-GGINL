@@ -41,6 +41,4 @@ UserController:
   submitProposal: Create proposal and return policy no
 GroupFarmerController:
   submitproposal: Create Group farmer Proposal and return policy no
-StudentLifeController:
-  submitProposal: Create Student Life proposal and return policy no
 
