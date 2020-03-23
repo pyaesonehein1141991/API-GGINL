@@ -23,65 +23,62 @@ import lombok.Data;
 @Data
 public class SecurityUser {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
 
-  @Size(min = 4, max = 255, message = "Minimum username length: 4 characters")
-  @Column(unique = true, nullable = false)
-  private String username;
+	@Size(min = 4, max = 255, message = "Minimum username length: 4 characters")
+	@Column(unique = true, nullable = false)
+	private String username;
 
-  @Column(unique = true, nullable = false)
-  private String email;
+	@Column(unique = true, nullable = false)
+	private String email;
 
-  @Size(min = 8, message = "Minimum password length: 8 characters")
-  private String password;
+	@Size(min = 8, message = "Minimum password length: 8 characters")
+	private String password;
 
-  @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = " ", joinColumns = @JoinColumn(referencedColumnName = "ID", name = "USERID"))
-  List<Role> roles;
-  
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "SECURITYUSER_ROLE", joinColumns = @JoinColumn(referencedColumnName = "ID", name = "USERID"))
+	List<Role> roles;
 
-  public Integer getId() {
-    return id;
-  }
+	public Integer getId() {
+		return id;
+	}
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-  public String getUsername() {
-    return username;
-  }
+	public String getUsername() {
+		return username;
+	}
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-  public String getEmail() {
-    return email;
-  }
+	public String getEmail() {
+		return email;
+	}
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-  public String getPassword() {
-    return password;
-  }
+	public String getPassword() {
+		return password;
+	}
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-  public List<Role> getRoles() {
-    return roles;
-  }
+	public List<Role> getRoles() {
+		return roles;
+	}
 
-  public void setRoles(List<Role> roles) {
-    this.roles = roles;
-  }
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
+	}
 
-  
-  
 }

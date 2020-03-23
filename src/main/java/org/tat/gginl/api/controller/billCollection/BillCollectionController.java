@@ -43,8 +43,6 @@ public class BillCollectionController {
 	public ResponseDTO<Object> submitproposal(@Valid @RequestBody BillCollectionDTO billCollectionDTO) {
 //		try {
 		List<Payment> paymentList = new ArrayList<>();
-		// create farmer proposal
-		//policyList = paymentService.createGroupFarmerProposalToPolicy(groupFarmerProposalDTO);
 		paymentList=paymentService.paymentBillCollection(billCollectionDTO);
 		// create response object
 		List<BillCollectionPaymentResponseDTO> responseList = new ArrayList<BillCollectionPaymentResponseDTO>();
