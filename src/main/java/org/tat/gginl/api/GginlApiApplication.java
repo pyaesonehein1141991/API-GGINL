@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.tat.gginl.api.common.SecurityUser;
 import org.tat.gginl.api.common.emumdata.Role;
@@ -20,6 +21,7 @@ import org.tat.gginl.api.domains.services.UserService;
 
 @SpringBootApplication
 //@EnableScheduling
+@EnableConfigurationProperties
 public class GginlApiApplication implements CommandLineRunner {
 	@Autowired
 	private UserService userService;

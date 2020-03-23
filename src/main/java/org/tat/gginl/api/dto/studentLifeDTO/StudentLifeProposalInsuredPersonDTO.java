@@ -43,7 +43,7 @@ public class StudentLifeProposalInsuredPersonDTO {
 	@NotNull(message = "basicTermPremium is mandatory")
 	private double basicTermPremium;
 
-	@ApiModelProperty(position = 7, example = "NRCNO", required = true)
+	@ApiModelProperty(position = 7, example = "FRCNO", required = true)
 	@NotNull(message = "idType is mandatory")
 	private String idType;
 
@@ -105,7 +105,7 @@ public class StudentLifeProposalInsuredPersonDTO {
 	@NotBlank(message = "parentName is mandatory")
 	private String motherName;
 
-	@ApiModelProperty(position = 27, example = "NRCNO")
+	@ApiModelProperty(position = 27, example = "FRCNO")
 	private String motherIdType;
 
 	@ApiModelProperty(position = 28, example = "1628943")

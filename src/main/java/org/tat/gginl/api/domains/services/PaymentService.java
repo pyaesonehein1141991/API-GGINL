@@ -79,6 +79,8 @@ public class PaymentService {
     @Autowired
     private BankService bankService;
     
+    
+    
     @Autowired
     private AgentCommissionRepository  agentCommissionRepository;
     
@@ -123,15 +125,12 @@ public class PaymentService {
     		
     		payment.setPaymentChannel(channel);
     		payment.setReferenceNo(lifePolicy.get().getId());
-//    		if (KeyFactorChecker.isPublicLife(product)) {
-//    			payment.setReferenceType(PolicyReferenceType.LIFE_BILL_COLLECTION);
-//    		}
-//    		if ((KeyFactorChecker.isShortTermEndowment(product.getId()))) {
-//    			payment.setReferenceType(PolicyReferenceType.SHORT_ENDOWMENT_LIFE_BILL_COLLECTION);
-//    		}
-//    		if (KeyFactorChecker.isStudentLife(product.getId())) {
-//    			payment.setReferenceType(PolicyReferenceType.STUDENT_LIFE_POLICY_BILL_COLLECTION);
-//    		}
+    		
+
+    	
+    		if (KeyFactorChecker.isStudentLife(product.getId())) {
+    			payment.setReferenceType(PolicyReferenceType.STUDENT_LIFE_POLICY_BILL_COLLECTION);
+    		}
     		payment.setReferenceType(PolicyReferenceType.STUDENT_LIFE_POLICY_BILL_COLLECTION);
 
     		// TODO FIXME multiply by payment times
