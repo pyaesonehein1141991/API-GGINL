@@ -7,31 +7,24 @@ import java.util.Properties;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.tat.gginl.api.common.SecurityUser;
 import org.tat.gginl.api.common.emumdata.Role;
-import org.tat.gginl.api.domains.services.UserService;
-
-
 
 @SpringBootApplication
-//@EnableScheduling
-@EnableConfigurationProperties
 public class GginlApiApplication implements CommandLineRunner {
-	@Autowired
-	private UserService userService;
+//	@Autowired
+//	private UserService userService;
 
 //	private static final Logger LOGGER = LogManager.getLogger(GginlApiApplication.class);
 	private static final Logger LOGGER = LoggerFactory.getLogger(GginlApiApplication.class);
-	
+
 	public static void main(String[] args) {
 		SpringApplication application = new SpringApplication(GginlApiApplication.class);
-	    Properties properties = new Properties();
+		Properties properties = new Properties();
 		properties.setProperty("spring.main.banner-mode", "log");
 		properties.setProperty("logging.file", "D:/APILOG.log");
 		properties.setProperty("logging.level.com.microsoft.sqlserver.jdbc", "info");

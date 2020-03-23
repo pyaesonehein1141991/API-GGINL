@@ -46,4 +46,5 @@ GroupFarmerController:
   submitproposal: Create Group farmer Proposal and return policy no
 StudentLifeController:
   submitProposal: Create Student Life proposal and return policy no
-
+BillCollectionController:
+  payment: Create Subsequent Payment

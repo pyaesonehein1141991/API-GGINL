@@ -27,12 +27,12 @@ import javax.persistence.Version;
 
 import org.tat.gginl.api.common.CommonCreateAndUpateMarks;
 import org.tat.gginl.api.common.FormatID;
-import org.tat.gginl.api.common.PolicyInsuredPerson;
 import org.tat.gginl.api.common.TableName;
 import org.tat.gginl.api.common.Utils;
 import org.tat.gginl.api.common.emumdata.ProposalType;
 
 import lombok.Data;
+
 @Entity
 @Data
 @Table(name = TableName.GROUPFARMERPROPOSAL)
@@ -108,7 +108,6 @@ public class GroupFarmerProposal implements Serializable {
 
 	@Version
 	private int version;
-	
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "GROUPFARMERPROPOSAL_GEN")
@@ -122,19 +121,19 @@ public class GroupFarmerProposal implements Serializable {
 			this.id = FormatID.formatId(id, getPrefix(), 10);
 		}
 	}
-	
+
 	@Transient
 	public double getAgentCommission() {
 		double totalCommission = 0.0;
 		if (agent != null) {
-				double commissionPercent = 10;
-				if (commissionPercent > 0) {
-					double totalPremium = premium ;
-					double commission = Utils.getPercentOf(commissionPercent, totalPremium);
-					totalCommission = totalCommission + commission;
-				}
+			double commissionPercent = 10;
+			if (commissionPercent > 0) {
+				double totalPremium = premium;
+				double commission = Utils.getPercentOf(commissionPercent, totalPremium);
+				totalCommission = totalCommission + commission;
 			}
-		
+		}
+
 		return Utils.getTwoDecimalPoint(totalCommission);
 	}
 

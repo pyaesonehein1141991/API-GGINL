@@ -8,28 +8,32 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import org.tat.gginl.api.common.FormatID;
 
-
 @Entity
 @TableGenerator(name = "SHORTENDOWMENTEXTRAVALUE_GEN", table = "ID_GEN", pkColumnName = "GEN_NAME", valueColumnName = "GEN_VAL", pkColumnValue = "SHORTENDOWMENTEXTRAVALUE_GEN", allocationSize = 10)
 @Access(value = AccessType.FIELD)
-public class ShortEndowmentExtraValue implements Serializable{
+public class ShortEndowmentExtraValue implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Transient
 	private String id;
+
 	@Transient
 	private String prefix;
+
 	private String referenceNo;
+
 	private String endowmentPolicyNo;
+
 	private String shortTermPolicyNo;
+
 	private double extraAmount;
+
 	private boolean isPaid;
 
 	@Version
@@ -104,8 +108,7 @@ public class ShortEndowmentExtraValue implements Serializable{
 	}
 
 	/**
-	 * @param isPaid
-	 *            the isPaid to set
+	 * @param isPaid the isPaid to set
 	 */
 	public void setPaid(boolean isPaid) {
 		this.isPaid = isPaid;
@@ -150,36 +153,40 @@ public class ShortEndowmentExtraValue implements Serializable{
 		if (endowmentPolicyNo == null) {
 			if (other.endowmentPolicyNo != null)
 				return false;
-		} else if (!endowmentPolicyNo.equals(other.endowmentPolicyNo))
+		}
+		else if (!endowmentPolicyNo.equals(other.endowmentPolicyNo))
 			return false;
 		if (Double.doubleToLongBits(extraAmount) != Double.doubleToLongBits(other.extraAmount))
 			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
-		} else if (!id.equals(other.id))
+		}
+		else if (!id.equals(other.id))
 			return false;
 		if (isPaid != other.isPaid)
 			return false;
 		if (prefix == null) {
 			if (other.prefix != null)
 				return false;
-		} else if (!prefix.equals(other.prefix))
+		}
+		else if (!prefix.equals(other.prefix))
 			return false;
 		if (referenceNo == null) {
 			if (other.referenceNo != null)
 				return false;
-		} else if (!referenceNo.equals(other.referenceNo))
+		}
+		else if (!referenceNo.equals(other.referenceNo))
 			return false;
 		if (shortTermPolicyNo == null) {
 			if (other.shortTermPolicyNo != null)
 				return false;
-		} else if (!shortTermPolicyNo.equals(other.shortTermPolicyNo))
+		}
+		else if (!shortTermPolicyNo.equals(other.shortTermPolicyNo))
 			return false;
 		if (version != other.version)
 			return false;
 		return true;
 	}
 
-	
 }

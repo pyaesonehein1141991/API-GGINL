@@ -15,7 +15,6 @@ import org.tat.gginl.api.common.COACode;
 import org.tat.gginl.api.common.CommonCreateAndUpateMarks;
 import org.tat.gginl.api.common.CurrencyUtils;
 import org.tat.gginl.api.common.IPolicy;
-import org.tat.gginl.api.common.PolicyInsuredPerson;
 import org.tat.gginl.api.common.ProductIDConfig;
 import org.tat.gginl.api.common.TLFBuilder;
 import org.tat.gginl.api.common.TranCode;
@@ -82,7 +81,7 @@ public class PaymentService {
 			Optional<Payment> paymentNotComplete = paymentRepository.findPaymentNotComplete(lifePolicy.get().getId());
 			Optional<Bank> fromBank = bankService.findById(billCollectionDTO.getFromBank());
 			Optional<Bank> toBank = bankService.findById(billCollectionDTO.getFromBank());
-			PolicyInsuredPerson insuredPerson = lifePolicy.get().getInsuredPersonInfo().get(0);
+//			PolicyInsuredPerson insuredPerson = lifePolicy.get().getInsuredPersonInfo().get(0);
 			if (paymentNotComplete.isPresent()) {
 				throw new SystemException(ErrorCode.PAYMENT_ALREADY_CONFIRMED,
 						"This policy is not completed for previous payment");
@@ -90,7 +89,7 @@ public class PaymentService {
 			}
 			else {
 
-				Product product = insuredPerson.getProduct();
+//				ေေေေProduct product = insuredPerson.getProduct();
 
 				PaymentChannel channel = null;
 				Payment payment = new Payment();
