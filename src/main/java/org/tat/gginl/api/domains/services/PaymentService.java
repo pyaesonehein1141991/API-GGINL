@@ -93,11 +93,12 @@ public class PaymentService {
        Optional<Bank> toBank=bankService.findById(billCollectionDTO.getFromBank());
        PolicyInsuredPerson insuredPerson=lifePolicy.get().getInsuredPersonInfo().get(0);
         if(paymentNotComplete.isPresent()) {
-       	 	throw new SystemException(ErrorCode.PAYMENT_ALREADY_CONFIRMED,"This Policy's bill collection is already confirmed");
+       	 	throw new SystemException(ErrorCode.PAYMENT_ALREADY_CONFIRMED,"This policy is not completed for previous payment");
        
         }else {
 
             Product product=insuredPerson.getProduct();
+            
             PaymentChannel channel=null;
         	Payment payment = new Payment();
         	if(fromBank.isPresent()) {
@@ -106,14 +107,16 @@ public class PaymentService {
         	if(toBank.isPresent()) {
         		payment.setAccountBank(toBank.get());
         	}
-    		payment.setChequeNo(billCollectionDTO.getChequeNo());
+    		
     		payment.setPoNo(billCollectionDTO.getChequeNo());
     		if(billCollectionDTO.getPaymentChannel().equalsIgnoreCase("CSH")) {
     			channel=PaymentChannel.CASHED;
     		}else if(billCollectionDTO.getPaymentChannel().equalsIgnoreCase("TRF")) {
     			channel=PaymentChannel.TRANSFER;
+    			payment.setPoNo(billCollectionDTO.getChequeNo());
     		}else if(billCollectionDTO.getPaymentChannel().equalsIgnoreCase("CHQ")) {
     			channel=PaymentChannel.CHEQUE;
+    			payment.setChequeNo(billCollectionDTO.getChequeNo());
     		}else if(billCollectionDTO.getPaymentChannel().equalsIgnoreCase("RCV")){
     			channel=PaymentChannel.SUNDRY;
     		}
@@ -1539,8 +1542,8 @@ public void addNewTLF_For_CashDebitForPremium(List<AccountPayment> accountPaymen
 			  recorder.setCreatedDate(new Date());
 			for (AgentCommission agentCommission : agentCommissionList) {
 				agentCommission.setRecorder(recorder);
-				agentCommissionRepository.save(agentCommission);
 			}
+			agentCommissionRepository.saveAll(agentCommissionList);
 		} catch (DAOException e) {
 			throw new SystemException(e.getErrorCode(), "Faield to add agent commission No into TLF.", e);
 		}
