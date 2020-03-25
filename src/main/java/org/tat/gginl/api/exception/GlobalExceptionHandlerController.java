@@ -11,10 +11,12 @@ import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.tat.gginl.api.dto.ResponseDTO;
 
 @RestControllerAdvice
 public class GlobalExceptionHandlerController {
@@ -47,25 +49,42 @@ public class GlobalExceptionHandlerController {
 	}
 
 	@ExceptionHandler(Exception.class)
-	public void handleException(HttpServletResponse res) throws IOException {
+	public ResponseEntity<Object> handleException(HttpServletResponse res) throws IOException {
 		logger.error("IOEXception :");
-		res.sendError(HttpStatus.BAD_REQUEST.value(), "Something went wrong");
+		// res.sendError(HttpStatus.BAD_REQUEST.value(), "Something went wrong");
+		ResponseDTO<Object> responseDTO = ResponseDTO.builder().status(HttpStatus.BAD_REQUEST.toString())
+				.message("Something went wrong").build();
+		return ResponseEntity.badRequest().body(responseDTO);
 	}
 
 	@ExceptionHandler(SystemException.class)
-	public void handleDAOException(HttpServletResponse res, SystemException e) throws IOException {
+	public ResponseEntity<Object> handleDAOException(HttpServletResponse res, SystemException e) throws IOException {
 		logger.error("SystemException :");
+		HttpStatus status = null;
+		String message = null;
+
 		if (ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND.equals(e.getErrorCode())) {
-			res.sendError(HttpStatus.NOT_FOUND.value(), e.getMessage());
+//			res.sendError(HttpStatus.NOT_FOUND.value(), e.getMessage());
+			status = HttpStatus.NOT_FOUND;
+			message = e.getMessage();
 		}
 		else if (ErrorCode.NRC_FORMAT_NOT_MATCH.equals(e.getErrorCode())) {
-			res.sendError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+//			res.sendError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+			status = HttpStatus.BAD_REQUEST;
+			message = e.getMessage();
 		}
 		else if (ErrorCode.PAYMENT_ALREADY_CONFIRMED.equals(e.getErrorCode())) {
-			res.sendError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+//			res.sendError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+			status = HttpStatus.BAD_REQUEST;
+			message = e.getMessage();
 		}
 		else {
-			res.sendError(HttpStatus.BAD_REQUEST.value(), "Something went wrong");
+//			res.sendError(HttpStatus.BAD_REQUEST.value(), "Something went wrong");
+			status = HttpStatus.BAD_REQUEST;
+			message = "Something went wrong";
 		}
+
+		ResponseDTO<Object> responseDTO = ResponseDTO.builder().status(status.toString()).message(message).build();
+		return ResponseEntity.status(status).body(responseDTO);
 	}
 }

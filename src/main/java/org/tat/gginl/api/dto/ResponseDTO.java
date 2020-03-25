@@ -1,4 +1,5 @@
 package org.tat.gginl.api.dto;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -6,10 +7,10 @@ import lombok.Data;
 @Builder
 public class ResponseDTO<T> {
 
-	private String responseStatus;
-	
+	private String status;
+
 	@Builder.Default
 	private String message = "Success";
-	
-	private T responseBody; 
+
+	private T responseBody;
 }

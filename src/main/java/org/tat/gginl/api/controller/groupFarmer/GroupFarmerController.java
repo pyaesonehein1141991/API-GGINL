@@ -56,8 +56,7 @@ public class GroupFarmerController {
 			responseList.add(dto);
 		});
 
-		ResponseDTO<Object> responseDTO = ResponseDTO.builder().responseStatus("Success!").responseBody(responseList)
-				.build();
+		ResponseDTO<Object> responseDTO = ResponseDTO.builder().status("Success!").responseBody(responseList).build();
 		return responseDTO;
 	}
 //		catch(Exception e)

@@ -18,11 +18,11 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.tat.gginl.api.dto.ResponseDTO;
 
-
 @ControllerAdvice
 public class APIExceptionHandler extends ResponseEntityExceptionHandler {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(APIExceptionHandler.class);
+
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
@@ -32,7 +32,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
 		for (FieldError error : fieldError) {
 			details.add(error.getDefaultMessage());
 		}
-		ResponseDTO<Object> responseDTO = ResponseDTO.builder().responseStatus(status.toString())
+		ResponseDTO<Object> responseDTO = ResponseDTO.builder().status(status.toString())
 				.message(generateMessage(fieldError)).responseBody(null).build();
 		LOGGER.error(details.toString());
 		return ResponseEntity.badRequest().body(responseDTO);
@@ -50,12 +50,12 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
 		}
 		return result;
 	}
-	  @ExceptionHandler(ConstraintViolationException.class)
-	    public final ResponseEntity<Object> handleConstraintViolationException(Exception ex, WebRequest request) {
-	        ResponseDTO<Object> responseDTO = ResponseDTO.builder()
-	            .responseStatus(HttpStatus.BAD_REQUEST.toString())
-	            .message(ex.getMessage()).build();
-	        LOGGER.error(ex.getMessage());
-	        return ResponseEntity.badRequest().body(responseDTO);
-	    }
+
+	@ExceptionHandler(ConstraintViolationException.class)
+	public final ResponseEntity<Object> handleConstraintViolationException(Exception ex, WebRequest request) {
+		ResponseDTO<Object> responseDTO = ResponseDTO.builder().status(HttpStatus.BAD_REQUEST.toString())
+				.message(ex.getMessage()).build();
+		LOGGER.error(ex.getMessage());
+		return ResponseEntity.badRequest().body(responseDTO);
+	}
 }
