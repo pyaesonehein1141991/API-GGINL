@@ -224,8 +224,9 @@ public class Payment implements Serializable, IDataModel {
   @Embedded
   private CommonCreateAndUpateMarks commonCreateAndUpateMarks;
 
-  private String bpmsInsuredPersonId;
-
+  
+  @Column(name = "BPMSRECEIPTNO")
+  private String bpmsReceiptNo;
 
   @Version
   private int version;
@@ -344,17 +345,15 @@ public class Payment implements Serializable, IDataModel {
     this.isOutstanding = isOutstanding;
   }
 
-
-
-  public String getBpmsInsuredPersonId() {
-    return bpmsInsuredPersonId;
+  public String getBpmsReceiptNo() {
+	return bpmsReceiptNo;
   }
 
-  public void setBpmsInsuredPersonId(String bpmsInsuredPersonId) {
-    this.bpmsInsuredPersonId = bpmsInsuredPersonId;
-  }
+  public void setBpmsReceiptNo(String bpmsReceiptNo) {
+	this.bpmsReceiptNo = bpmsReceiptNo;
+	}
 
-  public CommonCreateAndUpateMarks getCommonCreateAndUpateMarks() {
+public CommonCreateAndUpateMarks getCommonCreateAndUpateMarks() {
     return commonCreateAndUpateMarks;
   }
 
@@ -823,268 +822,275 @@ public class Payment implements Serializable, IDataModel {
     this.reverse = reverse;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((accountBank == null) ? 0 : accountBank.hashCode());
-    long temp;
-    temp = Double.doubleToLongBits(addOnPremium);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(administrationFees);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(amount);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((bank == null) ? 0 : bank.hashCode());
-    result = prime * result + ((bankAccountNo == null) ? 0 : bankAccountNo.hashCode());
-    temp = Double.doubleToLongBits(basicPremium);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((chequeNo == null) ? 0 : chequeNo.hashCode());
-    temp = Double.doubleToLongBits(claimAmount);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + (complete ? 1231 : 1237);
-    result = prime * result + ((confirmDate == null) ? 0 : confirmDate.hashCode());
-    result = prime * result + ((cur == null) ? 0 : cur.hashCode());
-    temp = Double.doubleToLongBits(discountPercent);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result =
-        prime * result + ((endorsementConfirmDate == null) ? 0 : endorsementConfirmDate.hashCode());
-    result =
-        prime * result + ((endorsementPaymentDate == null) ? 0 : endorsementPaymentDate.hashCode());
-    result = prime * result + fromTerm;
-    temp = Double.doubleToLongBits(homeAddOnPremium);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(homeAdministrationFees);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(homeAmount);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(homeClaimAmount);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(homeNcbPremium);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(homePenaltyPremium);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(homePremium);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(homeReinstatementPremium);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(homeServicesCharges);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(homeStampFees);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
-    result = prime * result + (isAlreadyGenerated ? 1231 : 1237);
-    result = prime * result + (isOutstanding ? 1231 : 1237);
-    result = prime * result + (isPO ? 1231 : 1237);
-    result = prime * result + (isReinstate ? 1231 : 1237);
-    temp = Double.doubleToLongBits(loanInterest);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(ncbPremium);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((paymentChannel == null) ? 0 : paymentChannel.hashCode());
-    result = prime * result + ((paymentDate == null) ? 0 : paymentDate.hashCode());
-    result = prime * result + ((paymentType == null) ? 0 : paymentType.hashCode());
-    temp = Double.doubleToLongBits(penaltyPremium);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((poNo == null) ? 0 : poNo.hashCode());
-    result = prime * result + ((policyStatus == null) ? 0 : policyStatus.hashCode());
-    result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
-    temp = Double.doubleToLongBits(rate);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((receiptNo == null) ? 0 : receiptNo.hashCode());
-    result = prime * result + ((receivedDeno == null) ? 0 : receivedDeno.hashCode());
-    result = prime * result + ((referenceNo == null) ? 0 : referenceNo.hashCode());
-    result = prime * result + ((referenceType == null) ? 0 : referenceType.hashCode());
-    temp = Double.doubleToLongBits(refund);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((refundDeno == null) ? 0 : refundDeno.hashCode());
-    temp = Double.doubleToLongBits(reinstatementPremium);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(renewalInterest);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(servicesCharges);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(stampFees);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + toTerm;
-    result = prime * result + version;
-    return result;
-  }
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((accountBank == null) ? 0 : accountBank.hashCode());
+	long temp;
+	temp = Double.doubleToLongBits(addOnPremium);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(administrationFees);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(amount);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + ((bank == null) ? 0 : bank.hashCode());
+	result = prime * result + ((bankAccountNo == null) ? 0 : bankAccountNo.hashCode());
+	temp = Double.doubleToLongBits(basicPremium);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + ((bpmsReceiptNo == null) ? 0 : bpmsReceiptNo.hashCode());
+	result = prime * result + ((chequeNo == null) ? 0 : chequeNo.hashCode());
+	temp = Double.doubleToLongBits(claimAmount);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + ((commonCreateAndUpateMarks == null) ? 0 : commonCreateAndUpateMarks.hashCode());
+	result = prime * result + (complete ? 1231 : 1237);
+	result = prime * result + ((confirmDate == null) ? 0 : confirmDate.hashCode());
+	result = prime * result + ((cur == null) ? 0 : cur.hashCode());
+	temp = Double.doubleToLongBits(discountPercent);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + ((endorsementConfirmDate == null) ? 0 : endorsementConfirmDate.hashCode());
+	result = prime * result + ((endorsementPaymentDate == null) ? 0 : endorsementPaymentDate.hashCode());
+	result = prime * result + fromTerm;
+	temp = Double.doubleToLongBits(homeAddOnPremium);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(homeAdministrationFees);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(homeAmount);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(homeClaimAmount);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(homeNcbPremium);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(homePenaltyPremium);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(homePremium);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(homeReinstatementPremium);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(homeServicesCharges);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(homeStampFees);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + ((id == null) ? 0 : id.hashCode());
+	result = prime * result + (isAlreadyGenerated ? 1231 : 1237);
+	result = prime * result + (isOutstanding ? 1231 : 1237);
+	result = prime * result + (isPO ? 1231 : 1237);
+	result = prime * result + (isReinstate ? 1231 : 1237);
+	temp = Double.doubleToLongBits(loanInterest);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(ncbPremium);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + ((paymentChannel == null) ? 0 : paymentChannel.hashCode());
+	result = prime * result + ((paymentDate == null) ? 0 : paymentDate.hashCode());
+	result = prime * result + ((paymentType == null) ? 0 : paymentType.hashCode());
+	temp = Double.doubleToLongBits(penaltyPremium);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + ((poNo == null) ? 0 : poNo.hashCode());
+	result = prime * result + ((policyStatus == null) ? 0 : policyStatus.hashCode());
+	result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
+	temp = Double.doubleToLongBits(rate);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + ((receiptNo == null) ? 0 : receiptNo.hashCode());
+	result = prime * result + ((receivedDeno == null) ? 0 : receivedDeno.hashCode());
+	result = prime * result + ((referenceNo == null) ? 0 : referenceNo.hashCode());
+	result = prime * result + ((referenceType == null) ? 0 : referenceType.hashCode());
+	temp = Double.doubleToLongBits(refund);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + ((refundDeno == null) ? 0 : refundDeno.hashCode());
+	temp = Double.doubleToLongBits(reinstatementPremium);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(renewalInterest);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + (reverse ? 1231 : 1237);
+	temp = Double.doubleToLongBits(servicesCharges);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	temp = Double.doubleToLongBits(stampFees);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + toTerm;
+	result = prime * result + version;
+	return result;
+}
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    Payment other = (Payment) obj;
-    if (accountBank == null) {
-      if (other.accountBank != null)
-        return false;
-    } else if (!accountBank.equals(other.accountBank))
-      return false;
-    if (Double.doubleToLongBits(addOnPremium) != Double.doubleToLongBits(other.addOnPremium))
-      return false;
-    if (Double.doubleToLongBits(administrationFees) != Double
-        .doubleToLongBits(other.administrationFees))
-      return false;
-    if (Double.doubleToLongBits(amount) != Double.doubleToLongBits(other.amount))
-      return false;
-    if (bank == null) {
-      if (other.bank != null)
-        return false;
-    } else if (!bank.equals(other.bank))
-      return false;
-    if (bankAccountNo == null) {
-      if (other.bankAccountNo != null)
-        return false;
-    } else if (!bankAccountNo.equals(other.bankAccountNo))
-      return false;
-    if (Double.doubleToLongBits(basicPremium) != Double.doubleToLongBits(other.basicPremium))
-      return false;
-    if (chequeNo == null) {
-      if (other.chequeNo != null)
-        return false;
-    } else if (!chequeNo.equals(other.chequeNo))
-      return false;
-    if (Double.doubleToLongBits(claimAmount) != Double.doubleToLongBits(other.claimAmount))
-      return false;
-    if (complete != other.complete)
-      return false;
-    if (confirmDate == null) {
-      if (other.confirmDate != null)
-        return false;
-    } else if (!confirmDate.equals(other.confirmDate))
-      return false;
-    if (cur == null) {
-      if (other.cur != null)
-        return false;
-    } else if (!cur.equals(other.cur))
-      return false;
-    if (Double.doubleToLongBits(discountPercent) != Double.doubleToLongBits(other.discountPercent))
-      return false;
-    if (endorsementConfirmDate == null) {
-      if (other.endorsementConfirmDate != null)
-        return false;
-    } else if (!endorsementConfirmDate.equals(other.endorsementConfirmDate))
-      return false;
-    if (endorsementPaymentDate == null) {
-      if (other.endorsementPaymentDate != null)
-        return false;
-    } else if (!endorsementPaymentDate.equals(other.endorsementPaymentDate))
-      return false;
-    if (fromTerm != other.fromTerm)
-      return false;
-    if (Double.doubleToLongBits(homeAddOnPremium) != Double
-        .doubleToLongBits(other.homeAddOnPremium))
-      return false;
-    if (Double.doubleToLongBits(homeAdministrationFees) != Double
-        .doubleToLongBits(other.homeAdministrationFees))
-      return false;
-    if (Double.doubleToLongBits(homeAmount) != Double.doubleToLongBits(other.homeAmount))
-      return false;
-    if (Double.doubleToLongBits(homeClaimAmount) != Double.doubleToLongBits(other.homeClaimAmount))
-      return false;
-    if (Double.doubleToLongBits(homeNcbPremium) != Double.doubleToLongBits(other.homeNcbPremium))
-      return false;
-    if (Double.doubleToLongBits(homePenaltyPremium) != Double
-        .doubleToLongBits(other.homePenaltyPremium))
-      return false;
-    if (Double.doubleToLongBits(homePremium) != Double.doubleToLongBits(other.homePremium))
-      return false;
-    if (Double.doubleToLongBits(homeReinstatementPremium) != Double
-        .doubleToLongBits(other.homeReinstatementPremium))
-      return false;
-    if (Double.doubleToLongBits(homeServicesCharges) != Double
-        .doubleToLongBits(other.homeServicesCharges))
-      return false;
-    if (Double.doubleToLongBits(homeStampFees) != Double.doubleToLongBits(other.homeStampFees))
-      return false;
-    if (id == null) {
-      if (other.id != null)
-        return false;
-    } else if (!id.equals(other.id))
-      return false;
-    if (isAlreadyGenerated != other.isAlreadyGenerated)
-      return false;
-    if (isOutstanding != other.isOutstanding)
-      return false;
-    if (isPO != other.isPO)
-      return false;
-    if (isReinstate != other.isReinstate)
-      return false;
-    if (Double.doubleToLongBits(loanInterest) != Double.doubleToLongBits(other.loanInterest))
-      return false;
-    if (Double.doubleToLongBits(ncbPremium) != Double.doubleToLongBits(other.ncbPremium))
-      return false;
-    if (paymentChannel != other.paymentChannel)
-      return false;
-    if (paymentDate == null) {
-      if (other.paymentDate != null)
-        return false;
-    } else if (!paymentDate.equals(other.paymentDate))
-      return false;
-    if (paymentType == null) {
-      if (other.paymentType != null)
-        return false;
-    } else if (!paymentType.equals(other.paymentType))
-      return false;
-    if (Double.doubleToLongBits(penaltyPremium) != Double.doubleToLongBits(other.penaltyPremium))
-      return false;
-    if (poNo == null) {
-      if (other.poNo != null)
-        return false;
-    } else if (!poNo.equals(other.poNo))
-      return false;
-    if (policyStatus != other.policyStatus)
-      return false;
-    if (prefix == null) {
-      if (other.prefix != null)
-        return false;
-    } else if (!prefix.equals(other.prefix))
-      return false;
-    if (Double.doubleToLongBits(rate) != Double.doubleToLongBits(other.rate))
-      return false;
-    if (receiptNo == null) {
-      if (other.receiptNo != null)
-        return false;
-    } else if (!receiptNo.equals(other.receiptNo))
-      return false;
-    if (receivedDeno == null) {
-      if (other.receivedDeno != null)
-        return false;
-    } else if (!receivedDeno.equals(other.receivedDeno))
-      return false;
-    if (referenceNo == null) {
-      if (other.referenceNo != null)
-        return false;
-    } else if (!referenceNo.equals(other.referenceNo))
-      return false;
-    if (referenceType != other.referenceType)
-      return false;
-    if (Double.doubleToLongBits(refund) != Double.doubleToLongBits(other.refund))
-      return false;
-    if (refundDeno == null) {
-      if (other.refundDeno != null)
-        return false;
-    } else if (!refundDeno.equals(other.refundDeno))
-      return false;
-    if (Double.doubleToLongBits(reinstatementPremium) != Double
-        .doubleToLongBits(other.reinstatementPremium))
-      return false;
-    if (Double.doubleToLongBits(renewalInterest) != Double.doubleToLongBits(other.renewalInterest))
-      return false;
-    if (Double.doubleToLongBits(servicesCharges) != Double.doubleToLongBits(other.servicesCharges))
-      return false;
-    if (Double.doubleToLongBits(stampFees) != Double.doubleToLongBits(other.stampFees))
-      return false;
-    if (toTerm != other.toTerm)
-      return false;
-    if (version != other.version)
-      return false;
-    return true;
-  }
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	Payment other = (Payment) obj;
+	if (accountBank == null) {
+		if (other.accountBank != null)
+			return false;
+	} else if (!accountBank.equals(other.accountBank))
+		return false;
+	if (Double.doubleToLongBits(addOnPremium) != Double.doubleToLongBits(other.addOnPremium))
+		return false;
+	if (Double.doubleToLongBits(administrationFees) != Double.doubleToLongBits(other.administrationFees))
+		return false;
+	if (Double.doubleToLongBits(amount) != Double.doubleToLongBits(other.amount))
+		return false;
+	if (bank == null) {
+		if (other.bank != null)
+			return false;
+	} else if (!bank.equals(other.bank))
+		return false;
+	if (bankAccountNo == null) {
+		if (other.bankAccountNo != null)
+			return false;
+	} else if (!bankAccountNo.equals(other.bankAccountNo))
+		return false;
+	if (Double.doubleToLongBits(basicPremium) != Double.doubleToLongBits(other.basicPremium))
+		return false;
+	if (bpmsReceiptNo == null) {
+		if (other.bpmsReceiptNo != null)
+			return false;
+	} else if (!bpmsReceiptNo.equals(other.bpmsReceiptNo))
+		return false;
+	if (chequeNo == null) {
+		if (other.chequeNo != null)
+			return false;
+	} else if (!chequeNo.equals(other.chequeNo))
+		return false;
+	if (Double.doubleToLongBits(claimAmount) != Double.doubleToLongBits(other.claimAmount))
+		return false;
+	if (commonCreateAndUpateMarks == null) {
+		if (other.commonCreateAndUpateMarks != null)
+			return false;
+	} else if (!commonCreateAndUpateMarks.equals(other.commonCreateAndUpateMarks))
+		return false;
+	if (complete != other.complete)
+		return false;
+	if (confirmDate == null) {
+		if (other.confirmDate != null)
+			return false;
+	} else if (!confirmDate.equals(other.confirmDate))
+		return false;
+	if (cur == null) {
+		if (other.cur != null)
+			return false;
+	} else if (!cur.equals(other.cur))
+		return false;
+	if (Double.doubleToLongBits(discountPercent) != Double.doubleToLongBits(other.discountPercent))
+		return false;
+	if (endorsementConfirmDate == null) {
+		if (other.endorsementConfirmDate != null)
+			return false;
+	} else if (!endorsementConfirmDate.equals(other.endorsementConfirmDate))
+		return false;
+	if (endorsementPaymentDate == null) {
+		if (other.endorsementPaymentDate != null)
+			return false;
+	} else if (!endorsementPaymentDate.equals(other.endorsementPaymentDate))
+		return false;
+	if (fromTerm != other.fromTerm)
+		return false;
+	if (Double.doubleToLongBits(homeAddOnPremium) != Double.doubleToLongBits(other.homeAddOnPremium))
+		return false;
+	if (Double.doubleToLongBits(homeAdministrationFees) != Double.doubleToLongBits(other.homeAdministrationFees))
+		return false;
+	if (Double.doubleToLongBits(homeAmount) != Double.doubleToLongBits(other.homeAmount))
+		return false;
+	if (Double.doubleToLongBits(homeClaimAmount) != Double.doubleToLongBits(other.homeClaimAmount))
+		return false;
+	if (Double.doubleToLongBits(homeNcbPremium) != Double.doubleToLongBits(other.homeNcbPremium))
+		return false;
+	if (Double.doubleToLongBits(homePenaltyPremium) != Double.doubleToLongBits(other.homePenaltyPremium))
+		return false;
+	if (Double.doubleToLongBits(homePremium) != Double.doubleToLongBits(other.homePremium))
+		return false;
+	if (Double.doubleToLongBits(homeReinstatementPremium) != Double.doubleToLongBits(other.homeReinstatementPremium))
+		return false;
+	if (Double.doubleToLongBits(homeServicesCharges) != Double.doubleToLongBits(other.homeServicesCharges))
+		return false;
+	if (Double.doubleToLongBits(homeStampFees) != Double.doubleToLongBits(other.homeStampFees))
+		return false;
+	if (id == null) {
+		if (other.id != null)
+			return false;
+	} else if (!id.equals(other.id))
+		return false;
+	if (isAlreadyGenerated != other.isAlreadyGenerated)
+		return false;
+	if (isOutstanding != other.isOutstanding)
+		return false;
+	if (isPO != other.isPO)
+		return false;
+	if (isReinstate != other.isReinstate)
+		return false;
+	if (Double.doubleToLongBits(loanInterest) != Double.doubleToLongBits(other.loanInterest))
+		return false;
+	if (Double.doubleToLongBits(ncbPremium) != Double.doubleToLongBits(other.ncbPremium))
+		return false;
+	if (paymentChannel != other.paymentChannel)
+		return false;
+	if (paymentDate == null) {
+		if (other.paymentDate != null)
+			return false;
+	} else if (!paymentDate.equals(other.paymentDate))
+		return false;
+	if (paymentType == null) {
+		if (other.paymentType != null)
+			return false;
+	} else if (!paymentType.equals(other.paymentType))
+		return false;
+	if (Double.doubleToLongBits(penaltyPremium) != Double.doubleToLongBits(other.penaltyPremium))
+		return false;
+	if (poNo == null) {
+		if (other.poNo != null)
+			return false;
+	} else if (!poNo.equals(other.poNo))
+		return false;
+	if (policyStatus != other.policyStatus)
+		return false;
+	if (prefix == null) {
+		if (other.prefix != null)
+			return false;
+	} else if (!prefix.equals(other.prefix))
+		return false;
+	if (Double.doubleToLongBits(rate) != Double.doubleToLongBits(other.rate))
+		return false;
+	if (receiptNo == null) {
+		if (other.receiptNo != null)
+			return false;
+	} else if (!receiptNo.equals(other.receiptNo))
+		return false;
+	if (receivedDeno == null) {
+		if (other.receivedDeno != null)
+			return false;
+	} else if (!receivedDeno.equals(other.receivedDeno))
+		return false;
+	if (referenceNo == null) {
+		if (other.referenceNo != null)
+			return false;
+	} else if (!referenceNo.equals(other.referenceNo))
+		return false;
+	if (referenceType != other.referenceType)
+		return false;
+	if (Double.doubleToLongBits(refund) != Double.doubleToLongBits(other.refund))
+		return false;
+	if (refundDeno == null) {
+		if (other.refundDeno != null)
+			return false;
+	} else if (!refundDeno.equals(other.refundDeno))
+		return false;
+	if (Double.doubleToLongBits(reinstatementPremium) != Double.doubleToLongBits(other.reinstatementPremium))
+		return false;
+	if (Double.doubleToLongBits(renewalInterest) != Double.doubleToLongBits(other.renewalInterest))
+		return false;
+	if (reverse != other.reverse)
+		return false;
+	if (Double.doubleToLongBits(servicesCharges) != Double.doubleToLongBits(other.servicesCharges))
+		return false;
+	if (Double.doubleToLongBits(stampFees) != Double.doubleToLongBits(other.stampFees))
+		return false;
+	if (toTerm != other.toTerm)
+		return false;
+	if (version != other.version)
+		return false;
+	return true;
+}
+
 
 }

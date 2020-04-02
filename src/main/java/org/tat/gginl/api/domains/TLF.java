@@ -93,7 +93,8 @@ public class TLF implements Serializable {
   @Embedded
   private CommonCreateAndUpateMarks commonCreateAndUpateMarks;
 
-  private String bpmsInsuredPersonId;
+  @Column(name = "BPMSRECEIPTNO")
+  private String bpmsReceiptNo;
 
   @Version
   private int version;
@@ -254,15 +255,6 @@ public class TLF implements Serializable {
     return homeAmount;
   }
 
-
-
-  public String getBpmsInsuredPersonId() {
-    return bpmsInsuredPersonId;
-  }
-
-  public void setBpmsInsuredPersonId(String bpmsInsuredPersonId) {
-    this.bpmsInsuredPersonId = bpmsInsuredPersonId;
-  }
 
   public void setHomeAmount(double homeAmount) {
     this.homeAmount = homeAmount;
@@ -495,175 +487,207 @@ public class TLF implements Serializable {
     this.agentTransaction = agentTransaction;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((bankId == null) ? 0 : bankId.hashCode());
-    result = prime * result + ((branchId == null) ? 0 : branchId.hashCode());
-    result = prime * result + ((chequeNo == null) ? 0 : chequeNo.hashCode());
-    result = prime * result + (clearing ? 1231 : 1237);
-    result = prime * result + ((coaId == null) ? 0 : coaId.hashCode());
-    result = prime * result
-        + ((commonCreateAndUpateMarks == null) ? 0 : commonCreateAndUpateMarks.hashCode());
-    result = prime * result + ((currencyId == null) ? 0 : currencyId.hashCode());
-    result = prime * result + ((customerId == null) ? 0 : customerId.hashCode());
-    result = prime * result + ((enoNo == null) ? 0 : enoNo.hashCode());
-    long temp;
-    temp = Double.doubleToLongBits(homeAmount);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
-    result = prime * result + ((interfaceFile == null) ? 0 : interfaceFile.hashCode());
-    result = prime * result + (isRenewal ? 1231 : 1237);
-    result = prime * result + ((loanId == null) ? 0 : loanId.hashCode());
-    temp = Double.doubleToLongBits(localAmount);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((narration == null) ? 0 : narration.hashCode());
-    result = prime * result + ((orgnTLFid == null) ? 0 : orgnTLFid.hashCode());
-    result = prime * result + (paid ? 1231 : 1237);
-    result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
-    result = prime * result + ((purchaseOrderId == null) ? 0 : purchaseOrderId.hashCode());
-    temp = Double.doubleToLongBits(rate);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((referenceNo == null) ? 0 : referenceNo.hashCode());
-    result = prime * result + ((referenceType == null) ? 0 : referenceType.hashCode());
-    result = prime * result + (reverse ? 1231 : 1237);
-    result = prime * result + ((settlementDate == null) ? 0 : settlementDate.hashCode());
-    result = prime * result + ((status == null) ? 0 : status.hashCode());
-    result = prime * result + ((tlfNo == null) ? 0 : tlfNo.hashCode());
-    result = prime * result + ((tranCode == null) ? 0 : tranCode.hashCode());
-    result = prime * result + version;
-    return result;
+  public String getBpmsReceiptNo() {
+	return bpmsReceiptNo;
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    TLF other = (TLF) obj;
-    if (bankId == null) {
-      if (other.bankId != null)
-        return false;
-    } else if (!bankId.equals(other.bankId))
-      return false;
-    if (branchId == null) {
-      if (other.branchId != null)
-        return false;
-    } else if (!branchId.equals(other.branchId))
-      return false;
-    if (chequeNo == null) {
-      if (other.chequeNo != null)
-        return false;
-    } else if (!chequeNo.equals(other.chequeNo))
-      return false;
-    if (clearing != other.clearing)
-      return false;
-    if (coaId == null) {
-      if (other.coaId != null)
-        return false;
-    } else if (!coaId.equals(other.coaId))
-      return false;
-    if (commonCreateAndUpateMarks == null) {
-      if (other.commonCreateAndUpateMarks != null)
-        return false;
-    } else if (!commonCreateAndUpateMarks.equals(other.commonCreateAndUpateMarks))
-      return false;
-    if (currencyId == null) {
-      if (other.currencyId != null)
-        return false;
-    } else if (!currencyId.equals(other.currencyId))
-      return false;
-    if (customerId == null) {
-      if (other.customerId != null)
-        return false;
-    } else if (!customerId.equals(other.customerId))
-      return false;
-    if (enoNo == null) {
-      if (other.enoNo != null)
-        return false;
-    } else if (!enoNo.equals(other.enoNo))
-      return false;
-    if (Double.doubleToLongBits(homeAmount) != Double.doubleToLongBits(other.homeAmount))
-      return false;
-    if (id == null) {
-      if (other.id != null)
-        return false;
-    } else if (!id.equals(other.id))
-      return false;
-    if (interfaceFile == null) {
-      if (other.interfaceFile != null)
-        return false;
-    } else if (!interfaceFile.equals(other.interfaceFile))
-      return false;
-    if (isRenewal != other.isRenewal)
-      return false;
-    if (loanId == null) {
-      if (other.loanId != null)
-        return false;
-    } else if (!loanId.equals(other.loanId))
-      return false;
-    if (Double.doubleToLongBits(localAmount) != Double.doubleToLongBits(other.localAmount))
-      return false;
-    if (narration == null) {
-      if (other.narration != null)
-        return false;
-    } else if (!narration.equals(other.narration))
-      return false;
-    if (orgnTLFid == null) {
-      if (other.orgnTLFid != null)
-        return false;
-    } else if (!orgnTLFid.equals(other.orgnTLFid))
-      return false;
-    if (paid != other.paid)
-      return false;
-    if (prefix == null) {
-      if (other.prefix != null)
-        return false;
-    } else if (!prefix.equals(other.prefix))
-      return false;
-    if (purchaseOrderId == null) {
-      if (other.purchaseOrderId != null)
-        return false;
-    } else if (!purchaseOrderId.equals(other.purchaseOrderId))
-      return false;
-    if (Double.doubleToLongBits(rate) != Double.doubleToLongBits(other.rate))
-      return false;
-    if (referenceNo == null) {
-      if (other.referenceNo != null)
-        return false;
-    } else if (!referenceNo.equals(other.referenceNo))
-      return false;
-    if (referenceType != other.referenceType)
-      return false;
-    if (reverse != other.reverse)
-      return false;
-    if (settlementDate == null) {
-      if (other.settlementDate != null)
-        return false;
-    } else if (!settlementDate.equals(other.settlementDate))
-      return false;
-    if (status == null) {
-      if (other.status != null)
-        return false;
-    } else if (!status.equals(other.status))
-      return false;
-    if (tlfNo == null) {
-      if (other.tlfNo != null)
-        return false;
-    } else if (!tlfNo.equals(other.tlfNo))
-      return false;
-    if (tranCode == null) {
-      if (other.tranCode != null)
-        return false;
-    } else if (!tranCode.equals(other.tranCode))
-      return false;
-    if (version != other.version)
-      return false;
-    return true;
+  public void setBpmsReceiptNo(String bpmsReceiptNo) {
+	this.bpmsReceiptNo = bpmsReceiptNo;
   }
 
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + (agentTransaction ? 1231 : 1237);
+	result = prime * result + ((bankId == null) ? 0 : bankId.hashCode());
+	result = prime * result + ((bpmsReceiptNo == null) ? 0 : bpmsReceiptNo.hashCode());
+	result = prime * result + ((branchId == null) ? 0 : branchId.hashCode());
+	result = prime * result + ((chequeNo == null) ? 0 : chequeNo.hashCode());
+	result = prime * result + (clearing ? 1231 : 1237);
+	result = prime * result + ((coaId == null) ? 0 : coaId.hashCode());
+	result = prime * result + ((commonCreateAndUpateMarks == null) ? 0 : commonCreateAndUpateMarks.hashCode());
+	result = prime * result + ((currencyId == null) ? 0 : currencyId.hashCode());
+	result = prime * result + ((customerId == null) ? 0 : customerId.hashCode());
+	result = prime * result + ((enoNo == null) ? 0 : enoNo.hashCode());
+	long temp;
+	temp = Double.doubleToLongBits(homeAmount);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + ((id == null) ? 0 : id.hashCode());
+	result = prime * result + ((interfaceFile == null) ? 0 : interfaceFile.hashCode());
+	result = prime * result + (isRenewal ? 1231 : 1237);
+	result = prime * result + ((loanId == null) ? 0 : loanId.hashCode());
+	temp = Double.doubleToLongBits(localAmount);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + ((narration == null) ? 0 : narration.hashCode());
+	result = prime * result + ((orgnTLFid == null) ? 0 : orgnTLFid.hashCode());
+	result = prime * result + (paid ? 1231 : 1237);
+	result = prime * result + ((paymentChannel == null) ? 0 : paymentChannel.hashCode());
+	result = prime * result + ((policyNo == null) ? 0 : policyNo.hashCode());
+	result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
+	result = prime * result + ((purchaseOrderId == null) ? 0 : purchaseOrderId.hashCode());
+	temp = Double.doubleToLongBits(rate);
+	result = prime * result + (int) (temp ^ (temp >>> 32));
+	result = prime * result + ((referenceNo == null) ? 0 : referenceNo.hashCode());
+	result = prime * result + ((referenceType == null) ? 0 : referenceType.hashCode());
+	result = prime * result + (reverse ? 1231 : 1237);
+	result = prime * result + ((salePoint == null) ? 0 : salePoint.hashCode());
+	result = prime * result + ((settlementDate == null) ? 0 : settlementDate.hashCode());
+	result = prime * result + ((status == null) ? 0 : status.hashCode());
+	result = prime * result + ((tlfNo == null) ? 0 : tlfNo.hashCode());
+	result = prime * result + ((tranCode == null) ? 0 : tranCode.hashCode());
+	result = prime * result + version;
+	return result;
+}
+
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	TLF other = (TLF) obj;
+	if (agentTransaction != other.agentTransaction)
+		return false;
+	if (bankId == null) {
+		if (other.bankId != null)
+			return false;
+	} else if (!bankId.equals(other.bankId))
+		return false;
+	if (bpmsReceiptNo == null) {
+		if (other.bpmsReceiptNo != null)
+			return false;
+	} else if (!bpmsReceiptNo.equals(other.bpmsReceiptNo))
+		return false;
+	if (branchId == null) {
+		if (other.branchId != null)
+			return false;
+	} else if (!branchId.equals(other.branchId))
+		return false;
+	if (chequeNo == null) {
+		if (other.chequeNo != null)
+			return false;
+	} else if (!chequeNo.equals(other.chequeNo))
+		return false;
+	if (clearing != other.clearing)
+		return false;
+	if (coaId == null) {
+		if (other.coaId != null)
+			return false;
+	} else if (!coaId.equals(other.coaId))
+		return false;
+	if (commonCreateAndUpateMarks == null) {
+		if (other.commonCreateAndUpateMarks != null)
+			return false;
+	} else if (!commonCreateAndUpateMarks.equals(other.commonCreateAndUpateMarks))
+		return false;
+	if (currencyId == null) {
+		if (other.currencyId != null)
+			return false;
+	} else if (!currencyId.equals(other.currencyId))
+		return false;
+	if (customerId == null) {
+		if (other.customerId != null)
+			return false;
+	} else if (!customerId.equals(other.customerId))
+		return false;
+	if (enoNo == null) {
+		if (other.enoNo != null)
+			return false;
+	} else if (!enoNo.equals(other.enoNo))
+		return false;
+	if (Double.doubleToLongBits(homeAmount) != Double.doubleToLongBits(other.homeAmount))
+		return false;
+	if (id == null) {
+		if (other.id != null)
+			return false;
+	} else if (!id.equals(other.id))
+		return false;
+	if (interfaceFile == null) {
+		if (other.interfaceFile != null)
+			return false;
+	} else if (!interfaceFile.equals(other.interfaceFile))
+		return false;
+	if (isRenewal != other.isRenewal)
+		return false;
+	if (loanId == null) {
+		if (other.loanId != null)
+			return false;
+	} else if (!loanId.equals(other.loanId))
+		return false;
+	if (Double.doubleToLongBits(localAmount) != Double.doubleToLongBits(other.localAmount))
+		return false;
+	if (narration == null) {
+		if (other.narration != null)
+			return false;
+	} else if (!narration.equals(other.narration))
+		return false;
+	if (orgnTLFid == null) {
+		if (other.orgnTLFid != null)
+			return false;
+	} else if (!orgnTLFid.equals(other.orgnTLFid))
+		return false;
+	if (paid != other.paid)
+		return false;
+	if (paymentChannel != other.paymentChannel)
+		return false;
+	if (policyNo == null) {
+		if (other.policyNo != null)
+			return false;
+	} else if (!policyNo.equals(other.policyNo))
+		return false;
+	if (prefix == null) {
+		if (other.prefix != null)
+			return false;
+	} else if (!prefix.equals(other.prefix))
+		return false;
+	if (purchaseOrderId == null) {
+		if (other.purchaseOrderId != null)
+			return false;
+	} else if (!purchaseOrderId.equals(other.purchaseOrderId))
+		return false;
+	if (Double.doubleToLongBits(rate) != Double.doubleToLongBits(other.rate))
+		return false;
+	if (referenceNo == null) {
+		if (other.referenceNo != null)
+			return false;
+	} else if (!referenceNo.equals(other.referenceNo))
+		return false;
+	if (referenceType != other.referenceType)
+		return false;
+	if (reverse != other.reverse)
+		return false;
+	if (salePoint == null) {
+		if (other.salePoint != null)
+			return false;
+	} else if (!salePoint.equals(other.salePoint))
+		return false;
+	if (settlementDate == null) {
+		if (other.settlementDate != null)
+			return false;
+	} else if (!settlementDate.equals(other.settlementDate))
+		return false;
+	if (status == null) {
+		if (other.status != null)
+			return false;
+	} else if (!status.equals(other.status))
+		return false;
+	if (tlfNo == null) {
+		if (other.tlfNo != null)
+			return false;
+	} else if (!tlfNo.equals(other.tlfNo))
+		return false;
+	if (tranCode == null) {
+		if (other.tranCode != null)
+			return false;
+	} else if (!tranCode.equals(other.tranCode))
+		return false;
+	if (version != other.version)
+		return false;
+	return true;
+}
+
+  
 }

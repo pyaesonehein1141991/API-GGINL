@@ -86,10 +86,8 @@ public class PaymentService {
       if (paymentNotComplete.isPresent()) {
         throw new SystemException(ErrorCode.PAYMENT_ALREADY_CONFIRMED,
             "This policy is not completed for previous payment");
-
       } else {
 
-        // ေေေေProduct product = insuredPerson.getProduct();
 
         PaymentChannel channel = null;
         Payment payment = new Payment();
@@ -132,7 +130,7 @@ public class PaymentService {
             .setToTerm(lifePolicy.get().getLastPaymentTerm() + billCollectionDTO.getPaymentTimes());
         payment.setPaymentType(lifePolicy.get().getPaymentType());
         payment.setConfirmDate(new Date());
-        payment.setBpmsInsuredPersonId(billCollectionDTO.getBpmNo());
+        payment.setBpmsReceiptNo(billCollectionDTO.getBpmNo());
 
         payments.add(payment);
 
@@ -304,7 +302,7 @@ public class PaymentService {
         tlf.setPolicyNo(lifePolicy.getPolicyNo());
         tlf.setPaymentChannel(payment.getPaymentChannel());
         tlf.setSalePoint(salePoint);
-        tlf.setBpmsInsuredPersonId(payment.getBpmsInsuredPersonId());
+        tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
         tlfRepository.save(tlf);
       }
 
@@ -487,7 +485,7 @@ public class PaymentService {
         tlf.setSalePoint(salePoint);
         tlf.setPaid(true);
         tlf.setPolicyNo(lifePolicy.getPolicyNo());
-        tlf.setBpmsInsuredPersonId(payment.getBpmsInsuredPersonId());
+        tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
         // setIDPrefixForInsert(tlf);
         tlfRepository.save(tlf);
       }
@@ -535,7 +533,7 @@ public class PaymentService {
       tlf.setSettlementDate(new Date());
       tlf.getCommonCreateAndUpateMarks().setCreatedDate(new Date());
       tlf.setPolicyNo(lifePolicy.getPolicyNo());
-      tlf.setBpmsInsuredPersonId(payment.getBpmsInsuredPersonId());
+      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
       // setIDPrefixForInsert(tlf);
       tlfRepository.save(tlf);
 
@@ -703,7 +701,7 @@ public class PaymentService {
       tlf.getCommonCreateAndUpateMarks().setCreatedDate(new Date());
       // setIDPrefixForInsert(tlf);
       tlf.setPaymentChannel(payment.getPaymentChannel());
-      tlf.setBpmsInsuredPersonId(payment.getBpmsInsuredPersonId());
+      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
       tlfRepository.save(tlf);
     } catch (DAOException e) {
       throw new SystemException(e.getErrorCode(), "Faield to add a new TLF", e);
@@ -761,7 +759,7 @@ public class PaymentService {
       } else {
         netPremium = payment.getNetPremium();
       }
-
+      LifePolicy lifePolicy = lifePolicyRepository.getOne(payment.getReferenceNo());
       netPremium = netPremium * (isEndorse ? -1 : 1);
       double homeAmount = 0;
       // TLF Home Amount
@@ -783,7 +781,9 @@ public class PaymentService {
       tlf.setPaymentChannel(payment.getPaymentChannel());
       tlf.setSalePoint(salePoint);
       tlf.setClearing(isClearing);
+      tlf.setPolicyNo(lifePolicy.getPolicyNo());
       tlf.setSettlementDate(new Date());
+      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
       tlf.getCommonCreateAndUpateMarks().setCreatedDate(new Date());
       // setIDPrefixForInsert(tlf);
       tlfRepository.save(tlf);
@@ -1013,7 +1013,7 @@ public class PaymentService {
       Payment payment = accountPaymentList.get(0).getPayment();
       String enoNo = payment.getReceiptNo();
       Product product = null;
-
+      LifePolicy lifePolicy = lifePolicyRepository.getOne(payment.getReferenceNo());
       if (isRenewal) {
         for (AccountPayment accountPayment : accountPaymentList) {
           totalNetPremium = totalNetPremium + accountPayment.getPayment().getRenewalNetPremium();
@@ -1054,7 +1054,6 @@ public class PaymentService {
               break;
             case LIFE_POLICY:
             case LIFE_BILL_COLLECTION:
-              LifePolicy lifePolicy = lifePolicyRepository.getOne(payment.getReferenceNo());
               product = lifePolicy.getPolicyInsuredPersonList().get(0).getProduct();
               if (ProductIDConfig.isGroupLife(product)) {
                 coaCodeType = COACode.GROUP_LIFE_PAYMENT_ORDER;
@@ -1169,6 +1168,8 @@ public class PaymentService {
       tlf.setClearing(isClearing);
       tlf.setPaymentChannel(payment.getPaymentChannel());
       tlf.setSalePoint(salePoint);
+      tlf.setPolicyNo(lifePolicy.getPolicyNo());
+      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
       tlf.setSettlementDate(new Date());
       tlf.getCommonCreateAndUpateMarks().setCreatedDate(new Date());
       tlfRepository.save(tlf);
@@ -1285,11 +1286,10 @@ public class PaymentService {
       String coaCode = null;
       String accountName = null;
       double commission = 0.0;
-
+      LifePolicy policy = lifePolicyRepository.getOne(payment.getReferenceNo());
       switch (ac.getReferenceType()) {
         case LIFE_BILL_COLLECTION:
         case LIFE_POLICY:
-          LifePolicy policy = lifePolicyRepository.getOne(payment.getReferenceNo());
           Product product = policy.getPolicyInsuredPersonList().get(0).getProduct();
           // coaCode = ProductIDConfig.isFarmer(product) ?
           // COACode.FARMER_AGENT_PAYABLE : coInsureance ?
@@ -1376,6 +1376,8 @@ public class PaymentService {
       tlf.setSalePoint(salePoint);
       tlf.setAgentTransaction(true);
       tlf.setSettlementDate(new Date());
+      tlf.setPolicyNo(policy.getPolicyNo());
+      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
       tlf.getCommonCreateAndUpateMarks().setCreatedDate(new Date());
       tlfRepository.save(tlf);
     } catch (DAOException e) {
@@ -1459,11 +1461,11 @@ public class PaymentService {
       double ownCommission = 0.0;
       Product product;
       TLF tlf = new TLF();
+      LifePolicy lifePolicy = lifePolicyRepository.getOne(payment.getReferenceNo());
       switch (ac.getReferenceType()) {
 
         case LIFE_POLICY:
         case LIFE_BILL_COLLECTION:
-          LifePolicy lifePolicy = lifePolicyRepository.getOne(payment.getReferenceNo());
           product = lifePolicy.getPolicyInsuredPersonList().get(0).getProduct();
           // coaCode = ProductIDConfig.isFarmer(product) ?
           // COACode.FARMER_AGENT_COMMISSION : coInsureance ?
@@ -1547,6 +1549,8 @@ public class PaymentService {
       tlf.setSalePoint(salePoint);
       tlf.setSettlementDate(new Date());
       tlf.setAgentTransaction(true);
+      tlf.setPolicyNo(lifePolicy.getPolicyNo());
+      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
       tlf.getCommonCreateAndUpateMarks().setCreatedDate(new Date());
       // setIDPrefixForInsert(tlf);
       tlfRepository.save(tlf);
@@ -1599,7 +1603,7 @@ public class PaymentService {
       // commission will insert for 3, 4 and 5
       agentCommissionList.add(new AgentCommission(lifePolicy.getId(), payment.getReferenceType(),
           lifePolicy.getAgent(), commission, new Date(), payment.getReceiptNo(), totalPremium,
-          commissionPercent, entryType, rate, rate * commission, currencyCode, totalPremium));
+          commissionPercent, entryType, rate, rate * commission, currencyCode, totalPremium,payment.getBpmsReceiptNo()));
     }
 
     return agentCommissionList;

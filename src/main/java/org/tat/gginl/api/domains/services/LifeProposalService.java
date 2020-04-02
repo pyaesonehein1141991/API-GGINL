@@ -558,7 +558,6 @@ public class LifeProposalService {
       payment.setHomePremium(payment.getBasicPremium());
       payment.setHomeAddOnPremium(payment.getAddOnPremium());
       payment.setCommonCreateAndUpateMarks(recorder);
-      payment.setBpmsInsuredPersonId(groupFarmerProposal.getBpmsInsuredPersonId());
       paymentList.add(payment);
     } catch (DAOException e) {
       throw new SystemException(e.getErrorCode(), e.getMessage());
@@ -580,7 +579,7 @@ public class LifeProposalService {
           firstAgentCommission, new Date(), payment.getReceiptNo(),
           groupFarmerProposal.getPremium(), commissionPercent,
           AgentCommissionEntryType.UNDERWRITING, rate, (rate * firstAgentCommission), "KYT",
-          (rate * groupFarmerProposal.getPremium())));
+          (rate * groupFarmerProposal.getPremium()),null));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -747,7 +746,7 @@ public class LifeProposalService {
       tlf.setPaid(true);
       // setIDPrefixForInsert(tlf);
       tlf.setPaymentChannel(payment.getPaymentChannel());
-      tlf.setBpmsInsuredPersonId(payment.getBpmsInsuredPersonId());
+      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
       // paymentDAO.insertTLF(tlf);
     } catch (Exception e) {
       e.printStackTrace();
@@ -831,7 +830,7 @@ public class LifeProposalService {
       tlf.setPolicyNo(policyNo);
       tlf.setCommonCreateAndUpateMarks(recorder);
       tlf.setPaid(true);
-      tlf.setBpmsInsuredPersonId(payment.getBpmsInsuredPersonId());
+      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
       // setIDPrefixForInsert(tlf);
       /// paymentDAO.insertTLF(tlf);
     } catch (Exception e) {
@@ -972,7 +971,7 @@ public class LifeProposalService {
       tlf.setPaymentChannel(payment.getPaymentChannel());
       tlf.setSalePoint(salePoint);
       tlf.setCommonCreateAndUpateMarks(recorder);
-      tlf.setBpmsInsuredPersonId(payment.getBpmsInsuredPersonId());
+      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
       // tlf.setPolicyNo(policyNo);
       // setIDPrefixForInsert(tlf);
       /// paymentDAO.insertTLF(tlf);
@@ -1019,7 +1018,7 @@ public class LifeProposalService {
       tlf.setSalePoint(salePoint);
       tlf.setClearing(isClearing);
       tlf.setCommonCreateAndUpateMarks(recorder);
-      tlf.setBpmsInsuredPersonId(payment.getBpmsInsuredPersonId());
+      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
       // tlf.setPolicyNo(policyNo);
       // setIDPrefixForInsert(tlf);
       // paymentDAO.insertTLF(tlf);
@@ -1535,7 +1534,7 @@ public class LifeProposalService {
         payment.setHomePremium(payment.getBasicPremium());
         payment.setHomeAddOnPremium(payment.getAddOnPremium());
         payment.setCommonCreateAndUpateMarks(recorder);
-        payment.setBpmsInsuredPersonId(lifePolicy.getBpmsInsuredPersonId());
+        payment.setBpmsReceiptNo(lifePolicy.getBpmsInsuredPersonId());
         paymentList.add(payment);
       });
     } catch (DAOException e) {
@@ -1562,7 +1561,7 @@ public class LifeProposalService {
             PolicyReferenceType.STUDENT_LIFE_POLICY, lifePolicy.getAgent(), firstAgentCommission,
             new Date(), payment.getReceiptNo(), lifePolicy.getTotalTermPremium(), commissionPercent,
             AgentCommissionEntryType.UNDERWRITING, rate, (rate * firstAgentCommission), "KYT",
-            (rate * lifePolicy.getTotalTermPremium())));
+            (rate * lifePolicy.getTotalTermPremium()),null));
       });
     } catch (Exception e) {
       e.printStackTrace();

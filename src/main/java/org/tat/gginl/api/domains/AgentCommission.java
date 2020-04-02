@@ -77,6 +77,10 @@ public class AgentCommission implements IDataModel {
 	private AgentCommissionEntryType entryType;
 	private double premium;
 	private double percentage;
+	
+	@Column(name = "BPMSRECEIPTNO")
+	private String bpmsReceiptNo;
+
 
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "AGENTID", referencedColumnName = "ID")
@@ -124,7 +128,7 @@ public class AgentCommission implements IDataModel {
 	}
 
 	public AgentCommission(String referenceNo, PolicyReferenceType referenceType, Agent agent, double commission, Date commissionStartDate, String receiptNo, double premium,
-			double percentage, AgentCommissionEntryType entryType, double rate, double homeCommission, String cur, double homePremium) {
+			double percentage, AgentCommissionEntryType entryType, double rate, double homeCommission, String cur, double homePremium,String bpmsReceiptNo) {
 		this.referenceNo = referenceNo;
 		this.referenceType = referenceType;
 		this.agent = agent;
@@ -140,6 +144,7 @@ public class AgentCommission implements IDataModel {
 		this.homeCommission = homeCommission;
 		this.CUR = cur;
 		this.homePremium = homePremium;
+		this.bpmsReceiptNo=bpmsReceiptNo;
 	}
 
 	public AgentCommission(String referenceNo, PolicyReferenceType referenceType, Agent agent, double commission) {
@@ -412,6 +417,14 @@ public class AgentCommission implements IDataModel {
 		this.recorder = recorder;
 	}
 
+	public String getBpmsReceiptNo() {
+		return bpmsReceiptNo;
+	}
+
+	public void setBpmsReceiptNo(String bpmsReceiptNo) {
+		this.bpmsReceiptNo = bpmsReceiptNo;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -420,6 +433,7 @@ public class AgentCommission implements IDataModel {
 		result = prime * result + ((agent == null) ? 0 : agent.hashCode());
 		result = prime * result + ((bank == null) ? 0 : bank.hashCode());
 		result = prime * result + ((bankaccountno == null) ? 0 : bankaccountno.hashCode());
+		result = prime * result + ((bpmsReceiptNo == null) ? 0 : bpmsReceiptNo.hashCode());
 		result = prime * result + ((chequeNo == null) ? 0 : chequeNo.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(commission);
@@ -446,6 +460,7 @@ public class AgentCommission implements IDataModel {
 		temp = Double.doubleToLongBits(rate);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((receiptNo == null) ? 0 : receiptNo.hashCode());
+		result = prime * result + ((recorder == null) ? 0 : recorder.hashCode());
 		result = prime * result + ((referenceNo == null) ? 0 : referenceNo.hashCode());
 		result = prime * result + ((referenceType == null) ? 0 : referenceType.hashCode());
 		result = prime * result + ((sanctionDate == null) ? 0 : sanctionDate.hashCode());
@@ -485,6 +500,11 @@ public class AgentCommission implements IDataModel {
 			if (other.bankaccountno != null)
 				return false;
 		} else if (!bankaccountno.equals(other.bankaccountno))
+			return false;
+		if (bpmsReceiptNo == null) {
+			if (other.bpmsReceiptNo != null)
+				return false;
+		} else if (!bpmsReceiptNo.equals(other.bpmsReceiptNo))
 			return false;
 		if (chequeNo == null) {
 			if (other.chequeNo != null)
@@ -549,6 +569,11 @@ public class AgentCommission implements IDataModel {
 				return false;
 		} else if (!receiptNo.equals(other.receiptNo))
 			return false;
+		if (recorder == null) {
+			if (other.recorder != null)
+				return false;
+		} else if (!recorder.equals(other.recorder))
+			return false;
 		if (referenceNo == null) {
 			if (other.referenceNo != null)
 				return false;
@@ -577,5 +602,7 @@ public class AgentCommission implements IDataModel {
 			return false;
 		return true;
 	}
+
+	
 
 }
