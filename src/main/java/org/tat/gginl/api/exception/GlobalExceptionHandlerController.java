@@ -37,15 +37,22 @@ public class GlobalExceptionHandlerController {
 	}
 
 	@ExceptionHandler(CustomException.class)
-	public void handleCustomException(HttpServletResponse res, CustomException ex) throws IOException {
+	public ResponseEntity<Object> handleCustomException(HttpServletResponse res, CustomException ex)
+			throws IOException {
 		logger.error("handleCustomException: " + ex.getMessage());
 		res.sendError(ex.getHttpStatus().value(), ex.getMessage());
+		ResponseDTO<Object> responseDTO = ResponseDTO.builder().status(ex.getHttpStatus().toString())
+				.message(ex.getMessage()).build();
+		return ResponseEntity.badRequest().body(responseDTO);
 	}
 
 	@ExceptionHandler(AccessDeniedException.class)
-	public void handleAccessDeniedException(HttpServletResponse res) throws IOException {
+	public ResponseEntity<Object> handleAccessDeniedException(HttpServletResponse res) throws IOException {
 		logger.error("Access Denied");
-		res.sendError(HttpStatus.FORBIDDEN.value(), "Access denied");
+//		res.sendError(HttpStatus.FORBIDDEN.value(), "Access denied");
+		ResponseDTO<Object> responseDTO = ResponseDTO.builder().status(HttpStatus.FORBIDDEN.toString())
+				.message("Access denied").build();
+		return ResponseEntity.badRequest().body(responseDTO);
 	}
 
 	@ExceptionHandler(Exception.class)
