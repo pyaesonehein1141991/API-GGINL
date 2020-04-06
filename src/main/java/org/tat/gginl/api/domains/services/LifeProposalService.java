@@ -553,6 +553,7 @@ public class LifeProposalService {
       payment.setCur("KYT");
       payment.setRate(rate);
       payment.setComplete(true);
+      payment.setBpmsReceiptNo(farmerProposalDTO.getBpmNo());
       payment.setAmount(payment.getNetPremium());
       payment.setHomeAmount(payment.getNetPremium());
       payment.setHomePremium(payment.getBasicPremium());
@@ -579,7 +580,7 @@ public class LifeProposalService {
           firstAgentCommission, new Date(), payment.getReceiptNo(),
           groupFarmerProposal.getPremium(), commissionPercent,
           AgentCommissionEntryType.UNDERWRITING, rate, (rate * firstAgentCommission), "KYT",
-          (rate * groupFarmerProposal.getPremium()),null));
+          (rate * groupFarmerProposal.getPremium()),payment.getBpmsReceiptNo()));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -879,6 +880,7 @@ public class LifeProposalService {
       tlf.setSalePoint(salePoint);
       tlf.setPolicyNo(policyNo);
       tlf.setAgentTransaction(true);
+      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
       tlf.setPaid(true);
       tlf.setCommonCreateAndUpateMarks(recorder);
       // setIDPrefixForInsert(tlf);
@@ -1100,6 +1102,7 @@ public class LifeProposalService {
       tlf.setPaymentChannel(payment.getPaymentChannel());
       tlf.setSalePoint(salePoint);
       tlf.setPolicyNo(policyNo);
+      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
       tlf.setPaid(true);
       tlf.setAgentTransaction(true);
       tlf.setCommonCreateAndUpateMarks(recorder);
@@ -1561,7 +1564,7 @@ public class LifeProposalService {
             PolicyReferenceType.STUDENT_LIFE_POLICY, lifePolicy.getAgent(), firstAgentCommission,
             new Date(), payment.getReceiptNo(), lifePolicy.getTotalTermPremium(), commissionPercent,
             AgentCommissionEntryType.UNDERWRITING, rate, (rate * firstAgentCommission), "KYT",
-            (rate * lifePolicy.getTotalTermPremium()),null));
+            (rate * lifePolicy.getTotalTermPremium()),payment.getBpmsReceiptNo()));
       });
     } catch (Exception e) {
       e.printStackTrace();
