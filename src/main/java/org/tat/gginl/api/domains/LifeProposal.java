@@ -149,7 +149,7 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
   private String chequeNo;
 
   @Transient
-  private String bpmsInsuredPersonId;
+  private String bpmsProposalNo;
 
 
   @Version
@@ -214,14 +214,6 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
   }
 
 
-
-  public String getBpmsInsuredPersonId() {
-    return bpmsInsuredPersonId;
-  }
-
-  public void setBpmsInsuredPersonId(String bpmsInsuredPersonId) {
-    this.bpmsInsuredPersonId = bpmsInsuredPersonId;
-  }
 
   public void setProposalNo(String proposalNo) {
     this.proposalNo = proposalNo;
@@ -706,124 +698,9 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
     this.recorder = recorder;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((agent == null) ? 0 : agent.hashCode());
-    result = prime * result + ((branch == null) ? 0 : branch.hashCode());
-    result = prime * result + (complete ? 1231 : 1237);
-    result = prime * result + ((customer == null) ? 0 : customer.hashCode());
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
-    result = prime * result + (isMigrate ? 1231 : 1237);
-    result = prime * result + (isSkipPaymentTLF ? 1231 : 1237);
-    result = prime * result + ((lifePolicy == null) ? 0 : lifePolicy.hashCode());
-    result = prime * result + ((organization == null) ? 0 : organization.hashCode());
-    result = prime * result + ((paymentType == null) ? 0 : paymentType.hashCode());
-    result = prime * result + ((portalId == null) ? 0 : portalId.hashCode());
-    result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
-    result = prime * result + ((proposalNo == null) ? 0 : proposalNo.hashCode());
-    result = prime * result + ((proposalType == null) ? 0 : proposalType.hashCode());
-    result = prime * result + ((referral == null) ? 0 : referral.hashCode());
-    result = prime * result + ((saleMan == null) ? 0 : saleMan.hashCode());
-    result = prime * result + ((submittedDate == null) ? 0 : submittedDate.hashCode());
-    result = prime * result + ((groupFarmerProposal == null) ? 0 : groupFarmerProposal.hashCode());
-    result = prime * result + version;
-    return result;
-  }
+ 
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    LifeProposal other = (LifeProposal) obj;
-    if (agent == null) {
-      if (other.agent != null)
-        return false;
-    } else if (!agent.equals(other.agent))
-      return false;
-    if (branch == null) {
-      if (other.branch != null)
-        return false;
-    } else if (!branch.equals(other.branch))
-      return false;
-    if (complete != other.complete)
-      return false;
-    if (customer == null) {
-      if (other.customer != null)
-        return false;
-    } else if (!customer.equals(other.customer))
-      return false;
-    if (id == null) {
-      if (other.id != null)
-        return false;
-    } else if (!id.equals(other.id))
-      return false;
-    if (isMigrate != other.isMigrate)
-      return false;
-    if (isSkipPaymentTLF != other.isSkipPaymentTLF)
-      return false;
-    if (lifePolicy == null) {
-      if (other.lifePolicy != null)
-        return false;
-    } else if (!lifePolicy.equals(other.lifePolicy))
-      return false;
-    if (organization == null) {
-      if (other.organization != null)
-        return false;
-    } else if (!organization.equals(other.organization))
-      return false;
-    if (groupFarmerProposal == null) {
-      if (other.groupFarmerProposal != null)
-        return false;
-    } else if (!groupFarmerProposal.equals(other.groupFarmerProposal))
-      return false;
-    if (paymentType == null) {
-      if (other.paymentType != null)
-        return false;
-    } else if (!paymentType.equals(other.paymentType))
-      return false;
-    if (portalId == null) {
-      if (other.portalId != null)
-        return false;
-    } else if (!portalId.equals(other.portalId))
-      return false;
-    if (prefix == null) {
-      if (other.prefix != null)
-        return false;
-    } else if (!prefix.equals(other.prefix))
-      return false;
-    if (proposalNo == null) {
-      if (other.proposalNo != null)
-        return false;
-    } else if (!proposalNo.equals(other.proposalNo))
-      return false;
-    if (proposalType != other.proposalType)
-      return false;
-    if (referral == null) {
-      if (other.referral != null)
-        return false;
-    } else if (!referral.equals(other.referral))
-      return false;
-    if (saleMan == null) {
-      if (other.saleMan != null)
-        return false;
-    } else if (!saleMan.equals(other.saleMan))
-      return false;
-    if (submittedDate == null) {
-      if (other.submittedDate != null)
-        return false;
-    } else if (!submittedDate.equals(other.submittedDate))
-      return false;
-    if (version != other.version)
-      return false;
-    return true;
-  }
-
+ 
   @Override
   public String getUserType() {
     if (saleMan != null) {
@@ -835,11 +712,190 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
     }
   }
 
-  public String getTempId() {
+  
+  @Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((agent == null) ? 0 : agent.hashCode());
+	result = prime * result + ((bpmsProposalNo == null) ? 0 : bpmsProposalNo.hashCode());
+	result = prime * result + ((branch == null) ? 0 : branch.hashCode());
+	result = prime * result + ((chequeNo == null) ? 0 : chequeNo.hashCode());
+	result = prime * result + (complete ? 1231 : 1237);
+	result = prime * result + ((customer == null) ? 0 : customer.hashCode());
+	result = prime * result + ((customerClsOfHealth == null) ? 0 : customerClsOfHealth.hashCode());
+	result = prime * result
+			+ ((customerMedicalCheckUpAttachmentList == null) ? 0 : customerMedicalCheckUpAttachmentList.hashCode());
+	result = prime * result + ((fromBank == null) ? 0 : fromBank.hashCode());
+	result = prime * result + ((groupFarmerProposal == null) ? 0 : groupFarmerProposal.hashCode());
+	result = prime * result + ((id == null) ? 0 : id.hashCode());
+	result = prime * result + (isMigrate ? 1231 : 1237);
+	result = prime * result + (isSkipPaymentTLF ? 1231 : 1237);
+	result = prime * result + ((lifePolicy == null) ? 0 : lifePolicy.hashCode());
+	result = prime * result + ((organization == null) ? 0 : organization.hashCode());
+	result = prime * result + ((paymentChannel == null) ? 0 : paymentChannel.hashCode());
+	result = prime * result + ((paymentType == null) ? 0 : paymentType.hashCode());
+	result = prime * result + ((portalId == null) ? 0 : portalId.hashCode());
+	result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
+	result = prime * result + ((proposalNo == null) ? 0 : proposalNo.hashCode());
+	result = prime * result + ((proposalStatus == null) ? 0 : proposalStatus.hashCode());
+	result = prime * result + ((proposalType == null) ? 0 : proposalType.hashCode());
+	result = prime * result + ((recorder == null) ? 0 : recorder.hashCode());
+	result = prime * result + ((referral == null) ? 0 : referral.hashCode());
+	result = prime * result + ((saleMan == null) ? 0 : saleMan.hashCode());
+	result = prime * result + ((salePoint == null) ? 0 : salePoint.hashCode());
+	result = prime * result + ((submittedDate == null) ? 0 : submittedDate.hashCode());
+	result = prime * result + ((tempId == null) ? 0 : tempId.hashCode());
+	result = prime * result + ((toBank == null) ? 0 : toBank.hashCode());
+	result = prime * result + version;
+	return result;
+}
+
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	LifeProposal other = (LifeProposal) obj;
+	if (agent == null) {
+		if (other.agent != null)
+			return false;
+	} else if (!agent.equals(other.agent))
+		return false;
+	if (bpmsProposalNo == null) {
+		if (other.bpmsProposalNo != null)
+			return false;
+	} else if (!bpmsProposalNo.equals(other.bpmsProposalNo))
+		return false;
+	if (branch == null) {
+		if (other.branch != null)
+			return false;
+	} else if (!branch.equals(other.branch))
+		return false;
+	if (chequeNo == null) {
+		if (other.chequeNo != null)
+			return false;
+	} else if (!chequeNo.equals(other.chequeNo))
+		return false;
+	if (complete != other.complete)
+		return false;
+	if (customer == null) {
+		if (other.customer != null)
+			return false;
+	} else if (!customer.equals(other.customer))
+		return false;
+	if (customerClsOfHealth != other.customerClsOfHealth)
+		return false;
+	if (customerMedicalCheckUpAttachmentList == null) {
+		if (other.customerMedicalCheckUpAttachmentList != null)
+			return false;
+	} else if (!customerMedicalCheckUpAttachmentList.equals(other.customerMedicalCheckUpAttachmentList))
+		return false;
+	if (fromBank == null) {
+		if (other.fromBank != null)
+			return false;
+	} else if (!fromBank.equals(other.fromBank))
+		return false;
+	if (groupFarmerProposal == null) {
+		if (other.groupFarmerProposal != null)
+			return false;
+	} else if (!groupFarmerProposal.equals(other.groupFarmerProposal))
+		return false;
+	if (id == null) {
+		if (other.id != null)
+			return false;
+	} else if (!id.equals(other.id))
+		return false;
+	if (isMigrate != other.isMigrate)
+		return false;
+	if (isSkipPaymentTLF != other.isSkipPaymentTLF)
+		return false;
+	if (lifePolicy == null) {
+		if (other.lifePolicy != null)
+			return false;
+	} else if (!lifePolicy.equals(other.lifePolicy))
+		return false;
+	if (organization == null) {
+		if (other.organization != null)
+			return false;
+	} else if (!organization.equals(other.organization))
+		return false;
+	if (paymentChannel != other.paymentChannel)
+		return false;
+	if (paymentType == null) {
+		if (other.paymentType != null)
+			return false;
+	} else if (!paymentType.equals(other.paymentType))
+		return false;
+	if (portalId == null) {
+		if (other.portalId != null)
+			return false;
+	} else if (!portalId.equals(other.portalId))
+		return false;
+	if (prefix == null) {
+		if (other.prefix != null)
+			return false;
+	} else if (!prefix.equals(other.prefix))
+		return false;
+	if (proposalNo == null) {
+		if (other.proposalNo != null)
+			return false;
+	} else if (!proposalNo.equals(other.proposalNo))
+		return false;
+	if (proposalStatus != other.proposalStatus)
+		return false;
+	if (proposalType != other.proposalType)
+		return false;
+	if (recorder == null) {
+		if (other.recorder != null)
+			return false;
+	} else if (!recorder.equals(other.recorder))
+		return false;
+	if (referral == null) {
+		if (other.referral != null)
+			return false;
+	} else if (!referral.equals(other.referral))
+		return false;
+	if (saleMan == null) {
+		if (other.saleMan != null)
+			return false;
+	} else if (!saleMan.equals(other.saleMan))
+		return false;
+	if (salePoint == null) {
+		if (other.salePoint != null)
+			return false;
+	} else if (!salePoint.equals(other.salePoint))
+		return false;
+	if (submittedDate == null) {
+		if (other.submittedDate != null)
+			return false;
+	} else if (!submittedDate.equals(other.submittedDate))
+		return false;
+	if (tempId == null) {
+		if (other.tempId != null)
+			return false;
+	} else if (!tempId.equals(other.tempId))
+		return false;
+	if (toBank == null) {
+		if (other.toBank != null)
+			return false;
+	} else if (!toBank.equals(other.toBank))
+		return false;
+	if (version != other.version)
+		return false;
+	return true;
+}
+
+public String getTempId() {
     return tempId;
   }
 
-  public void setTempId(String tempId) {
+  
+
+public void setTempId(String tempId) {
     this.tempId = tempId;
   }
 
@@ -874,6 +930,14 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
   public void setChequeNo(String chequeNo) {
     this.chequeNo = chequeNo;
   }
+
+public String getBpmsProposalNo() {
+	return bpmsProposalNo;
+}
+
+public void setBpmsProposalNo(String bpmsProposalNo) {
+	this.bpmsProposalNo = bpmsProposalNo;
+}
 
 
 

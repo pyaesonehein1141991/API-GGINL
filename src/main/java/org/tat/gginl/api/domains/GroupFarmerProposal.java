@@ -108,6 +108,10 @@ public class GroupFarmerProposal implements Serializable {
 
   @Transient
   private String bpmsInsuredPersonId;
+  
+  
+  private String bpmsProposalNo;
+
 
   @Version
   private int version;

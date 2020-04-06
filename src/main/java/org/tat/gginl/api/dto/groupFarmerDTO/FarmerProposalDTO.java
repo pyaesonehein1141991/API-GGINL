@@ -64,6 +64,7 @@ public class FarmerProposalDTO {
   private List<GroupFarmerProposalInsuredPersonDTO> proposalInsuredPersonList;
 
   @ApiModelProperty(position = 12, example = "TRF", required = true)
+  @NotBlank(message = "paymentChannel is mandatory")
   private String paymentChannel;
 
   @ApiModelProperty(position = 13, example = "ISSYS010005000000021118072016", required = true)
@@ -79,6 +80,12 @@ public class FarmerProposalDTO {
   @NotBlank(message = "userId is mandatory")
   private String userId;
 
-  @ApiModelProperty(position = 17, example = "36221e42-a0000040-133dc830-59dccb1a", required = true)
-  private String bpmNo;
+  @ApiModelProperty(position = 17, example = "BPMS/CSH/001", required = true)
+  @NotBlank(message = "bpmsReceiptNo is mandatory")
+  private String bpmsReceiptNo;
+  
+  @ApiModelProperty(position = 18, example = "BPMS/P/001", required = true)
+  @NotBlank(message = "bpmsProposalNo is mandatory")
+  private String bpmsProposalNo;
+  
 }

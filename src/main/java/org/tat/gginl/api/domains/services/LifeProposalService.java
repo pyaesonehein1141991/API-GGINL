@@ -201,9 +201,10 @@ public class LifeProposalService {
       tlfRepository.saveAll(tlfList);
       return policyList;
 
-    } catch (Exception e) {
+    } catch (DAOException e) {
+    	
       logger.error("JOEERROR:" + e.getMessage(), e);
-      throw e;
+      throw new SystemException(e.getErrorCode(), e.getMessage());
     }
 
   }
@@ -253,19 +254,17 @@ public class LifeProposalService {
       if (salePointOptional.isPresent()) {
         groupFarmerProposal.setSalePoint(salePointOptional.get());
       }
-
+      groupFarmerProposal.setBpmsProposalNo(groupFarmerProposalDTO.getBpmsProposalNo());
       CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
       recorder.setCreatedDate(new Date());
       groupFarmerProposal.setCommonCreateAndUpateMarks(recorder);
       String proposalNo = customIdRepo.getNextId("GROUPFARMER_LIFE_PROPOSAL_NO", null);
       groupFarmerProposal.setProposalNo(proposalNo);
-      groupFarmerProposal.setBpmsInsuredPersonId(groupFarmerProposalDTO.getBpmNo());
 
     } catch (DAOException e) {
+    	logger.error("JOEERROR:" + e.getMessage());
       throw new SystemException(e.getErrorCode(), e.getMessage());
-    } catch (Exception e) {
-      logger.error("JOEERROR:" + e.getMessage());
-    }
+    } 
     return groupFarmerProposal;
   }
 
@@ -331,12 +330,12 @@ public class LifeProposalService {
         if (saleManOptional.isPresent()) {
           lifeProposal.setSaleMan(saleManOptional.get());
         }
+   
         lifeProposal.setSalePoint(salePointOptional.get());
         lifeProposal.getProposalInsuredPersonList().add(createInsuredPerson(insuredPerson));
         String proposalNo = customIdRepo.getNextId("FARMER_LIFE_PROPOSAL_NO", null);
         lifeProposal.setProposalNo(proposalNo);
         lifeProposal.setPrefix("ISLIF001");
-        lifeProposal.setBpmsInsuredPersonId(groupFarmerProposalDTO.getBpmNo());
         lifeProposalList.add(lifeProposal);
 
       });
@@ -553,7 +552,7 @@ public class LifeProposalService {
       payment.setCur("KYT");
       payment.setRate(rate);
       payment.setComplete(true);
-      payment.setBpmsReceiptNo(farmerProposalDTO.getBpmNo());
+      payment.setBpmsReceiptNo(farmerProposalDTO.getBpmsReceiptNo());
       payment.setAmount(payment.getNetPremium());
       payment.setHomeAmount(payment.getNetPremium());
       payment.setHomePremium(payment.getBasicPremium());
@@ -1235,7 +1234,6 @@ public class LifeProposalService {
         String proposalNo = customIdRepo.getNextId("STUDENT_LIFE_PROPOSAL_NO_ID_GEN", null);
         lifeProposal.setProposalNo(proposalNo);
         lifeProposal.setPrefix("ISLIF001");
-        lifeProposal.setBpmsInsuredPersonId(studentLifeProposalDTO.getBpmNo());
         lifeProposalList.add(lifeProposal);
       });
     } catch (DAOException e) {
@@ -1268,7 +1266,6 @@ public class LifeProposalService {
       CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
       recorder.setCreatedDate(new Date());
       policy.setRecorder(recorder);
-      policy.setBpmsInsuredPersonId(proposal.getBpmsInsuredPersonId());
       policyList.add(policy);
     });
     return policyList;
