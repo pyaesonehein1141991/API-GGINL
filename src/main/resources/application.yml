@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:sqlserver://localhost;databaseName=ggli
+    url: jdbc:sqlserver://acehawksvr3;databaseName=ggli
     username: sa
     password: 123@ace
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
@@ -21,7 +21,6 @@ server:
    port: ${PORT:8081} # This is the default port anyway, but you can change it here
    
 farmerProductId: ISPRD003001000009376125072017
-
 studentLifeProductId: ISPRD003000009607306082019
 
 

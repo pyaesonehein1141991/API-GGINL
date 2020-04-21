@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping("/groupfarmer")
-@Api(tags = "GroupFarmer Proposal")
+@Api(tags = "Group-Farmer")
 public class GroupFarmerController {
 
 	@Autowired
