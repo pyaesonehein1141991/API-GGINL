@@ -151,6 +151,8 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
   @Transient
   private String bpmsProposalNo;
 
+  @Transient
+  private String paymentBranch;
 
   @Version
   private int version;
@@ -937,6 +939,14 @@ public String getBpmsProposalNo() {
 
 public void setBpmsProposalNo(String bpmsProposalNo) {
 	this.bpmsProposalNo = bpmsProposalNo;
+}
+
+public String getPaymentBranch() {
+	return paymentBranch;
+}
+
+public void setPaymentBranch(String paymentBranch) {
+	this.paymentBranch = paymentBranch;
 }
 
 

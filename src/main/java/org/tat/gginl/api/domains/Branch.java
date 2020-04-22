@@ -40,6 +40,11 @@ public class Branch implements Serializable {
 //	@Column(name = "ISCOINSUACCESS")
 //	private boolean isCoInsuAccess;
 
+	
+	private String payableACName;
+
+	private String receivableACName;
+
 	private String description;
 	
 	@OneToOne(fetch = FetchType.LAZY)

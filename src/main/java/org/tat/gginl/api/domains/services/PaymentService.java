@@ -26,6 +26,7 @@ import org.tat.gginl.api.common.emumdata.Status;
 import org.tat.gginl.api.domains.AgentCommission;
 import org.tat.gginl.api.domains.Bank;
 import org.tat.gginl.api.domains.Branch;
+import org.tat.gginl.api.domains.GroupFarmerProposal;
 import org.tat.gginl.api.domains.LifePolicy;
 import org.tat.gginl.api.domains.LifeProposal;
 import org.tat.gginl.api.domains.Payment;
@@ -67,6 +68,9 @@ public class PaymentService {
 
   @Autowired
   private BankService bankService;
+  
+  @Autowired
+  private BranchService branchService;
 
   @Autowired
   private AgentCommissionRepository agentCommissionRepository;
@@ -82,6 +86,7 @@ public class PaymentService {
           paymentRepository.findPaymentNotComplete(lifePolicy.get().getId());
       Optional<Bank> fromBank = bankService.findById(billCollectionDTO.getFromBank());
       Optional<Bank> toBank = bankService.findById(billCollectionDTO.getFromBank());
+      Optional<Branch> paymentBranch = branchService.findById(billCollectionDTO.getPaymentBranch());
       // PolicyInsuredPerson insuredPerson = lifePolicy.get().getInsuredPersonInfo().get(0);
       if (paymentNotComplete.isPresent()) {
         throw new SystemException(ErrorCode.PAYMENT_ALREADY_CONFIRMED,
@@ -134,7 +139,7 @@ public class PaymentService {
 
         payments.add(payment);
 
-        payments = extendPaymentTimes(payments, null, CurrencyUtils.getCurrencyCode(null));
+        payments = extendPaymentTimes(payments, paymentBranch.get(), CurrencyUtils.getCurrencyCode(null));
 
       }
     } catch (DAOException e) {
@@ -144,7 +149,7 @@ public class PaymentService {
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public List<Payment> extendPaymentTimes(List<Payment> paymentList, Branch branch,
+  public List<Payment> extendPaymentTimes(List<Payment> paymentList, Branch paymentBranch,
       String currencyCode) {
     List<Payment> payments = new ArrayList<Payment>();
 
@@ -163,8 +168,10 @@ public class PaymentService {
         } else {
           receiptNo = customIdRepo.getNextId("TRANSFER_RECEIPT_ID_GEN", null);
         }
+        
         payment.setReceiptNo(receiptNo);
         payment = paymentRepository.save(payment);
+       
         lifePolicy = lifePolicyRepository.getOne(payment.getReferenceNo());
         salePoint = lifePolicy.getSalePoint();
 
@@ -178,20 +185,23 @@ public class PaymentService {
         if (lifePolicy.getAgent() != null) {
           agentCommissionList =
               getAgentCommissionsForLifeBillCollection(lifePolicy, paymentList.get(0), null);
-
+          
           /** Add AgentCommission **/
           if (agentCommissionList != null && !agentCommissionList.isEmpty()) {
             addAgentCommission(agentCommissionList);
           }
-
           /** Add AgentCommission TLF **/
           addAgentcommissionLifeProposalBillCollection(lifePolicy, payment);
-
         }
-
-        /** Add Payment TLF **/
-        preActivateBillCollection(payment);
-
+        
+        if(lifePolicy.getBranch().getId().equals(paymentBranch.getId())) {
+        	  /** Add Payment TLF **/
+            preActivateBillCollection(payment);
+        }else {
+        	 /** Add Payment TLF for interBranch **/
+        	preActivateBillCollectionForInterBranch(payment, paymentBranch);	
+        }
+        
         if (payment.getPaymentChannel().equals(PaymentChannel.CHEQUE)
             || payment.getPaymentChannel().equals(PaymentChannel.SUNDRY)) {
           List<Payment> tempList = new ArrayList<Payment>();
@@ -248,8 +258,97 @@ public class PaymentService {
           salePoint);
     } catch (DAOException e) {
     }
-
+   
   }
+  
+  @Transactional(propagation = Propagation.REQUIRED)
+  public void preActivateBillCollectionForInterBranch(Payment payment,Branch paymentBranch) {
+    try {
+
+      LifePolicy lifePolicy = lifePolicyRepository.getOne(payment.getReferenceNo());
+      // MedicalPolicy medicalPolicy =
+      // medicalPolicyService.findMedicalPolicyById(payment.getReferenceNo());
+      Branch policyBranch = lifePolicy.getBranch();
+      String customerId = "";
+      if (lifePolicy != null) {
+        customerId = lifePolicy.getCustomer() != null ? lifePolicy.getCustomer().getId()
+            : lifePolicy.getOrganization().getId();
+      }
+      String accountCode = lifePolicy.getPolicyInsuredPersonList().get(0).getProduct()
+          .getProductGroup().getAccountCode();
+      String currencyCode = CurrencyUtils.getCurrencyCode(null);
+      List<AccountPayment> accountPaymentList = new ArrayList<AccountPayment>();
+      String receiptNo = payment.getReceiptNo();
+      accountPaymentList.add(new AccountPayment(accountCode, payment));
+      SalePoint salePoint = lifePolicy.getSalePoint();
+      
+		preActivatePaymentForInterBranch(accountPaymentList, lifePolicy.getCustomerId(), paymentBranch, null, false, currencyCode, salePoint, policyBranch);
+  	  
+    } catch (DAOException e) {
+    }
+    
+  }
+  
+     @Transactional(propagation = Propagation.REQUIRED)
+	public void preActivatePaymentForInterBranch(List<AccountPayment> accountPaymentList, String customerId, Branch userBranch, List<AgentCommission> agentCommissionList,
+			boolean isRenewal, String currencyCode, SalePoint salePoint, Branch proposalBranch) {
+		String tlfNo = accountPaymentList.get(0).getPayment().getReceiptNo();
+		// Premium receivable Debit
+		addNewTLF_For_CashDebitForPremiumForInterBranch(accountPaymentList, customerId, userBranch, tlfNo, isRenewal, currencyCode, salePoint, proposalBranch);
+
+		// Premium Debit
+		addNewTLF_For_CashDebitForPremium(accountPaymentList, customerId, userBranch, tlfNo, isRenewal, currencyCode, salePoint);
+
+		for (AccountPayment accountPayment : accountPaymentList) {
+			Payment payment = accountPayment.getPayment();
+
+			// 9. Premium Payable Credit
+			addNewTLF_For_PremiumCreditPayableForInterBranch(payment, customerId, userBranch, proposalBranch.getPayableACName(), tlfNo, isRenewal, currencyCode, salePoint,
+					proposalBranch);
+
+			// premium Credit
+			addNewTLF_For_PremiumCredit(payment, customerId, proposalBranch, accountPayment.getAcccountName(), tlfNo, isRenewal, currencyCode, salePoint);
+
+		}
+
+//		if (agentCommissionList != null && !agentCommissionList.isEmpty()) {
+//			// 10. Narration: Agent Commission Payable for . . . .
+//			String eNo = accountPaymentList.get(0).getPayment().getId();
+//			Payment paymentByIndex = accountPaymentList.get(0).getPayment();
+//			addAgentCommissionTLF(agentCommissionList, proposalBranch, paymentByIndex, eNo, isRenewal, currencyCode, salePoint);
+//		}
+
+	}
+     
+     @Transactional(propagation = Propagation.REQUIRED)
+ 	public void addNewTLF_For_PremiumCreditPayableForInterBranch(Payment payment, String customerId, Branch branch, String accountName, String tlfNo, boolean isRenewal,
+ 			String currenyCode, SalePoint salePoint, Branch proposalBranch) {
+ 		try {
+
+ 			double homeAmount = payment.getNetPremium();
+ 			if (isRenewal) {
+ 				homeAmount = payment.getRenewalNetPremium();
+ 			}
+		    LifePolicy lifePolicy = lifePolicyRepository.getOne(payment.getReferenceNo());
+ 			String coaCode = paymentRepository.findCheckOfAccountNameByCode(accountName, proposalBranch.getBranchCode(), currenyCode);
+ 			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.CREDIT, homeAmount, customerId, branch.getBranchCode(), coaCode, tlfNo,
+ 					getNarrationPremiumPayableForInterBranch(payment, proposalBranch.getName()), payment, isRenewal);
+ 			TLF tlf = tlfBuilder.getTLFInstance();
+ 			  tlf.setSalePoint(salePoint);
+		      tlf.setSettlementDate(new Date());
+		      tlf.setPaid(true);
+		      tlf.setPolicyNo(lifePolicy.getPolicyNo());
+		      tlf.getCommonCreateAndUpateMarks().setCreatedDate(new Date());
+		      // setIDPrefixForInsert(tlf);
+		      tlf.setPaymentChannel(payment.getPaymentChannel());
+		      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
+		      tlfRepository.save(tlf);
+ 			
+
+ 		} catch (DAOException e) {
+ 			throw new SystemException(e.getErrorCode(), "Faield to add a new TLF", e);
+ 		}
+ 	}
 
   @Transactional(propagation = Propagation.REQUIRED)
   public void addNewTLF_For_SCSTFees(Payment payment, String customerId, Branch branch,
@@ -1631,5 +1730,491 @@ public class PaymentService {
     calendar.add(Calendar.MONTH, month * paymentTimes);
     return calendar.getTime();
   }
+  
+    //For interbranch
+	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void addNewTLF_For_CashDebitForPremiumForInterBranch(List<AccountPayment> accountPaymentList, String customerId, Branch userBranch, String tlfNo, boolean isRenewal,
+			String currencyCode, SalePoint salePoint, Branch proposalBranch) {
+		try {
+			double totalNetPremium = 0;
+			double homeAmount = 0;
+			String coaCode = null;
+			Product product;
+			Payment payment = accountPaymentList.get(0).getPayment();
+		    LifePolicy lifePolicy = lifePolicyRepository.getOne(payment.getReferenceNo());
+			// TLF Home Amount
+			if (isRenewal) {
+				for (AccountPayment accountPayment : accountPaymentList) {
+					totalNetPremium = totalNetPremium + accountPayment.getPayment().getRenewalNetPremium();
+				}
+			} else {
+				for (AccountPayment accountPayment : accountPaymentList) {
+					totalNetPremium = totalNetPremium + accountPayment.getPayment().getNetPremium();
+				}
+			}
+
+			// TODO FIXME TOK don't set total amount as homeamount , wrong if
+			// not
+			// home currency
+			homeAmount = totalNetPremium;
+			// TLF COAID
+			if (PaymentChannel.TRANSFER.equals(payment.getPaymentChannel())) {
+				coaCode = paymentRepository.findCheckOfAccountNameByCode(userBranch.getReceivableACName(), userBranch.getBranchCode(), currencyCode);
+			} else if (PaymentChannel.CASHED.equals(payment.getPaymentChannel())) {
+				// coaCode =
+				// paymentDAO.findCheckOfAccountNameByCode(COACode.CASH,
+				// branch.getBranchCode(), currencyCode);
+				coaCode = paymentRepository.findCheckOfAccountNameByCode(userBranch.getReceivableACName(), userBranch.getBranchCode(), currencyCode);
+			} else if (PaymentChannel.CHEQUE.equals(payment.getPaymentChannel())) {
+				String coaCodeType = "";
+				switch (payment.getReferenceType()) {
+					case LIFE_POLICY:
+					case LIFE_BILL_COLLECTION:
+						product = lifePolicy.getPolicyInsuredPersonList().get(0).getProduct();
+						if (ProductIDConfig.isGroupLife(product)) {
+							coaCodeType = COACode.GROUP_LIFE_PAYMENT_ORDER;
+						} else if (ProductIDConfig.isPublicLife(product)) {
+							coaCodeType = COACode.ENDOWMENT_LIFE_PAYMENT_ORDER;
+						} else if (ProductIDConfig.isSnakeBite(product)) {
+							coaCodeType = COACode.SNAKE_BITE_PAYMENT_ORDER;
+						} else if (ProductIDConfig.isSportMan(product)) {
+							coaCodeType = COACode.SPORTMAN_PAYMENT_ORDER;
+						} else {
+							coaCodeType = COACode.LIFE_PAYMENT_ORDER;
+						}
+						break;
+					case MEDICAL_POLICY:
+					case HEALTH_POLICY:
+					case HEALTH_POLICY_BILL_COLLECTION:
+						coaCodeType = COACode.HEALTH_PAYMENT_ORDER;
+						break;
+					case GROUP_MICRO_HEALTH:
+					case MICRO_HEALTH_POLICY:
+						coaCodeType = COACode.MICRO_HEALTH_PAYMENT_ORDER;
+						break;
+					case CRITICAL_ILLNESS_POLICY:
+					case CRITICAL_ILLNESS_POLICY_BILL_COLLECTION:
+						coaCodeType = COACode.CRITICAL_ILLNESS_PAYMENT_ORDER;
+						break;
+					case PA_POLICY:
+						coaCodeType = COACode.PA_PAYMENT_ORDER;
+						break;
+					case TRAVEL_PROPOSAL:
+					case PERSON_TRAVEL_POLICY:
+						coaCodeType = COACode.PERSON_TRAVEL_PAYMENT_ORDER;
+						break;
+					case GROUP_FARMER_PROPOSAL:
+					case FARMER_POLICY:
+						coaCodeType = COACode.FARMER_PAYMENT_ORDER;
+						break;
+					case PUBLIC_TERM_LIFE_POLICY:
+						coaCodeType = COACode.PUBLICTERMLIFE_PAYMENT_ORDER;
+						break;
+					case SHORT_ENDOWMENT_LIFE_POLICY:
+					case SHORT_ENDOWMENT_LIFE_BILL_COLLECTION:
+						coaCodeType = COACode.SHORT_ENDOWMENT_PAYMENT_ORDER;
+						break;
+					case STUDENT_LIFE_POLICY:
+					case STUDENT_LIFE_POLICY_BILL_COLLECTION:
+						coaCodeType = COACode.STUDENT_LIFE_PAYMENT_ORDER;
+						break;
+					default:
+						break;
+				}
+				coaCode = paymentRepository.findCheckOfAccountNameByCode(userBranch.getReceivableACName(), userBranch.getBranchCode(), currencyCode);
+			} else if (PaymentChannel.SUNDRY.equals(payment.getPaymentChannel())) {
+				String coaCodeType = "";
+				switch (payment.getReferenceType()) {
+					case LIFE_POLICY:
+					case LIFE_BILL_COLLECTION:
+						coaCodeType = COACode.LIFE_SUNDRY;
+						break;
+					case MEDICAL_POLICY:
+					case MEDICAL_BILL_COLLECTION:
+						coaCodeType = COACode.MEDICAL_SUNDRY;
+						break;
+					case HEALTH_POLICY:
+					case HEALTH_POLICY_BILL_COLLECTION:
+					case GROUP_MICRO_HEALTH:
+						coaCodeType = COACode.HEALTH_SUNDRY;
+						break;
+					case MICRO_HEALTH_POLICY:
+						coaCodeType = COACode.MICRO_HEALTH_SUNDRY;
+						break;
+					case CRITICAL_ILLNESS_POLICY:
+					case CRITICAL_ILLNESS_POLICY_BILL_COLLECTION:
+						coaCodeType = COACode.CRITICAL_ILLNESS_SUNDRY;
+						break;
+					case PA_POLICY:
+						coaCodeType = COACode.PA_SUNDRY;
+						break;
+					case PERSON_TRAVEL_POLICY:
+						coaCodeType = COACode.PERSON_TRAVEL_SUNDRY;
+						break;
+					case GROUP_FARMER_PROPOSAL:
+					case FARMER_POLICY:
+						coaCodeType = COACode.FARMER_SUNDRY;
+						break;
+					case PUBLIC_TERM_LIFE_POLICY:
+						coaCodeType = COACode.PUBLICTERMLIFE_SUNDRY;
+						break;
+					
+					case TRAVEL_PROPOSAL:
+						coaCodeType = COACode.TRAVEL_SUNDRY;
+						break;
+					case SHORT_ENDOWMENT_LIFE_POLICY:
+					case SHORT_ENDOWMENT_LIFE_BILL_COLLECTION:
+						coaCodeType = COACode.SHORT_ENDOWMENT_SUNDRY;
+						break;
+					case STUDENT_LIFE_POLICY:
+					case STUDENT_LIFE_POLICY_BILL_COLLECTION:
+						coaCodeType = COACode.STUDENT_LIFE_SUNDRY;
+						break;
+					default:
+						break;
+				}
+				coaCode = paymentRepository.findCheckOfAccountNameByCode(userBranch.getReceivableACName(), userBranch.getBranchCode(), currencyCode);
+			}
+
+			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.DEBIT, homeAmount, customerId, proposalBranch.getBranchCode(), coaCode, tlfNo,
+					getNarrationReceiablePremiumForInterBranch(payment, isRenewal, userBranch.getName()), payment, isRenewal);
+			TLF tlf = tlfBuilder.getTLFInstance();
+			  tlf.setSalePoint(salePoint);
+		      tlf.setSettlementDate(new Date());
+		      tlf.setPaid(true);
+		      tlf.setPolicyNo(lifePolicy.getPolicyNo());
+		      tlf.getCommonCreateAndUpateMarks().setCreatedDate(new Date());
+		      // setIDPrefixForInsert(tlf);
+		      tlf.setPaymentChannel(payment.getPaymentChannel());
+		      tlf.setBpmsReceiptNo(payment.getBpmsReceiptNo());
+		      tlfRepository.save(tlf);
+		} catch (DAOException e) {
+			throw new SystemException(e.getErrorCode(), "Faield to add a new TLF", e);
+		}
+	}
+	
+	private String getNarrationReceiablePremiumForInterBranch(Payment payment, boolean isRenewal, String branchName) {
+		StringBuffer nrBf = new StringBuffer();
+		String customerName = "";
+		String premiumString = "";
+		int totalInsuredPerson = 0;
+		double si = 0.0;
+		String unit = "";
+		double premium = 0.0;
+
+		if (payment.getPaymentChannel().equals(PaymentChannel.CHEQUE)) {
+			nrBf.append(" Receivable from " + "(" + branchName + ")");
+			nrBf.append(" Accrued");
+			switch (payment.getReferenceType()) {
+				case FARMER_POLICY:
+				case LIFE_POLICY:
+					premiumString = " Life Premium ";
+					Optional<LifePolicy> lifePolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = lifePolicy.get().getTotalSumInsured();
+					premium = (lifePolicy.get().isEndorsementApplied()) ? lifePolicy.get().getTotalEndorsementPremium() : lifePolicy.get().getTotalPremium();
+					customerName = lifePolicy.get().getCustomerName();
+					totalInsuredPerson = lifePolicy.get().getInsuredPersonInfo().size() > 1 ? lifePolicy.get().getInsuredPersonInfo().size() : 0;
+					break;
+				case LIFE_BILL_COLLECTION:
+					premiumString = " Life Bill Collection ";
+					Optional<LifePolicy> lifeBillPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = lifeBillPolicy.get().getTotalSumInsured();
+					premium = lifeBillPolicy.get().getTotalPremium();
+					customerName = lifeBillPolicy.get().getCustomerName();
+					break;
+				
+				case SHORT_ENDOWMENT_LIFE_POLICY:
+					premiumString = " Short Term Endowment Life Premium ";
+					Optional<LifePolicy> seLifePolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = seLifePolicy.get().getTotalSumInsured();
+					premium = seLifePolicy.get().getTotalPremium();
+					customerName = seLifePolicy.get().getCustomerName();
+					break;
+				case SHORT_ENDOWMENT_LIFE_BILL_COLLECTION:
+					premiumString = " Short Term Endowment Life Bill Collection ";
+					Optional<LifePolicy> seLifeBillPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = seLifeBillPolicy.get().getTotalSumInsured();
+					premium = seLifeBillPolicy.get().getTotalPremium();
+					customerName = seLifeBillPolicy.get().getCustomerName();
+					break;
+				case STUDENT_LIFE_POLICY:
+					premiumString = "Student Life Premium ";
+					Optional<LifePolicy> studentPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = studentPolicy.get().getTotalSumInsured();
+					premium = (studentPolicy.get().isEndorsementApplied()) ? studentPolicy.get().getTotalEndorsementPremium() : studentPolicy.get().getTotalPremium();
+					customerName = studentPolicy.get().getCustomerName();
+					break;
+				case STUDENT_LIFE_POLICY_BILL_COLLECTION:
+					premiumString = " Student Life Bill Collection ";
+					Optional<LifePolicy> studentBillPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = studentBillPolicy.get().getTotalSumInsured();
+					premium = studentBillPolicy.get().getTotalPremium();
+					customerName = studentBillPolicy.get().getCustomerName();
+					break;
+				default:
+					break;
+			}
+			nrBf.append(premiumString);
+			nrBf.append("to be paid by ");
+			nrBf.append(payment.getReceiptNo());
+			nrBf.append(" from ");
+			nrBf.append(customerName);
+			if (payment.getReferenceType().equals(PolicyReferenceType.MEDICAL_POLICY) || payment.getReferenceType().equals(PolicyReferenceType.HEALTH_POLICY)
+					|| payment.getReferenceType().equals(PolicyReferenceType.HEALTH_POLICY_BILL_COLLECTION)
+					|| payment.getReferenceType().equals(PolicyReferenceType.MICRO_HEALTH_POLICY) || payment.getReferenceType().equals(PolicyReferenceType.CRITICAL_ILLNESS_POLICY)
+					|| payment.getReferenceType().equals(PolicyReferenceType.CRITICAL_ILLNESS_POLICY_BILL_COLLECTION)
+					|| PolicyReferenceType.PERSON_TRAVEL_POLICY.equals(payment.getReferenceType())) {
+				nrBf.append(" for ");
+				nrBf.append(unit);
+			} else {
+				nrBf.append(" for Sum Insured ");
+				nrBf.append(Utils.getCurrencyFormatString(si));
+			}
+
+			if (totalInsuredPerson > 0
+					&& (PolicyReferenceType.GROUP_FARMER_PROPOSAL.equals(payment.getReferenceType()) || PolicyReferenceType.LIFE_POLICY.equals(payment.getReferenceType()))) {
+				nrBf.append(" and for total number of insured person ");
+				nrBf.append(Integer.toString(totalInsuredPerson));
+			}
+
+			nrBf.append(" and the premium amount of ");
+			nrBf.append(Utils.getCurrencyFormatString(premium));
+			nrBf.append(". ");
+
+		} else {
+			nrBf.append(" Receivable from " + "(" + branchName + ")");
+			nrBf.append(" Being amount of ");
+			switch (payment.getReferenceType()) {
+				case FARMER_POLICY:
+				case LIFE_POLICY:
+					nrBf.append(" Life Premium ");
+					Optional<LifePolicy> lifePolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = lifePolicy.get().getTotalSumInsured();
+					premium = (lifePolicy.get().isEndorsementApplied()) ? lifePolicy.get().getTotalEndorsementPremium() : lifePolicy.get().getTotalPremium();
+					customerName = lifePolicy.get().getCustomerName();
+					totalInsuredPerson = lifePolicy.get().getInsuredPersonInfo().size() > 1 ? lifePolicy.get().getInsuredPersonInfo().size() : 0;
+					break;
+				case LIFE_BILL_COLLECTION:
+					premiumString = " Life Bill Collection ";
+					Optional<LifePolicy> lifeBillPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = lifeBillPolicy.get().getTotalSumInsured();
+					premium = (lifeBillPolicy.get().isEndorsementApplied()) ? lifeBillPolicy.get().getTotalEndorsementPremium() : lifeBillPolicy.get().getTotalPremium();
+					break;
+				case SHORT_ENDOWMENT_LIFE_POLICY:
+					nrBf.append(" Short Term Endowment Life Premium ");
+					Optional<LifePolicy> selifePolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = selifePolicy.get().getTotalSumInsured();
+					premium = selifePolicy.get().getTotalPremium();
+					customerName = selifePolicy.get().getCustomerName();
+					break;
+				case SHORT_ENDOWMENT_LIFE_BILL_COLLECTION:
+					nrBf.append(" Short Term Endowment Life Bill Collection ");
+					Optional<LifePolicy> selifeBillPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = selifeBillPolicy.get().getTotalSumInsured();
+					premium = selifeBillPolicy.get().getTotalPremium();
+					customerName = selifeBillPolicy.get().getCustomerName();
+					break;
+			
+				case STUDENT_LIFE_POLICY:
+					nrBf.append(" Life Premium ");
+					Optional<LifePolicy> studentPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = studentPolicy.get().getTotalSumInsured();
+					premium = (studentPolicy.get().isEndorsementApplied()) ? studentPolicy.get().getTotalEndorsementPremium() : studentPolicy.get().getTotalPremium();
+					customerName = studentPolicy.get().getCustomerName();
+					totalInsuredPerson = studentPolicy.get().getInsuredPersonInfo().size() > 1 ? studentPolicy.get().getInsuredPersonInfo().size() : 0;
+					break;
+				case STUDENT_LIFE_POLICY_BILL_COLLECTION:
+					premiumString = "Student Life Bill Collection ";
+					Optional<LifePolicy> studentBillPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = studentBillPolicy.get().getTotalSumInsured();
+					premium = (studentBillPolicy.get().isEndorsementApplied()) ? studentBillPolicy.get().getTotalEndorsementPremium() : studentBillPolicy.get().getTotalPremium();
+					break;
+				default:
+					break;
+			}
+			nrBf.append(premiumString);
+			nrBf.append(" received by ");
+			nrBf.append(payment.getReceiptNo());
+			nrBf.append(" from ");
+			nrBf.append(customerName);
+			if (payment.getReferenceType().equals(PolicyReferenceType.MEDICAL_POLICY) || PolicyReferenceType.PERSON_TRAVEL_POLICY.equals(payment.getReferenceType())
+					|| payment.getReferenceType().equals(PolicyReferenceType.HEALTH_POLICY) || payment.getReferenceType().equals(PolicyReferenceType.HEALTH_POLICY_BILL_COLLECTION)
+					|| payment.getReferenceType().equals(PolicyReferenceType.MICRO_HEALTH_POLICY) || payment.getReferenceType().equals(PolicyReferenceType.CRITICAL_ILLNESS_POLICY)
+					|| payment.getReferenceType().equals(PolicyReferenceType.CRITICAL_ILLNESS_POLICY_BILL_COLLECTION)) {
+				nrBf.append(" for ");
+				nrBf.append(unit);
+			} else {
+				nrBf.append(" for Sum Insured ");
+				nrBf.append(Utils.getCurrencyFormatString(si));
+			}
+			if (totalInsuredPerson > 0
+					&& (PolicyReferenceType.GROUP_FARMER_PROPOSAL.equals(payment.getReferenceType()) || PolicyReferenceType.LIFE_POLICY.equals(payment.getReferenceType()))) {
+				nrBf.append(" and for total number of insured person ");
+				nrBf.append(Integer.toString(totalInsuredPerson));
+			}
+			nrBf.append(" and the premium amount of ");
+			nrBf.append(Utils.getCurrencyFormatString(premium));
+			nrBf.append(". ");
+		}
+
+		return nrBf.toString();
+	}
+
+	private String getNarrationPremiumPayableForInterBranch(Payment payment, String branchName) {
+		StringBuffer nrBf = new StringBuffer();
+		String customerName = "";
+		String premiumString = "";
+		int totalInsuredPerson = 0;
+		double si = 0.0;
+		String unit = "";
+		double premium = 0.0;
+
+		if (payment.getPaymentChannel().equals(PaymentChannel.CHEQUE)) {
+			nrBf.append(" Payable to " + "(" + branchName + ") ");
+			nrBf.append(" Accrued");
+			switch (payment.getReferenceType()) {
+				case FARMER_POLICY:
+				case LIFE_POLICY:
+					premiumString = " Life Premium ";
+					Optional<LifePolicy> lifePolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = lifePolicy.get().getTotalSumInsured();
+					premium = (lifePolicy.get().isEndorsementApplied()) ? lifePolicy.get().getTotalEndorsementPremium() : lifePolicy.get().getTotalPremium();
+					customerName = lifePolicy.get().getCustomerName();
+					totalInsuredPerson = lifePolicy.get().getInsuredPersonInfo().size() > 1 ? lifePolicy.get().getInsuredPersonInfo().size() : 0;
+					break;
+				case LIFE_BILL_COLLECTION:
+					premiumString = " Life Bill Collection ";
+					Optional<LifePolicy> lifeBillPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = lifeBillPolicy.get().getTotalSumInsured();
+					premium = lifeBillPolicy.get().getTotalPremium();
+					customerName = lifeBillPolicy.get().getCustomerName();
+					break;
+				case STUDENT_LIFE_POLICY:
+					premiumString = "Student Life Premium ";
+					Optional<LifePolicy> studentPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = studentPolicy.get().getTotalSumInsured();
+					premium = (studentPolicy.get().isEndorsementApplied()) ? studentPolicy.get().getTotalEndorsementPremium() : studentPolicy.get().getTotalPremium();
+					customerName = studentPolicy.get().getCustomerName();
+					break;
+				case STUDENT_LIFE_POLICY_BILL_COLLECTION:
+					premiumString = " Student Life Bill Collection ";
+					Optional<LifePolicy> studentBillPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = studentBillPolicy.get().getTotalSumInsured();
+					premium = studentBillPolicy.get().getTotalPremium();
+					customerName = studentBillPolicy.get().getCustomerName();
+					break;
+				default:
+					break;
+			}
+			nrBf.append(premiumString);
+			nrBf.append("to be paid by ");
+			nrBf.append(payment.getReceiptNo());
+			nrBf.append(" from ");
+			nrBf.append(customerName);
+			if (payment.getReferenceType().equals(PolicyReferenceType.MEDICAL_POLICY) || payment.getReferenceType().equals(PolicyReferenceType.HEALTH_POLICY)
+					|| payment.getReferenceType().equals(PolicyReferenceType.HEALTH_POLICY_BILL_COLLECTION)
+					|| payment.getReferenceType().equals(PolicyReferenceType.MICRO_HEALTH_POLICY) || payment.getReferenceType().equals(PolicyReferenceType.CRITICAL_ILLNESS_POLICY)
+					|| payment.getReferenceType().equals(PolicyReferenceType.CRITICAL_ILLNESS_POLICY_BILL_COLLECTION)
+					|| PolicyReferenceType.PERSON_TRAVEL_POLICY.equals(payment.getReferenceType())) {
+				nrBf.append(" for ");
+				nrBf.append(unit);
+			} else {
+				nrBf.append(" for Sum Insured ");
+				nrBf.append(Utils.getCurrencyFormatString(si));
+			}
+
+			if (totalInsuredPerson > 0
+					&& (PolicyReferenceType.GROUP_FARMER_PROPOSAL.equals(payment.getReferenceType()) || PolicyReferenceType.LIFE_POLICY.equals(payment.getReferenceType()))) {
+				nrBf.append(" and for total number of insured person ");
+				nrBf.append(Integer.toString(totalInsuredPerson));
+			}
+
+			nrBf.append(" and the premium amount of ");
+			nrBf.append(Utils.getCurrencyFormatString(premium));
+			nrBf.append(". ");
+
+		} else {
+
+			nrBf.append(" Payable to " + "(" + branchName + ")");
+			nrBf.append(" Being amount of ");
+			switch (payment.getReferenceType()) {
+
+				case FARMER_POLICY:
+				case LIFE_POLICY:
+					nrBf.append(" Life Premium ");
+					Optional<LifePolicy> lifePolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = lifePolicy.get().getTotalSumInsured();
+					premium = (lifePolicy.get().isEndorsementApplied()) ? lifePolicy.get().getTotalEndorsementPremium() : lifePolicy.get().getTotalPremium();
+					customerName = lifePolicy.get().getCustomerName();
+					totalInsuredPerson = lifePolicy.get().getInsuredPersonInfo().size() > 1 ? lifePolicy.get().getInsuredPersonInfo().size() : 0;
+					break;
+				case LIFE_BILL_COLLECTION:
+					premiumString = " Life Bill Collection ";
+					Optional<LifePolicy> lifeBillPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = lifeBillPolicy.get().getTotalSumInsured();
+					premium = (lifeBillPolicy.get().isEndorsementApplied()) ? lifeBillPolicy.get().getTotalEndorsementPremium() : lifeBillPolicy.get().getTotalPremium();
+					break;
+				case SHORT_ENDOWMENT_LIFE_POLICY:
+					nrBf.append(" Short Term Endowment Life Premium ");
+					Optional<LifePolicy> selifePolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = selifePolicy.get().getTotalSumInsured();
+					premium = selifePolicy.get().getTotalPremium();
+					customerName = selifePolicy.get().getCustomerName();
+					break;
+				case SHORT_ENDOWMENT_LIFE_BILL_COLLECTION:
+					nrBf.append(" Short Term Endowment Life Bill Collection ");
+					Optional<LifePolicy> selifeBillPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = selifeBillPolicy.get().getTotalSumInsured();
+					premium = selifeBillPolicy.get().getTotalPremium();
+					customerName = selifeBillPolicy.get().getCustomerName();
+					break;
+				
+				case STUDENT_LIFE_POLICY:
+					nrBf.append(" Life Premium ");
+					Optional<LifePolicy> studentPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = studentPolicy.get().getTotalSumInsured();
+					premium = (studentPolicy.get().isEndorsementApplied()) ? studentPolicy.get().getTotalEndorsementPremium() : studentPolicy.get().getTotalPremium();
+					customerName = studentPolicy.get().getCustomerName();
+					totalInsuredPerson = studentPolicy.get().getInsuredPersonInfo().size() > 1 ? studentPolicy.get().getInsuredPersonInfo().size() : 0;
+					break;
+				case STUDENT_LIFE_POLICY_BILL_COLLECTION:
+					premiumString = "Student Life Bill Collection ";
+					Optional<LifePolicy> studentBillPolicy = lifePolicyRepository.findById(payment.getReferenceNo());
+					si = studentBillPolicy.get().getTotalSumInsured();
+					premium = (studentBillPolicy.get().isEndorsementApplied()) ? studentBillPolicy.get().getTotalEndorsementPremium() : studentBillPolicy.get().getTotalPremium();
+					break;
+				default:
+					break;
+			}
+			nrBf.append(premiumString);
+			nrBf.append(" received by ");
+			nrBf.append(payment.getReceiptNo());
+			nrBf.append(" from ");
+			nrBf.append(customerName);
+			if (payment.getReferenceType().equals(PolicyReferenceType.MEDICAL_POLICY) || PolicyReferenceType.PERSON_TRAVEL_POLICY.equals(payment.getReferenceType())
+					|| payment.getReferenceType().equals(PolicyReferenceType.HEALTH_POLICY) || payment.getReferenceType().equals(PolicyReferenceType.HEALTH_POLICY_BILL_COLLECTION)
+					|| payment.getReferenceType().equals(PolicyReferenceType.MICRO_HEALTH_POLICY) || payment.getReferenceType().equals(PolicyReferenceType.CRITICAL_ILLNESS_POLICY)
+					|| payment.getReferenceType().equals(PolicyReferenceType.CRITICAL_ILLNESS_POLICY_BILL_COLLECTION)) {
+				nrBf.append(" for ");
+				nrBf.append(unit);
+			} else {
+				nrBf.append(" for Sum Insured ");
+				nrBf.append(Utils.getCurrencyFormatString(si));
+			}
+			if (totalInsuredPerson > 0
+					&& (PolicyReferenceType.GROUP_FARMER_PROPOSAL.equals(payment.getReferenceType()) || PolicyReferenceType.LIFE_POLICY.equals(payment.getReferenceType()))) {
+				nrBf.append(" and for total number of insured person ");
+				nrBf.append(Integer.toString(totalInsuredPerson));
+			}
+			nrBf.append(" and the premium amount of ");
+			nrBf.append(Utils.getCurrencyFormatString(premium));
+			nrBf.append(". ");
+		}
+
+		return nrBf.toString();
+	}
+
+
 
 }

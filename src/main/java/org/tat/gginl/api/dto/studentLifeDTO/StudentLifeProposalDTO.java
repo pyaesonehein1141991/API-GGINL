@@ -139,5 +139,9 @@ public class StudentLifeProposalDTO {
 
   @ApiModelProperty(position = 17, example = "36221e42-a0000040-133dc830-59dccb1a", required = true)
   private String bpmNo;
+  
+  @ApiModelProperty(position = 18, example = "BANCH00000000000000129032018", required = true)
+  @NotBlank(message = "payment BranchId is mandatory")
+  private String paymentBranchId;
 
 }

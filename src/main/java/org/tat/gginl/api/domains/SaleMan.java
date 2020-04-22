@@ -85,10 +85,7 @@ public class SaleMan implements Serializable {
 	@JoinColumn(name = "BRANCHID", referencedColumnName = "ID")
 	private Branch branch;
 	
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "SALEPOINTID", referencedColumnName = "ID")
-	private SalePoint salePoint;
-
+	
 	@Version
 	private int version;
 
@@ -287,14 +284,7 @@ public class SaleMan implements Serializable {
 		this.vibercontent = vibercontent;
 	}
 
-	public SalePoint getSalePoint() {
-		return salePoint;
-	}
-
-	public void setSalePoint(SalePoint salePoint) {
-		this.salePoint = salePoint;
-	}
-
+	
 	public void setIdConditionType(String idConditionType) {
 		this.idConditionType = idConditionType;
 	}

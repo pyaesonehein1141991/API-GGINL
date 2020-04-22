@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.tat.gginl.api.common.AccountPayment;
 import org.tat.gginl.api.common.COACode;
 import org.tat.gginl.api.common.CommonCreateAndUpateMarks;
 import org.tat.gginl.api.common.DateUtils;
@@ -162,6 +163,9 @@ public class LifeProposalService {
 
   @Value("${studentLifeProductId}")
   private String studentLifeProductId;
+  
+  @Autowired
+  private PaymentService paymentService;
 
   @Transactional(propagation = Propagation.REQUIRED)
   public List<LifePolicy> createGroupFarmerProposalToPolicy(
@@ -593,34 +597,35 @@ public class LifeProposalService {
       String accountCode = "STUDENT_LIFE_PREMIUM_INCOME";
       for (LifePolicy lifePolicy : studentLifePolicyList) {
         Payment payment = paymentRepository.findByPaymentReferenceNo(lifePolicy.getId());
-        TLF tlf1 = addNewTLF_For_CashDebitForPremium(payment,
-            lifePolicy.getCustomer() == null ? lifePolicy.getOrganization().getId()
-                : lifePolicy.getCustomer().getId(),
-            lifePolicy.getBranch(), payment.getReceiptNo(), false, "KYT", lifePolicy.getSalePoint(),
-            lifePolicy.getPolicyNo());
-        TLFList.add(tlf1);
-        TLF tlf2 = addNewTLF_For_PremiumCredit(payment,
-            lifePolicy.getCustomer() == null ? lifePolicy.getOrganization().getId()
-                : lifePolicy.getCustomer().getId(),
-            lifePolicy.getBranch(), accountCode, payment.getReceiptNo(), false, "KYT",
-            lifePolicy.getSalePoint(), lifePolicy.getPolicyNo());
-        TLFList.add(tlf2);
-
-        if (lifePolicy.getPaymentChannel().equals(PaymentChannel.CHEQUE)
+        String customerId=lifePolicy.getCustomer() == null ? lifePolicy.getOrganization().getId()
+                : lifePolicy.getCustomer().getId();
+        Branch policyBranch=lifePolicy.getBranch();
+        String currencyCode="KYT";
+        Optional<Branch> paymentBranch=branchService.findById(lifePolicy.getPaymentBranch());
+    	
+        if(paymentBranch.get().getId().equals(lifePolicy.getBranch().getId())) {
+	    	TLF premiumDebitTLF = addNewTLF_For_CashDebitForPremium(payment,customerId,paymentBranch.get(), payment.getReceiptNo(), false, currencyCode, lifePolicy.getSalePoint(),lifePolicy.getPolicyNo());
+	        TLFList.add(premiumDebitTLF);
+	        TLF premiumCreditTLF = addNewTLF_For_PremiumCredit(payment,customerId,paymentBranch.get(), accountCode, payment.getReceiptNo(), false,currencyCode,lifePolicy.getSalePoint(), lifePolicy.getPolicyNo());
+	        TLFList.add(premiumCreditTLF);
+    	} else {
+    		/* for inter Branch */
+    		  List<AccountPayment> accountPaymentList = new ArrayList<AccountPayment>();
+    	      accountPaymentList.add(new AccountPayment(accountCode, payment));
+    		  paymentService.preActivatePaymentForInterBranch(accountPaymentList, customerId, paymentBranch.get(), null, false, currencyCode, lifePolicy.getSalePoint(), policyBranch);
+    	}
+         if (lifePolicy.getPaymentChannel().equals(PaymentChannel.CHEQUE)
             || lifePolicy.getPaymentChannel().equals(PaymentChannel.SUNDRY)) {
-          String customerId =
-              lifePolicy.getCustomer() == null ? lifePolicy.getOrganization().getId()
-                  : lifePolicy.getCustomer().getId();
-          TLF tlf3 =
-              addNewTLF_For_PremiumDebitForRCVAndCHQ(payment, customerId, lifePolicy.getBranch(),
+          TLF tlf3 =addNewTLF_For_PremiumDebitForRCVAndCHQ(payment, customerId,paymentBranch.get(),
                   payment.getAccountBank().getAcode(), false, payment.getReceiptNo(), true, false,
-                  "KYT", lifePolicy.getSalePoint(), lifePolicy.getPolicyNo());
+                  currencyCode, lifePolicy.getSalePoint(), lifePolicy.getPolicyNo());
           TLFList.add(tlf3);
           TLF tlf4 = addNewTLF_For_CashCreditForPremiumForRCVAndCHQ(payment, customerId,
-              lifePolicy.getBranch(), false, payment.getReceiptNo(), true, false, "KYT",
+        		  paymentBranch.get(), false, payment.getReceiptNo(), true, false, "KYT",
               lifePolicy.getSalePoint(), lifePolicy.getPolicyNo());
           TLFList.add(tlf4);
         }
+        
         if (lifePolicy.getAgent() != null) {
           double firstAgentCommission = lifePolicy.getAgentCommission();
           AgentCommission ac =
@@ -1174,7 +1179,6 @@ public class LifeProposalService {
           saleManService.findById(studentLifeProposalDTO.getSaleManId());
       Optional<SalePoint> salePointOptional =
           salePointService.findById(studentLifeProposalDTO.getSalePointId());
-
       studentLifeProposalDTO.getProposalInsuredPersonList().forEach(insuredPerson -> {
         LifeProposal lifeProposal = new LifeProposal();
         if (studentLifeProposalDTO.getPaymentChannel().equalsIgnoreCase("TRF")) {
@@ -1194,7 +1198,7 @@ public class LifeProposalService {
           lifeProposal.setToBank(studentLifeProposalDTO.getToBank());
           lifeProposal.setFromBank(studentLifeProposalDTO.getFromBank());
         }
-
+        lifeProposal.setPaymentBranch(studentLifeProposalDTO.getPaymentBranchId());
         lifeProposal.getProposalInsuredPersonList()
             .add(createInsuredPersonForStudentLife(insuredPerson));
         if (studentLifeProposalDTO.getCustomerID() == null
@@ -1253,6 +1257,7 @@ public class LifeProposalService {
       policy.setPaymentChannel(proposal.getPaymentChannel());
       policy.setFromBank(proposal.getFromBank());
       policy.setToBank(proposal.getToBank());
+      policy.setPaymentBranch(proposal.getPaymentBranch());
       policy.setChequeNo(proposal.getChequeNo());
       policy.setActivedPolicyStartDate(policy.getPolicyInsuredPersonList().get(0).getStartDate());
       policy.setActivedPolicyEndDate(policy.getPolicyInsuredPersonList().get(0).getEndDate());
@@ -1480,6 +1485,7 @@ public class LifeProposalService {
     List<Payment> paymentList = new ArrayList<Payment>();
     try {
       studentlifePolicyList.forEach(lifePolicy -> {
+    	
         Optional<Bank> fromBankOptional = Optional.empty();
         Optional<Bank> toBankOptional = Optional.empty();
         if (lifePolicy.getFromBank() != null) {
