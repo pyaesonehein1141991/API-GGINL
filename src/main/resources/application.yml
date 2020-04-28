@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:sqlserver://acehawksvr3;databaseName=ggli
+    url: jdbc:sqlserver://localhost;databaseName=ggli2020
     username: sa
-    password: 123@ace
+    password: 123@tat
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jackson:
     date-format: dd.MM.yyyy
@@ -22,6 +22,7 @@ server:
    
 farmerProductId: ISPRD003001000009376125072017
 studentLifeProductId: ISPRD003000009607306082019
+publicTermLifeProductId: ISPRD003000009609324022020
 
 
 fileDir: D

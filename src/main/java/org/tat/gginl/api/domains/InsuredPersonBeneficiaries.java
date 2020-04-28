@@ -65,7 +65,7 @@ public class InsuredPersonBeneficiaries {
 	private RelationShip relationship;
 
 	
-	@Column(name = "DOB")
+	@Column(name = "DATEOFBIRTH")
 	private Date dateOfBirth;
 
 	@Version

@@ -76,7 +76,7 @@ public class PolicyInsuredPersonBeneficiaries implements Serializable {
 	@JoinColumn(name = "INSUREDPERSONID", referencedColumnName = "ID")
 	private PolicyInsuredPerson policyInsuredPerson;
 	
-	@Column(name = "DOB")
+	@Column(name = "dateOfBirth")
 	private Date dateOfBirth;
 
 	@Version
