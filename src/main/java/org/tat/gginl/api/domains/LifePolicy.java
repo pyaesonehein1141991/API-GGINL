@@ -157,9 +157,9 @@ public class LifePolicy implements IPolicy, Serializable, ISorter {
   @Transient
   private String bpmsInsuredPersonId;
   
-
   @Transient
-  private String paymentBranch;
+  private String  bpmsReceiptNo;
+
 
   @Embedded
   private CommonCreateAndUpateMarks recorder;
@@ -1074,14 +1074,14 @@ public class LifePolicy implements IPolicy, Serializable, ISorter {
     this.toBank = toBank;
   }
 
-	public String getPaymentBranch() {
-		return paymentBranch;
-	}
+public String getBpmsReceiptNo() {
+	return bpmsReceiptNo;
+}
 
-	public void setPaymentBranch(String paymentBranch) {
-		this.paymentBranch = paymentBranch;
-	}
-  
-  
+public void setBpmsReceiptNo(String bpmsReceiptNo) {
+	this.bpmsReceiptNo = bpmsReceiptNo;
+}
+
+	
 
 }

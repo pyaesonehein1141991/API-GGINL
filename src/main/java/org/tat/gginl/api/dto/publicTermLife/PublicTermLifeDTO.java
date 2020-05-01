@@ -29,7 +29,7 @@ public class PublicTermLifeDTO {
 	  @ApiModelProperty(position = 2, example = "ISSYS001000005575112092016")
 	  private String referralID;
 
-	  @ApiModelProperty(position = 3, example = "ISSYS001000018029701042019")
+	  @ApiModelProperty(position = 3, example = "ISSYS001000018029701042019",required = true)
 	  private String customerID;
 
 	  @ApiModelProperty(position = 4, example = "ISSYS0090001000000000429032013", required = true)
@@ -67,13 +67,10 @@ public class PublicTermLifeDTO {
 	  @NotBlank(message = "userId is mandatory")
 	  private String userId;
 
-	  // @ApiModelProperty(position = 13, example = "1", required = true)
-	  // @NotBlank(message = "EntityId is mandatory")
-	  // private String entityId;
-
-	  @ApiModelProperty(position = 14, example = "9dccb1a", required = true)
-	  private String bpmNo;
+	  @ApiModelProperty(position = 14, example = "BPMS/P/0001", required = true)
+	  private String bpmsProposalNo;
 	  
-	
+	  @ApiModelProperty(position = 15, example = "BPMS/CSH/0001", required = true)
+	  private String bpmsReceiptNo;
 
 }

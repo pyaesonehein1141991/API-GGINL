@@ -148,11 +148,12 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
   @Transient
   private String chequeNo;
 
-  @Transient
-  private String bpmsProposalNo;
 
+  private String bpmsProposalNo;
+  
   @Transient
-  private String paymentBranch;
+  private String bpmsReceiptNo;
+
 
   @Version
   private int version;
@@ -941,13 +942,14 @@ public void setBpmsProposalNo(String bpmsProposalNo) {
 	this.bpmsProposalNo = bpmsProposalNo;
 }
 
-public String getPaymentBranch() {
-	return paymentBranch;
+public String getBpmsReceiptNo() {
+	return bpmsReceiptNo;
 }
 
-public void setPaymentBranch(String paymentBranch) {
-	this.paymentBranch = paymentBranch;
+public void setBpmsReceiptNo(String bpmsReceiptNo) {
+	this.bpmsReceiptNo = bpmsReceiptNo;
 }
+
 
 
 

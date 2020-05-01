@@ -618,12 +618,7 @@ public class LifeProposalService {
         
         TLF premiumCreditTLF = addNewTLF_For_PremiumCredit(payment,customerId,policyBranch, accountCode, payment.getReceiptNo(), false,currencyCode,lifePolicy.getSalePoint(), lifePolicy.getPolicyNo());
         TLFList.add(premiumCreditTLF);
-//    	} else {
-//    		/* for inter Branch */
-//    		  List<AccountPayment> accountPaymentList = new ArrayList<AccountPayment>();
-//    	      accountPaymentList.add(new AccountPayment(accountCode, payment));
-//    		  paymentService.preActivatePaymentForInterBranch(accountPaymentList, customerId, paymentBranch.get(), null, false, currencyCode, lifePolicy.getSalePoint(), policyBranch);
-//    	}
+
          if (lifePolicy.getPaymentChannel().equals(PaymentChannel.CHEQUE)
             || lifePolicy.getPaymentChannel().equals(PaymentChannel.SUNDRY)) {
           TLF tlf3 =addNewTLF_For_PremiumDebitForRCVAndCHQ(payment, customerId,policyBranch,
@@ -1220,7 +1215,6 @@ public class LifeProposalService {
           lifeProposal.setToBank(studentLifeProposalDTO.getToBank());
           lifeProposal.setFromBank(studentLifeProposalDTO.getFromBank());
         }
-        lifeProposal.setPaymentBranch(studentLifeProposalDTO.getPaymentBranchId());
         lifeProposal.getProposalInsuredPersonList()
             .add(createInsuredPersonForStudentLife(insuredPerson));
         if (studentLifeProposalDTO.getCustomerID() == null
@@ -1254,6 +1248,8 @@ public class LifeProposalService {
         if (paymentTypeOptional.isPresent()) {
           lifeProposal.setPaymentType(paymentTypeOptional.get());
         }
+        lifeProposal.setBpmsProposalNo(studentLifeProposalDTO.getBpmsProposalNo());
+        lifeProposal.setBpmsReceiptNo(studentLifeProposalDTO.getBpmsReceiptNo());
         CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
         recorder.setCreatedDate(new Date());
         lifeProposal.setRecorder(recorder);
@@ -1279,12 +1275,12 @@ public class LifeProposalService {
       policy.setPaymentChannel(proposal.getPaymentChannel());
       policy.setFromBank(proposal.getFromBank());
       policy.setToBank(proposal.getToBank());
-      policy.setPaymentBranch(proposal.getPaymentBranch());
       policy.setChequeNo(proposal.getChequeNo());
       policy.setActivedPolicyStartDate(policy.getPolicyInsuredPersonList().get(0).getStartDate());
       policy.setActivedPolicyEndDate(policy.getPolicyInsuredPersonList().get(0).getEndDate());
       policy.setCommenmanceDate(proposal.getSubmittedDate());
       policy.setLastPaymentTerm(1);
+      policy.setBpmsReceiptNo(proposal.getBpmsReceiptNo());
       Calendar cal = Calendar.getInstance();
       cal.setTime(policy.getPolicyInsuredPersonList().get(0).getEndDate());
       cal.add(Calendar.YEAR, -3);
@@ -1555,6 +1551,7 @@ public class LifeProposalService {
         if (fromBankOptional.isPresent()) {
           payment.setBank(fromBankOptional.get());
         }
+        payment.setBpmsReceiptNo(lifePolicy.getBpmsReceiptNo());
         payment.setReferenceNo(lifePolicy.getId());
         payment.setBasicPremium(lifePolicy.getTotalBasicTermPremium());
         payment.setAddOnPremium(lifePolicy.getTotalAddOnTermPremium());
@@ -1568,7 +1565,6 @@ public class LifeProposalService {
         payment.setHomePremium(payment.getBasicPremium());
         payment.setHomeAddOnPremium(payment.getAddOnPremium());
         payment.setCommonCreateAndUpateMarks(recorder);
-        payment.setBpmsReceiptNo(lifePolicy.getBpmsInsuredPersonId());
         paymentList.add(payment);
       });
     } catch (DAOException e) {
@@ -1720,6 +1716,8 @@ public class LifeProposalService {
 	        CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
 	        recorder.setCreatedDate(new Date());
 	        lifeProposal.setRecorder(recorder);
+	        lifeProposal.setBpmsProposalNo(publicTermLifeDTO.getBpmsProposalNo());
+	        lifeProposal.setBpmsReceiptNo(publicTermLifeDTO.getBpmsReceiptNo());
 	        String proposalNo = customIdRepo.getNextId("PUBLIC_TERM_LIFE_PROPOSAL_NO", null);
 	        lifeProposal.setProposalNo(proposalNo);
 	        lifeProposal.setPrefix("ISLIF001");
@@ -1841,8 +1839,8 @@ public class LifeProposalService {
 	      policy.setPolicyNo(policyNo);
 	      policy.setPaymentChannel(proposal.getPaymentChannel());
 	      policy.setFromBank(proposal.getFromBank());
+	      policy.setBpmsReceiptNo(proposal.getBpmsReceiptNo());
 	      policy.setToBank(proposal.getToBank());
-	      policy.setPaymentBranch(proposal.getPaymentBranch());
 	      policy.setChequeNo(proposal.getChequeNo());
 	      policy.setActivedPolicyStartDate(policy.getPolicyInsuredPersonList().get(0).getStartDate());
 	      policy.setActivedPolicyEndDate(policy.getPolicyInsuredPersonList().get(0).getEndDate());

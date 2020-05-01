@@ -137,11 +137,16 @@ public class StudentLifeProposalDTO {
   // @NotBlank(message = "EntityId is mandatory")
   // private String entityId;
 
-  @ApiModelProperty(position = 17, example = "36221e42-a0000040-133dc830-59dccb1a", required = true)
-  private String bpmNo;
+//  @ApiModelProperty(position = 17, example = "36221e42-a0000040-133dc830-59dccb1a", required = true)
+//  private String bpmNo;
   
-  @ApiModelProperty(position = 18, example = "BANCH00000000000000129032018", required = true)
-  @NotBlank(message = "payment BranchId is mandatory")
-  private String paymentBranchId;
-
+//  @ApiModelProperty(position = 18, example = "BANCH00000000000000129032018", required = true)
+//  @NotBlank(message = "payment BranchId is mandatory")
+//  private String paymentBranchId;
+  
+  @ApiModelProperty(position = 20, example = "BPMS/P/0001", required = true)
+  private String bpmsProposalNo;
+  
+  @ApiModelProperty(position = 21, example = "BPMS/CSH/0001", required = true)
+  private String bpmsReceiptNo;
 }
