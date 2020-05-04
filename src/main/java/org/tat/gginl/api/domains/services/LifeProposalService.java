@@ -882,6 +882,9 @@ public class LifeProposalService {
         case STUDENT_LIFE_POLICY:
           coaCode = COACode.STUDENT_LIFE_AGENT_COMMISSION;
           break;
+        case PUBLIC_TERM_LIFE_POLICY:
+            coaCode = COACode.PUBLICTERMLIFE_AGENT_COMMISSION;
+            break;
         default:
           break;
       }
@@ -1105,6 +1108,9 @@ public class LifeProposalService {
         case STUDENT_LIFE_POLICY:
           coaCode = COACode.STUDENT_LIFE_AGENT_PAYABLE;
           break;
+        case PUBLIC_TERM_LIFE_POLICY:
+            coaCode = COACode.PUBLICTERMLIFE_AGENT_PAYABLE;
+            break;
         default:
           break;
       }
@@ -1765,6 +1771,7 @@ public class LifeProposalService {
 	      insuredPerson.setPeriodMonth(12);
 	      insuredPerson.setGender(Gender.valueOf(dto.getGender()));
 	      insuredPerson.setResidentAddress(residentAddress);
+	      insuredPerson.setClsOfHealth(ClassificationOfHealth.FIRSTCLASS);
 	      insuredPerson.setName(name);
 	      CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
 	      recorder.setCreatedDate(new Date());
