@@ -1434,11 +1434,14 @@ public class LifeProposalService {
       insuredPerson.setClsOfHealth(ClassificationOfHealth.FIRSTCLASS);
       insuredPerson.setParentName(dto.getMotherName());
       insuredPerson.setParentDOB(dto.getMotherDOB());
-
-      if (validInsuredPersonIdNo(dto.getMotherIdNo(), dto.getMotherIdType())) {
-        insuredPerson.setParentIdNo(dto.getMotherIdNo());
-        insuredPerson.setParentIdType(IdType.valueOf(dto.getMotherIdType()));
+      
+      if(null != dto.getMotherIdType() && !dto.getMotherIdType().isEmpty() ) {
+    	  if (validInsuredPersonIdNo(dto.getMotherIdNo(), dto.getMotherIdType())) {
+    	        insuredPerson.setParentIdNo(dto.getMotherIdNo());
+    	        insuredPerson.setParentIdType(IdType.valueOf(dto.getMotherIdType()));
+    	      }  
       }
+      
       insuredPerson.setDateOfBirth(dto.getDateOfBirth());
       insuredPerson.setAge(DateUtils.getAgeForNextYear(dto.getDateOfBirth()));
       insuredPerson.setRecorder(recorder);
