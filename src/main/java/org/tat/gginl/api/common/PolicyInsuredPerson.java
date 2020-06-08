@@ -58,7 +58,6 @@ import org.tat.gginl.api.domains.RelationShip;
 import org.tat.gginl.api.domains.School;
 import org.tat.gginl.api.domains.TypesOfSport;
 
-
 @Entity
 @Table(name = TableName.LIFEPOLICYINSUREDPERSON)
 @TableGenerator(name = "LPOLINSURPERSON_GEN", table = "ID_GEN", pkColumnName = "GEN_NAME", valueColumnName = "GEN_VAL", pkColumnValue = "LPOLINSURPERSON_GEN", allocationSize = 10)
@@ -172,20 +171,18 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "policyInsuredPerson", orphanRemoval = true)
 	private List<PolicyInsuredPersonBeneficiaries> policyInsuredPersonBeneficiariesList;
-	
+
 	@Transient
 	private String bpmsInsuredPersonId;
 
 	@Version
 	private int version;
-	
+
 	@Transient
 	private boolean newCustomer;
-	
+
 	@Embedded
 	private CommonCreateAndUpateMarks recorder;
-	
-	
 
 	public boolean isNewCustomer() {
 		return newCustomer;
@@ -199,15 +196,16 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 	}
 
 	public PolicyInsuredPerson(ProposalInsuredPerson insuredPerson) {
+
 		this.dateOfBirth = insuredPerson.getDateOfBirth();
-		this.recorder=insuredPerson.getRecorder();
+		this.recorder = insuredPerson.getRecorder();
 		this.clsOfHealth = insuredPerson.getClsOfHealth();
 		this.sumInsured = insuredPerson.getProposedSumInsured();
 		this.periodMonth = insuredPerson.getPeriodMonth();
 		this.startDate = insuredPerson.getStartDate();
 		this.endDate = insuredPerson.getEndDate();
 		this.product = insuredPerson.getProduct();
-		this.premium = insuredPerson.getProposedPremium();
+		this.premium = insuredPerson.getBasicTermPremium();
 		this.paymentTerm = insuredPerson.getPaymentTerm();
 		this.basicTermPremium = insuredPerson.getBasicTermPremium();
 		this.addOnTermPremium = insuredPerson.getAddOnTermPremium();
@@ -840,8 +838,6 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 	public void setUnit(int unit) {
 		this.unit = unit;
 	}
-	
-	
 
 	public CommonCreateAndUpateMarks getRecorder() {
 		return recorder;
@@ -1036,7 +1032,6 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 		return "-";
 	}
 
-	
 	public String getBpmsInsuredPersonId() {
 		return bpmsInsuredPersonId;
 	}

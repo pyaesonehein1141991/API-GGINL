@@ -49,7 +49,7 @@ public class BillCollectionDTO {
   @ApiModelProperty(position = 9, example = "36221e42-a0000040-133dc830-59dccb1a", required = true)
   private String bpmNo;
 
-  @ApiModelProperty(position = 10, example = "dddd")
+  @ApiModelProperty(position = 10, example = "BANCH00000000000000129032018")
   private String paymentBranch;
 
 
