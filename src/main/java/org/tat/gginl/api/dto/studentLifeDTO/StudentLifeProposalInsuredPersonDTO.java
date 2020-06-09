@@ -115,7 +115,7 @@ public class StudentLifeProposalInsuredPersonDTO {
 	@JsonDeserialize(using = DateHandler.class)
 	private Date motherDOB;
 
-	@ApiModelProperty(position = 30, example = "20")
-	private int paymentTerm;
+	// @ApiModelProperty(position = 30, example = "20")
+	// private int paymentTerm;
 
 }

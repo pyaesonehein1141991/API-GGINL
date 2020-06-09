@@ -1085,7 +1085,6 @@ public class LifeProposalService {
 		return tlf;
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////
 	// For Student Life
 
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -1223,17 +1222,26 @@ public class LifeProposalService {
 			policy.setToBank(proposal.getToBank());
 			policy.setChequeNo(proposal.getChequeNo());
 			policy.setActivedPolicyStartDate(policy.getPolicyInsuredPersonList().get(0).getStartDate());
-			policy.setActivedPolicyEndDate(policy.getPolicyInsuredPersonList().get(0).getEndDate());
+
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(policy.getActivedPolicyStartDate());
+			int month = proposal.getPaymentType() == null ? 0 : proposal.getPaymentType().getMonth();
+			calendar.add(Calendar.MONTH, month);
+			policy.setActivedPolicyEndDate(calendar.getTime());
+
 			policy.setCommenmanceDate(proposal.getSubmittedDate());
 			policy.setLastPaymentTerm(1);
 			policy.setBpmsReceiptNo(proposal.getBpmsReceiptNo());
+
 			Calendar cal = Calendar.getInstance();
-			cal.setTime(policy.getPolicyInsuredPersonList().get(0).getEndDate());
-			cal.add(Calendar.YEAR, -3);
+			cal.setTime(policy.getActivedPolicyStartDate());
+			cal.add(Calendar.MONTH, policy.getPolicyInsuredPersonList().get(0).getPaymentTerm());
 			policy.setPaymentEndDate(cal.getTime());
+
 			policy.setPolicyStatus(PolicyStatus.INFORCE);
 			CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
 			recorder.setCreatedDate(new Date());
+
 			policy.setRecorder(recorder);
 			policyList.add(policy);
 		});
@@ -1361,7 +1369,7 @@ public class LifeProposalService {
 			insuredPerson.setInitialId(dto.getInitialId());
 			insuredPerson.setBpmsInsuredPersonId(dto.getBpmsInsuredPersonId());
 			insuredPerson.setProposedSumInsured(dto.getProposedSumInsured());
-			insuredPerson.setPaymentTerm(dto.getPaymentTerm());
+
 			insuredPerson.setApproved(true);
 			insuredPerson.setProposedPremium(calculateOneYearPremium(dto.getProposedPremium(), paymentType.getMonth()));
 			insuredPerson.setApprovedSumInsured(dto.getApprovedSumInsured());
@@ -1392,6 +1400,7 @@ public class LifeProposalService {
 			int maxTerm = productOptional.get().getMaxTerm();
 			int periodYears = (maxTerm - insuredPerson.getAgeForNextYear() + 1);
 			insuredPerson.setPeriodMonth(periodYears * 12);
+			insuredPerson.setPaymentTerm((periodYears - 3) * paymentType.getMonth());
 
 			if (school.isPresent()) {
 				insuredPerson.setSchool(school.get());

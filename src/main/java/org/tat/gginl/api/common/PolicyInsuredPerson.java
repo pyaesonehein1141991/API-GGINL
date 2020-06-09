@@ -205,7 +205,7 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 		this.startDate = insuredPerson.getStartDate();
 		this.endDate = insuredPerson.getEndDate();
 		this.product = insuredPerson.getProduct();
-		this.premium = insuredPerson.getBasicTermPremium();
+		this.premium = insuredPerson.getApprovedPremium();
 		this.paymentTerm = insuredPerson.getPaymentTerm();
 		this.basicTermPremium = insuredPerson.getBasicTermPremium();
 		this.addOnTermPremium = insuredPerson.getAddOnTermPremium();

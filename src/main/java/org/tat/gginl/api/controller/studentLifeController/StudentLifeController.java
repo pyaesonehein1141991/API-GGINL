@@ -35,12 +35,10 @@ public class StudentLifeController {
 	private ModelMapper mapper;
 
 	@PostMapping("/submitproposal")
-	@ApiResponses(value = { @ApiResponse(code = 400, message = "Something went wrong"),
-			@ApiResponse(code = 403, message = "Access denied"),
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Something went wrong"), @ApiResponse(code = 403, message = "Access denied"),
 			@ApiResponse(code = 500, message = "Expired or invalid JWT token") })
 	@ApiOperation(value = "${StudentLifeController.submitProposal}")
-	public ResponseDTO<Object> submitproposal(
-			@ApiParam("Submit Studentlife Proposal") @Valid @RequestBody StudentLifeProposalDTO studentLifeProposalDTO) {
+	public ResponseDTO<Object> submitproposal(@ApiParam("Submit Studentlife Proposal") @Valid @RequestBody StudentLifeProposalDTO studentLifeProposalDTO) {
 		List<LifePolicy> policyList = new ArrayList<>();
 		StudentLifeProposalDTO a = mapper.map(studentLifeProposalDTO, StudentLifeProposalDTO.class);
 
@@ -51,13 +49,9 @@ public class StudentLifeController {
 		List<StudentLifeReponseDTO> responseList = new ArrayList<>();
 
 		policyList.forEach(policy -> {
-			StudentLifeReponseDTO dto = StudentLifeReponseDTO.builder()
-					.bpmsInsuredPersonId(policy.getPolicyInsuredPersonList().get(0).getBpmsInsuredPersonId())
+			StudentLifeReponseDTO dto = StudentLifeReponseDTO.builder().bpmsInsuredPersonId(policy.getPolicyInsuredPersonList().get(0).getBpmsInsuredPersonId())
 					.proposalNo(policy.getLifeProposal().getProposalNo()).policyNo(policy.getPolicyNo())
-					.customerId(
-							policy.getPolicyInsuredPersonList().get(0).isNewCustomer() ? policy.getCustomer().getId()
-									: null)
-					.build();
+					.customerId(policy.getPolicyInsuredPersonList().get(0).isNewCustomer() ? policy.getCustomer().getId() : null).build();
 			responseList.add(dto);
 		});
 
