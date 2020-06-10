@@ -1,6 +1,7 @@
 package org.tat.gginl.api.domains.services;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -189,6 +190,23 @@ public class LifeProposalService {
 
 			// create lifepolicy and return policynoList
 			policyList = lifePolicyRepo.saveAll(policyList);
+
+			// create Workflow His
+			List<String> workflowTaskList = Arrays.asList("ISSUING");
+
+			String referenceType = "FARMER_PROPOSAL";
+			String createdDate = DateUtils.formattedSqlDate(new Date());
+			String workflowDate = DateUtils.formattedSqlDate(new Date());
+			for (LifePolicy lifePolicy : policyList) {
+				int i = 0;
+				String referenceNo = lifePolicy.getLifeProposal().getId();
+				for (String workflowTask : workflowTaskList) {
+					String id = DateUtils.formattedSqlDate(new Date()).concat(lifePolicy.getLifeProposal().getProposalNo()).concat(String.valueOf(i));
+					lifeProposalRepo.saveToWorkflowHistory(id, referenceNo, referenceType, workflowTask, createdDate, workflowDate);
+					i++;
+				}
+
+			}
 
 			List<Payment> paymentList = convertGroupFarmerToPayment(groupFarmerProposal, groupFarmerProposalDTO);
 			paymentRepository.saveAll(paymentList);
@@ -1099,6 +1117,19 @@ public class LifeProposalService {
 			// create lifepolicy and return policynoList
 			policyList = lifePolicyRepo.saveAll(policyList);
 
+			// create Workflow His
+			List<String> workflowTaskList = Arrays.asList("SURVEY", "APPROVAL", "INFORM", "CONFIRMATION", "APPROVAL", "PAYMENT", "ISSUING");
+			String referenceNo = policyList.get(0).getLifeProposal().getId();
+			String referenceType = "STUDENT_LIFE_PROPOSAL";
+			String createdDate = DateUtils.formattedSqlDate(new Date());
+			String workflowDate = DateUtils.formattedSqlDate(new Date());
+			int i = 0;
+			for (String workflowTask : workflowTaskList) {
+				String id = DateUtils.formattedSqlDate(new Date()).concat(studentLifeProposalList.get(0).getProposalNo()).concat(String.valueOf(i));
+				lifeProposalRepo.saveToWorkflowHistory(id, referenceNo, referenceType, workflowTask, createdDate, workflowDate);
+				i++;
+			}
+
 			// create lifepolicy to payment
 			List<Payment> paymentList = convertLifePolicyToPayment(policyList);
 			paymentRepository.saveAll(paymentList);
@@ -1201,6 +1232,7 @@ public class LifeProposalService {
 				String proposalNo = customIdRepo.getNextId("STUDENT_LIFE_PROPOSAL_NO_ID_GEN", null);
 				lifeProposal.setProposalNo(proposalNo);
 				lifeProposal.setPrefix("ISLIF001");
+				lifeProposal.setComplete(true);
 				lifeProposalList.add(lifeProposal);
 			});
 		} catch (DAOException e) {
@@ -1232,10 +1264,15 @@ public class LifeProposalService {
 			policy.setCommenmanceDate(proposal.getSubmittedDate());
 			policy.setLastPaymentTerm(1);
 			policy.setBpmsReceiptNo(proposal.getBpmsReceiptNo());
-
+			// Payment EndDate
+			Optional<Product> productOptional = productService.findById(studentLifeProductId);
+			int maxTerm = productOptional.get().getMaxTerm();
+			int periodYears = (maxTerm - proposal.getProposalInsuredPersonList().get(0).getAgeForNextYear() + 1);
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(policy.getActivedPolicyStartDate());
-			cal.add(Calendar.MONTH, policy.getPolicyInsuredPersonList().get(0).getPaymentTerm());
+			// cal.add(Calendar.MONTH,
+			// policy.getPolicyInsuredPersonList().get(0).getPaymentTerm());
+			cal.add(Calendar.MONTH, (periodYears - 3) * 12);
 			policy.setPaymentEndDate(cal.getTime());
 
 			policy.setPolicyStatus(PolicyStatus.INFORCE);
@@ -1397,10 +1434,12 @@ public class LifeProposalService {
 			insuredPerson.setAge(DateUtils.getAgeForNextYear(dto.getDateOfBirth()));
 			insuredPerson.setRecorder(recorder);
 			insuredPerson.setGender(Gender.valueOf(dto.getGender()));
+
 			int maxTerm = productOptional.get().getMaxTerm();
 			int periodYears = (maxTerm - insuredPerson.getAgeForNextYear() + 1);
 			insuredPerson.setPeriodMonth(periodYears * 12);
-			insuredPerson.setPaymentTerm((periodYears - 3) * paymentType.getMonth());
+
+			insuredPerson.setPaymentTerm(calculatePaymentTerm((periodYears - 3), paymentType.getMonth()));
 
 			if (school.isPresent()) {
 				insuredPerson.setSchool(school.get());
@@ -1425,6 +1464,22 @@ public class LifeProposalService {
 		} catch (DAOException e) {
 			throw new SystemException(e.getErrorCode(), e.getMessage());
 		}
+	}
+
+	private int calculatePaymentTerm(int year, int month) {
+		switch (month) {
+			case 1:
+				return year * 12;
+			case 3:
+				return year * 4;
+			case 6:
+				return year * 2;
+			case 12:
+				return year;
+			default:
+				return 0;
+		}
+
 	}
 
 	public double calculateOneYearPremium(double termPremium, int month) {
