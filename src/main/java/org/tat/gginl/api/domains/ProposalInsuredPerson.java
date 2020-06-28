@@ -87,10 +87,9 @@ public class ProposalInsuredPerson implements Serializable {
 	@Enumerated(value = EnumType.STRING)
 	private IdType parentIdType;
 	private Date parentDOB;
-	
+
 	@Transient
 	private String bpmsInsuredPersonId;
-	
 
 	@Transient
 	private Boolean isPaidPremiumForPaidup;
@@ -167,23 +166,21 @@ public class ProposalInsuredPerson implements Serializable {
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "proposalInsuredPerson", orphanRemoval = true)
 	private List<InsuredPersonKeyFactorValue> keyFactorValueList;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY,  orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
 	@JoinColumn(name = "INSUREDPERSONID", referencedColumnName = "ID")
 	private List<InsuredPersonBeneficiaries> insuredPersonBeneficiariesList;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "lifeproposalInsuredPerson", orphanRemoval = true)
 	private List<SurveyQuestionAnswer> surveyQuestionAnswerList;
-	
+
 	@Embedded
 	private CommonCreateAndUpateMarks recorder;
-	
+
 	@Transient
 	private boolean newCustomer;
 
 	@Version
 	private int version;
-	
-	
 
 	public boolean isNewCustomer() {
 		return newCustomer;
@@ -269,7 +266,7 @@ public class ProposalInsuredPerson implements Serializable {
 
 	public ProposalInsuredPerson(InsuredPersonInfoDTO insuredPersonInfoDTO, LifeProposal lifeProposal) {
 		this.id = insuredPersonInfoDTO.getId();
-	//	this.lifeProposal = lifeProposal;
+		// this.lifeProposal = lifeProposal;
 		this.dateOfBirth = insuredPersonInfoDTO.getDateOfBirth();
 		this.proposedSumInsured = insuredPersonInfoDTO.getSumInsuredInfo();
 		this.product = insuredPersonInfoDTO.getProduct();
@@ -311,7 +308,7 @@ public class ProposalInsuredPerson implements Serializable {
 		this.dateOfBirth = dateOfBirth;
 		this.proposedSumInsured = proposedSumInsured;
 		this.product = product;
-	//	this.lifeProposal = lifeproposal;
+		// this.lifeProposal = lifeproposal;
 		this.periodMonth = periodMonth;
 		this.startDate = startDate;
 		this.endDate = endDate;
@@ -578,7 +575,6 @@ public class ProposalInsuredPerson implements Serializable {
 		this.product = product;
 	}
 
-	
 	public RelationShip getRelationship() {
 		return relationship;
 	}
@@ -712,7 +708,7 @@ public class ProposalInsuredPerson implements Serializable {
 	}
 
 	public void addBeneficiaries(InsuredPersonBeneficiaries insuredPersonBeneficiaries) {
-		//insuredPersonBeneficiaries.setProposalInsuredPerson(this);
+		// insuredPersonBeneficiaries.setProposalInsuredPerson(this);
 		getInsuredPersonBeneficiariesList().add(insuredPersonBeneficiaries);
 	}
 
@@ -914,7 +910,6 @@ public class ProposalInsuredPerson implements Serializable {
 	public void setUnit(int unit) {
 		this.unit = unit;
 	}
-	
 
 	public CommonCreateAndUpateMarks getRecorder() {
 		return recorder;
@@ -929,9 +924,9 @@ public class ProposalInsuredPerson implements Serializable {
 		int currentYear = cal_1.get(Calendar.YEAR);
 		Calendar cal_2 = Calendar.getInstance();
 		cal_2.setTime(dateOfBirth);
-		cal_2.set(Calendar.YEAR, currentYear);
 
-		if (new Date().after(cal_2.getTime())) {
+		cal_2.set(Calendar.YEAR, currentYear);
+		if (startDate.after(cal_2.getTime()) || startDate.equals(cal_2.getTime())) {
 			Calendar cal_3 = Calendar.getInstance();
 			cal_3.setTime(dateOfBirth);
 			int year_1 = cal_3.get(Calendar.YEAR);
@@ -959,7 +954,7 @@ public class ProposalInsuredPerson implements Serializable {
 		result.add(startDate);
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(startDate);
-		int months =0;
+		int months = 0;
 		if (months > 0) {
 			int a = 12 / months;
 			for (int i = 1; i < a; i++) {
@@ -1023,8 +1018,6 @@ public class ProposalInsuredPerson implements Serializable {
 			return gradeInfo.getName();
 		return "-";
 	}
-	
-	
 
 	public String getBpmsInsuredPersonId() {
 		return bpmsInsuredPersonId;

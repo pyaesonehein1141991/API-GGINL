@@ -158,4 +158,10 @@ public class StudentLifeProposalDTO {
 
 	@ApiModelProperty(position = 21, example = "BPMS/CSH/0001", required = true)
 	private String bpmsReceiptNo;
+
+	@ApiModelProperty(position = 22, example = "2019-12-16", required = true)
+	@NotNull(message = "Payment Confirm Date is mandatory")
+	@JsonDeserialize(using = DateHandler.class)
+	private Date PaymentConfirmDate;
+
 }

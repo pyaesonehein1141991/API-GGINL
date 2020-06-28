@@ -40,10 +40,10 @@ public class StudentLifeController {
 	@ApiOperation(value = "${StudentLifeController.submitProposal}")
 	public ResponseDTO<Object> submitproposal(@ApiParam("Submit Studentlife Proposal") @Valid @RequestBody StudentLifeProposalDTO studentLifeProposalDTO) {
 		List<LifePolicy> policyList = new ArrayList<>();
-		StudentLifeProposalDTO a = mapper.map(studentLifeProposalDTO, StudentLifeProposalDTO.class);
+		StudentLifeProposalDTO proposalDTO = mapper.map(studentLifeProposalDTO, StudentLifeProposalDTO.class);
 
-		// create farmer proposal
-		policyList = lifeProposalService.createStudentLifeProposalToPolicy(a);
+		// create student Life Policy
+		policyList = lifeProposalService.createStudentLifeProposalToPolicy(proposalDTO);
 
 		// create response object
 		List<StudentLifeReponseDTO> responseList = new ArrayList<>();
