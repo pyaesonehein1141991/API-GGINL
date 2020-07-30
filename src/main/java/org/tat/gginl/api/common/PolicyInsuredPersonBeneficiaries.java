@@ -27,7 +27,9 @@ import javax.persistence.Version;
 import org.tat.gginl.api.common.emumdata.ClaimStatus;
 import org.tat.gginl.api.common.emumdata.Gender;
 import org.tat.gginl.api.common.emumdata.IdType;
+import org.tat.gginl.api.domains.Customer;
 import org.tat.gginl.api.domains.InsuredPersonBeneficiaries;
+import org.tat.gginl.api.domains.Organization;
 import org.tat.gginl.api.domains.PolicyInsuredPersonBeneficiariesHistory;
 import org.tat.gginl.api.domains.RelationShip;
 
@@ -84,6 +86,18 @@ public class PolicyInsuredPersonBeneficiaries implements Serializable {
 	
 	@Embedded
 	private CommonCreateAndUpateMarks recorder;
+	
+	@Embedded
+	private ContentInfo contentInfo;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "CUSTOMERID", referencedColumnName = "ID")
+	private Customer customer;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "ORGANIZATIONID", referencedColumnName = "ID")
+	private Organization organization;
+
 
 	public PolicyInsuredPersonBeneficiaries() {
 
@@ -102,6 +116,9 @@ public class PolicyInsuredPersonBeneficiaries implements Serializable {
 		this.name = insuredPersonBeneficiaries.getName();
 		this.relationship = insuredPersonBeneficiaries.getRelationship();
 		this.dateOfBirth = insuredPersonBeneficiaries.getDateOfBirth();
+		this.contentInfo = insuredPersonBeneficiaries.getContentInfo();
+		this.customer =  insuredPersonBeneficiaries.getCustomer();
+		this.organization = insuredPersonBeneficiaries.getOrganization();
 	}
 
 	public PolicyInsuredPersonBeneficiaries(PolicyInsuredPersonBeneficiariesHistory insuredPersonBeneficiaries) {
@@ -117,6 +134,9 @@ public class PolicyInsuredPersonBeneficiaries implements Serializable {
 		this.name = insuredPersonBeneficiaries.getName();
 		this.relationship = insuredPersonBeneficiaries.getRelationship();
 		this.claimStatus = insuredPersonBeneficiaries.getClaimStatus();
+		this.contentInfo = insuredPersonBeneficiaries.getContentInfo();
+		this.customer =  insuredPersonBeneficiaries.getCustomer();
+		this.organization = insuredPersonBeneficiaries.getOrganization();
 
 	}
 
@@ -132,6 +152,9 @@ public class PolicyInsuredPersonBeneficiaries implements Serializable {
 		this.residentAddress = dto.getResidentAddress();
 		this.name = dto.getName();
 		this.relationship = dto.getRelationship();
+		this.contentInfo = dto.getContentInfo();
+		this.customer = dto.getCustomer();
+		this.organization = dto.getOrganization();
 		// this.version = beneficiariesInfoDTO.getVersion();
 		if (dto.isExistEntity()) {
 			this.id = dto.getTempId();
@@ -315,6 +338,32 @@ public class PolicyInsuredPersonBeneficiaries implements Serializable {
 		}
 		return result;
 	}
+	
+	
+
+	public ContentInfo getContentInfo() {
+		return contentInfo;
+	}
+
+	public void setContentInfo(ContentInfo contentInfo) {
+		this.contentInfo = contentInfo;
+	}
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+
+	public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
 
 	@Override
 	public int hashCode() {
@@ -323,15 +372,20 @@ public class PolicyInsuredPersonBeneficiaries implements Serializable {
 		result = prime * result + age;
 		result = prime * result + ((beneficiaryNo == null) ? 0 : beneficiaryNo.hashCode());
 		result = prime * result + ((claimStatus == null) ? 0 : claimStatus.hashCode());
+		result = prime * result + ((contentInfo == null) ? 0 : contentInfo.hashCode());
+		result = prime * result + ((customer == null) ? 0 : customer.hashCode());
+		result = prime * result + ((dateOfBirth == null) ? 0 : dateOfBirth.hashCode());
 		result = prime * result + ((gender == null) ? 0 : gender.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((idNo == null) ? 0 : idNo.hashCode());
 		result = prime * result + ((idType == null) ? 0 : idType.hashCode());
 		result = prime * result + ((initialId == null) ? 0 : initialId.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((organization == null) ? 0 : organization.hashCode());
 		result = prime * result + Float.floatToIntBits(percentage);
 		result = prime * result + ((policyInsuredPerson == null) ? 0 : policyInsuredPerson.hashCode());
 		result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
+		result = prime * result + ((recorder == null) ? 0 : recorder.hashCode());
 		result = prime * result + ((relationship == null) ? 0 : relationship.hashCode());
 		result = prime * result + ((residentAddress == null) ? 0 : residentAddress.hashCode());
 		result = prime * result + version;
@@ -355,6 +409,21 @@ public class PolicyInsuredPersonBeneficiaries implements Serializable {
 		} else if (!beneficiaryNo.equals(other.beneficiaryNo))
 			return false;
 		if (claimStatus != other.claimStatus)
+			return false;
+		if (contentInfo == null) {
+			if (other.contentInfo != null)
+				return false;
+		} else if (!contentInfo.equals(other.contentInfo))
+			return false;
+		if (customer == null) {
+			if (other.customer != null)
+				return false;
+		} else if (!customer.equals(other.customer))
+			return false;
+		if (dateOfBirth == null) {
+			if (other.dateOfBirth != null)
+				return false;
+		} else if (!dateOfBirth.equals(other.dateOfBirth))
 			return false;
 		if (gender != other.gender)
 			return false;
@@ -380,6 +449,11 @@ public class PolicyInsuredPersonBeneficiaries implements Serializable {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
+		if (organization == null) {
+			if (other.organization != null)
+				return false;
+		} else if (!organization.equals(other.organization))
+			return false;
 		if (Float.floatToIntBits(percentage) != Float.floatToIntBits(other.percentage))
 			return false;
 		if (policyInsuredPerson == null) {
@@ -391,6 +465,11 @@ public class PolicyInsuredPersonBeneficiaries implements Serializable {
 			if (other.prefix != null)
 				return false;
 		} else if (!prefix.equals(other.prefix))
+			return false;
+		if (recorder == null) {
+			if (other.recorder != null)
+				return false;
+		} else if (!recorder.equals(other.recorder))
 			return false;
 		if (relationship == null) {
 			if (other.relationship != null)

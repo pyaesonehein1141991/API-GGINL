@@ -4,7 +4,9 @@ import java.util.StringTokenizer;
 
 import org.tat.gginl.api.common.emumdata.Gender;
 import org.tat.gginl.api.common.emumdata.IdType;
+import org.tat.gginl.api.domains.Customer;
 import org.tat.gginl.api.domains.InsuredPersonBeneficiaries;
+import org.tat.gginl.api.domains.Organization;
 import org.tat.gginl.api.domains.RelationShip;
 
 public class BeneficiariesInfoDTO {
@@ -26,6 +28,11 @@ public class BeneficiariesInfoDTO {
 	private String townshipCode;
 	private String idConditionType;
 	private int version;
+	
+	private ContentInfo contentInfo;
+	private String phoneNo;
+	private Customer customer;
+	private Organization organization;
 
 	public BeneficiariesInfoDTO() {
 		tempId = System.nanoTime() + "";
@@ -49,6 +56,9 @@ public class BeneficiariesInfoDTO {
 		this.residentAddress = beneficiary.getResidentAddress();
 		this.name = beneficiary.getName();
 		this.relationship = beneficiary.getRelationship();
+		this.contentInfo = beneficiary.getContentInfo();
+		this.customer = beneficiary.getCustomer();
+		this.organization = beneficiary.getOrganization();
 	}
 
 	public BeneficiariesInfoDTO(PolicyInsuredPersonBeneficiaries policyInsuredPersonBeneficiaries) {
@@ -68,6 +78,9 @@ public class BeneficiariesInfoDTO {
 		this.residentAddress = policyInsuredPersonBeneficiaries.getResidentAddress();
 		this.name = policyInsuredPersonBeneficiaries.getName();
 		this.relationship = policyInsuredPersonBeneficiaries.getRelationship();
+		this.contentInfo = policyInsuredPersonBeneficiaries.getContentInfo();
+		this.customer = policyInsuredPersonBeneficiaries.getCustomer();
+		this.organization = policyInsuredPersonBeneficiaries.getOrganization();
 	}
 
 	public BeneficiariesInfoDTO(BeneficiariesInfoDTO beneficiary) {
@@ -92,6 +105,10 @@ public class BeneficiariesInfoDTO {
 		this.residentAddress = beneficiary.getResidentAddress();
 		this.name = beneficiary.getName();
 		this.relationship = beneficiary.getRelationship();
+		this.contentInfo = beneficiary.getContentInfo();
+		this.phoneNo = beneficiary.getContentInfo()!= null ? beneficiary.getContentInfo().getPhoneOrMoblieNo() : null;
+		this.customer = beneficiary.getCustomer();
+		this.organization = beneficiary.getOrganization();
 	}
 
 	public String getBeneficiaryNo() {
@@ -301,6 +318,40 @@ public class BeneficiariesInfoDTO {
 			fullIdNo = idNo;
 		}
 		return fullIdNo;
+	}
+	
+	
+
+	public ContentInfo getContentInfo() {
+		return contentInfo;
+	}
+
+	public void setContentInfo(ContentInfo contentInfo) {
+		this.contentInfo = contentInfo;
+	}
+
+	public String getPhoneNo() {
+		return phoneNo;
+	}
+
+	public void setPhoneNo(String phoneNo) {
+		this.phoneNo = phoneNo;
+	}
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+
+	public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
 	}
 
 	@Override

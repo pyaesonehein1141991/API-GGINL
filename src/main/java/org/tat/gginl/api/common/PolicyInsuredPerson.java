@@ -36,6 +36,7 @@ import org.tat.gginl.api.common.emumdata.ClassificationOfHealth;
 import org.tat.gginl.api.common.emumdata.EndorsementStatus;
 import org.tat.gginl.api.common.emumdata.Gender;
 import org.tat.gginl.api.common.emumdata.IdType;
+import org.tat.gginl.api.common.emumdata.SumInsuredType;
 import org.tat.gginl.api.domains.Attachment;
 import org.tat.gginl.api.domains.Customer;
 import org.tat.gginl.api.domains.GradeInfo;
@@ -183,6 +184,9 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 
 	@Embedded
 	private CommonCreateAndUpateMarks recorder;
+	
+	@Enumerated(value = EnumType.STRING)
+	private SumInsuredType sumInsuredType;
 
 	public boolean isNewCustomer() {
 		return newCustomer;
@@ -236,6 +240,7 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 		this.gradeInfo = insuredPerson.getGradeInfo();
 		this.bpmsInsuredPersonId = insuredPerson.getBpmsInsuredPersonId();
 		this.newCustomer = insuredPerson.isNewCustomer();
+		this.sumInsuredType = insuredPerson.getSumInsuredType();
 		for (InsuredPersonAttachment attachment : insuredPerson.getAttachmentList()) {
 			addAttachment(new PolicyInsuredPersonAttachment(attachment));
 		}
@@ -287,6 +292,7 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 		this.relationShip = history.getRelationShip();
 		this.school = history.getSchool();
 		this.gradeInfo = history.getGradeInfo();
+		this.sumInsuredType =  history.getSumInsuredType();
 		for (PolicyInsuredPersonAttachmentHistory attachment : history.getAttachmentList()) {
 			addAttachment(new PolicyInsuredPersonAttachment(attachment));
 		}
@@ -340,6 +346,7 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 		this.relationShip = dto.getRelationShip();
 		this.school = dto.getSchool();
 		this.gradeInfo = dto.getGradeInfo();
+		this.sumInsuredType = dto.getSumInsuredType();
 		for (PolicyInsuredPersonAttachment attach : dto.getPrePolicyAttachmentList()) {
 			addAttachment(attach);
 		}
@@ -1038,6 +1045,14 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 
 	public void setBpmsInsuredPersonId(String bpmsInsuredPersonId) {
 		this.bpmsInsuredPersonId = bpmsInsuredPersonId;
+	}
+	
+	public SumInsuredType getSumInsuredType() {
+		return sumInsuredType;
+	}
+
+	public void setSumInsuredType(SumInsuredType sumInsuredType) {
+		this.sumInsuredType = sumInsuredType;
 	}
 
 	@Override

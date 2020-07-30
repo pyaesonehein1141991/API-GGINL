@@ -14,6 +14,7 @@ import org.tat.gginl.api.common.emumdata.ClassificationOfHealth;
 import org.tat.gginl.api.common.emumdata.EndorsementStatus;
 import org.tat.gginl.api.common.emumdata.Gender;
 import org.tat.gginl.api.common.emumdata.IdType;
+import org.tat.gginl.api.common.emumdata.SumInsuredType;
 import org.tat.gginl.api.domains.Attachment;
 import org.tat.gginl.api.domains.Customer;
 import org.tat.gginl.api.domains.GradeInfo;
@@ -101,6 +102,7 @@ public class InsuredPersonInfoDTO {
 	private List<PolicyInsuredPersonAttachment> policyPerAttachmentList;
 	private List<Attachment> policyAttachmentList;
 	private List<PolicyInsuredPersonKeyFactorValue> policyKeyFactorValueList;
+	private SumInsuredType sumInsuredType;
 	private int unit;
 
 	private int version;
@@ -181,6 +183,7 @@ public class InsuredPersonInfoDTO {
 		this.occupation = proposal.getOccupation();
 		this.customer = proposal.getCustomer();
 		this.unit = proposal.getUnit();
+		this.sumInsuredType = proposal.getSumInsuredType();
 
 		for (InsuredPersonAttachment attach : proposal.getAttachmentList()) {
 			addInsuredPersonAttachment(attach);
@@ -255,6 +258,7 @@ public class InsuredPersonInfoDTO {
 		this.school = pi.getSchool();
 		this.gradeInfo = pi.getGradeInfo();
 		this.unit = pi.getUnit();
+		this.sumInsuredType = pi.getSumInsuredType();
 
 		for (PolicyInsuredPersonAttachment attach : pi.getAttachmentList()) {
 			addPolicyInsuredPersonAttachment(attach);
@@ -339,6 +343,7 @@ public class InsuredPersonInfoDTO {
 		this.relationShip = insuredPersonInfoDTO.getRelationShip();
 		this.school = insuredPersonInfoDTO.getSchool();
 		this.gradeInfo = insuredPersonInfoDTO.getGradeInfo();
+		this.sumInsuredType = insuredPersonInfoDTO.getSumInsuredType();
 
 		for (InsuredPersonKeyFactorValue kfv : insuredPersonInfoDTO.getKeyFactorValueList()) {
 			addInsuredPersonKeyFactorValue(kfv);
@@ -1239,4 +1244,14 @@ public class InsuredPersonInfoDTO {
 	public int getPremiumTerm() {
 		return periodOfYears - 3;
 	}
+
+	public SumInsuredType getSumInsuredType() {
+		return sumInsuredType;
+	}
+
+	public void setSumInsuredType(SumInsuredType sumInsuredType) {
+		this.sumInsuredType = sumInsuredType;
+	}
+	
+	
 }

@@ -42,6 +42,7 @@ import org.tat.gginl.api.common.emumdata.ClassificationOfHealth;
 import org.tat.gginl.api.common.emumdata.EndorsementStatus;
 import org.tat.gginl.api.common.emumdata.Gender;
 import org.tat.gginl.api.common.emumdata.IdType;
+import org.tat.gginl.api.common.emumdata.SumInsuredType;
 
 @Entity
 @Table(name = TableName.LIFEPOLICYINSUREDPERSONHISTORY)
@@ -108,6 +109,9 @@ public class PolicyInsuredPersonHistory {
 
 	@Embedded
 	private Name name;
+	
+	@Enumerated(value = EnumType.STRING)
+	private SumInsuredType sumInsuredType;
 
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "OCCUPATIONID", referencedColumnName = "ID")
@@ -197,6 +201,7 @@ public class PolicyInsuredPersonHistory {
 		this.relationShip = insuredPerson.getRelationship();
 		this.school = insuredPerson.getSchool();
 		this.gradeInfo = insuredPerson.getGradeInfo();
+		this.sumInsuredType = insuredPerson.getSumInsuredType();
 
 		for (InsuredPersonAttachment attachment : insuredPerson.getAttachmentList()) {
 			addAttachment(new PolicyInsuredPersonAttachmentHistory(attachment));
@@ -250,6 +255,7 @@ public class PolicyInsuredPersonHistory {
 		this.relationShip = insuredPerson.getRelationShip();
 		this.school = insuredPerson.getSchool();
 		this.gradeInfo = insuredPerson.getGradeInfo();
+		this.sumInsuredType = insuredPerson.getSumInsuredType();
 		for (PolicyInsuredPersonAttachment attachment : insuredPerson.getAttachmentList()) {
 			addAttachment(new PolicyInsuredPersonAttachmentHistory(attachment));
 		}
@@ -825,6 +831,14 @@ public class PolicyInsuredPersonHistory {
 			int year_2 = cal_1.get(Calendar.YEAR);
 			return year_2 - year_1;
 		}
+	}
+	
+	public SumInsuredType getSumInsuredType() {
+		return sumInsuredType;
+	}
+
+	public void setSumInsuredType(SumInsuredType sumInsuredType) {
+		this.sumInsuredType = sumInsuredType;
 	}
 
 	@Override

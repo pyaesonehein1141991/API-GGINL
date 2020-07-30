@@ -20,6 +20,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import org.tat.gginl.api.common.ContentInfo;
 import org.tat.gginl.api.common.FormatID;
 import org.tat.gginl.api.common.Name;
 import org.tat.gginl.api.common.PolicyInsuredPersonBeneficiaries;
@@ -70,6 +71,17 @@ public class PolicyInsuredPersonBeneficiariesHistory {
 	@JoinColumn(name = "INSUREDPERSONID", referencedColumnName = "ID")
 	private PolicyInsuredPersonHistory policyInsuredPerson;
 
+	@Embedded
+	private ContentInfo contentInfo;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "CUSTOMERID", referencedColumnName = "ID")
+	private Customer customer;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "ORGANIZATIONID", referencedColumnName = "ID")
+	private Organization organization;
+
 	@Version
 	private int version;
 
@@ -88,7 +100,9 @@ public class PolicyInsuredPersonBeneficiariesHistory {
 		this.residentAddress = insuredPersonBeneficiaries.getResidentAddress();
 		this.name = insuredPersonBeneficiaries.getName();
 		this.relationship = insuredPersonBeneficiaries.getRelationship();
-
+		this.contentInfo = insuredPersonBeneficiaries.getContentInfo();
+		this.customer = insuredPersonBeneficiaries.getCustomer();
+		this.organization = insuredPersonBeneficiaries.getOrganization();
 	}
 
 	public PolicyInsuredPersonBeneficiariesHistory(PolicyInsuredPersonBeneficiaries insuredPersonBeneficiaries) {
@@ -103,6 +117,9 @@ public class PolicyInsuredPersonBeneficiariesHistory {
 		this.residentAddress = insuredPersonBeneficiaries.getResidentAddress();
 		this.name = insuredPersonBeneficiaries.getName();
 		this.relationship = insuredPersonBeneficiaries.getRelationship();
+		this.contentInfo = insuredPersonBeneficiaries.getContentInfo();
+		this.customer = insuredPersonBeneficiaries.getCustomer();
+		this.organization = insuredPersonBeneficiaries.getOrganization();
 	}
 
 	@Id
@@ -233,6 +250,30 @@ public class PolicyInsuredPersonBeneficiariesHistory {
 	public void setClaimStatus(ClaimStatus claimStatus) {
 		this.claimStatus = claimStatus;
 	}
+	
+	public ContentInfo getContentInfo() {
+		return contentInfo;
+	}
+
+	public void setContentInfo(ContentInfo contentInfo) {
+		this.contentInfo = contentInfo;
+	}
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+
+	public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
 
 	@Override
 	public int hashCode() {
@@ -241,14 +282,19 @@ public class PolicyInsuredPersonBeneficiariesHistory {
 		result = prime * result + age;
 		result = prime * result + ((beneficiaryNo == null) ? 0 : beneficiaryNo.hashCode());
 		result = prime * result + ((claimStatus == null) ? 0 : claimStatus.hashCode());
+		result = prime * result + ((contentInfo == null) ? 0 : contentInfo.hashCode());
+		result = prime * result + ((customer == null) ? 0 : customer.hashCode());
 		result = prime * result + ((gender == null) ? 0 : gender.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((idNo == null) ? 0 : idNo.hashCode());
 		result = prime * result + ((idType == null) ? 0 : idType.hashCode());
 		result = prime * result + ((initialId == null) ? 0 : initialId.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((organization == null) ? 0 : organization.hashCode());
 		result = prime * result + Float.floatToIntBits(percentage);
+		result = prime * result + ((policyInsuredPerson == null) ? 0 : policyInsuredPerson.hashCode());
 		result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
+		result = prime * result + ((relationship == null) ? 0 : relationship.hashCode());
 		result = prime * result + ((residentAddress == null) ? 0 : residentAddress.hashCode());
 		result = prime * result + version;
 		return result;
@@ -271,6 +317,16 @@ public class PolicyInsuredPersonBeneficiariesHistory {
 		} else if (!beneficiaryNo.equals(other.beneficiaryNo))
 			return false;
 		if (claimStatus != other.claimStatus)
+			return false;
+		if (contentInfo == null) {
+			if (other.contentInfo != null)
+				return false;
+		} else if (!contentInfo.equals(other.contentInfo))
+			return false;
+		if (customer == null) {
+			if (other.customer != null)
+				return false;
+		} else if (!customer.equals(other.customer))
 			return false;
 		if (gender != other.gender)
 			return false;
@@ -296,12 +352,27 @@ public class PolicyInsuredPersonBeneficiariesHistory {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
+		if (organization == null) {
+			if (other.organization != null)
+				return false;
+		} else if (!organization.equals(other.organization))
+			return false;
 		if (Float.floatToIntBits(percentage) != Float.floatToIntBits(other.percentage))
+			return false;
+		if (policyInsuredPerson == null) {
+			if (other.policyInsuredPerson != null)
+				return false;
+		} else if (!policyInsuredPerson.equals(other.policyInsuredPerson))
 			return false;
 		if (prefix == null) {
 			if (other.prefix != null)
 				return false;
 		} else if (!prefix.equals(other.prefix))
+			return false;
+		if (relationship == null) {
+			if (other.relationship != null)
+				return false;
+		} else if (!relationship.equals(other.relationship))
 			return false;
 		if (residentAddress == null) {
 			if (other.residentAddress != null)

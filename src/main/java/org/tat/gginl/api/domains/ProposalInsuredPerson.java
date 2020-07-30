@@ -46,6 +46,7 @@ import org.tat.gginl.api.common.emumdata.ClassificationOfHealth;
 import org.tat.gginl.api.common.emumdata.EndorsementStatus;
 import org.tat.gginl.api.common.emumdata.Gender;
 import org.tat.gginl.api.common.emumdata.IdType;
+import org.tat.gginl.api.common.emumdata.SumInsuredType;
 
 @Entity
 @Table(name = TableName.PROPOSALINSUREDPERSON)
@@ -178,6 +179,9 @@ public class ProposalInsuredPerson implements Serializable {
 
 	@Transient
 	private boolean newCustomer;
+	
+	@Enumerated(value = EnumType.STRING)
+	private SumInsuredType sumInsuredType;
 
 	@Version
 	private int version;
@@ -235,6 +239,7 @@ public class ProposalInsuredPerson implements Serializable {
 		this.relationship = dto.getRelationShip();
 		this.school = dto.getSchool();
 		this.gradeInfo = dto.getGradeInfo();
+		this.sumInsuredType = dto.getSumInsuredType();
 		// override
 		this.customer = dto.getCustomer();
 		for (InsuredPersonAttachment attach : dto.getPerAttachmentList()) {
@@ -300,6 +305,7 @@ public class ProposalInsuredPerson implements Serializable {
 		this.relationship = insuredPersonInfoDTO.getRelationShip();
 		this.version = insuredPersonInfoDTO.getVersion();
 		this.approved = insuredPersonInfoDTO.isApprove();
+		this.sumInsuredType = insuredPersonInfoDTO.getSumInsuredType();
 	}
 
 	public ProposalInsuredPerson(Date dateOfBirth, double proposedSumInsured, Product product, LifeProposal lifeproposal, int periodMonth, Date startDate, Date endDate,
@@ -357,6 +363,7 @@ public class ProposalInsuredPerson implements Serializable {
 		this.relationship = policyInsuredPerson.getRelationShip();
 		this.school = policyInsuredPerson.getSchool();
 		this.gradeInfo = policyInsuredPerson.getGradeInfo();
+		this.sumInsuredType = policyInsuredPerson.getSumInsuredType();
 		for (PolicyInsuredPersonKeyFactorValue lifeKFValue : policyInsuredPerson.getPolicyInsuredPersonkeyFactorValueList()) {
 			addLifeKeyFactorValue(new InsuredPersonKeyFactorValue(lifeKFValue));
 		}
@@ -1025,6 +1032,14 @@ public class ProposalInsuredPerson implements Serializable {
 
 	public void setBpmsInsuredPersonId(String bpmsInsuredPersonId) {
 		this.bpmsInsuredPersonId = bpmsInsuredPersonId;
+	}
+
+	public SumInsuredType getSumInsuredType() {
+		return sumInsuredType;
+	}
+
+	public void setSumInsuredType(SumInsuredType sumInsuredType) {
+		this.sumInsuredType = sumInsuredType;
 	}
 
 	@Override

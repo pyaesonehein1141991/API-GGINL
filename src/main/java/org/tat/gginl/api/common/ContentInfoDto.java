@@ -50,6 +50,20 @@ import lombok.Data;
 		public void setEmail(String email) {
 			this.email = email;
 		}
+		
+		public String getPhoneOrMoblieNo() {
+			if (phone == null && mobile == null) {
+				return "-";
+			} else {
+				if (phone.isEmpty() && phone == "") {
+					if (mobile != null) {
+						return mobile;
+					}
+					return "-";
+				} else
+					return phone;
+			}
+		}
 
-	
+		
 }

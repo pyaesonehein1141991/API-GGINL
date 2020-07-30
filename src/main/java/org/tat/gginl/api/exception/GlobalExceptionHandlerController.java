@@ -75,7 +75,7 @@ public class GlobalExceptionHandlerController {
 			status = HttpStatus.NOT_FOUND;
 			message = e.getMessage();
 		}
-		else if (ErrorCode.NRC_FORMAT_NOT_MATCH.equals(e.getErrorCode())) {
+		else if (ErrorCode.NRC_FORMAT_NOT_MATCH.equals(e.getErrorCode()) || ErrorCode.INVALID_PAYMENT_TYPE.equals(e.getErrorCode())) {
 //			res.sendError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
 			status = HttpStatus.BAD_REQUEST;
 			message = e.getMessage();

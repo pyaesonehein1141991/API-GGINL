@@ -47,5 +47,7 @@ public class ErrorCode {
 	public static final String NRC_FORMAT_NOT_MATCH= "NRC_FORMAT_NOT_MATCH";
 	
 	public static final String PAYMENT_ALREADY_CONFIRMED = "PAYMENT_ALREADY_CONFIRMED";
+	
+	public static final String INVALID_PAYMENT_TYPE = "INVALID_PAYMENT_TYPE";
 
 }
