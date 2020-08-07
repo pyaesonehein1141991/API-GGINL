@@ -91,4 +91,9 @@ public class FarmerProposalDTO {
 	@NotBlank(message = "bpmsProposalNo is mandatory")
 	private String bpmsProposalNo;
 
+	@ApiModelProperty(position = 22, example = "2019-12-16", required = true)
+	@NotNull(message = "Payment Confirm Date is mandatory")
+	@JsonDeserialize(using = DateHandler.class)
+	private Date PaymentConfirmDate;
+
 }

@@ -179,6 +179,7 @@ public class LifeProposalService {
 
 	@Value("${singlePremiumCreditLifeProductId}")
 	private String singlePremiumCreditLifeProductId;
+<<<<<<< HEAD
 	
 	@Value("${shortTermSinglePremiumCreditLifeProductId}")
 	private String shortTermSinglePremiumCreditLifeProductId;
@@ -186,6 +187,15 @@ public class LifeProposalService {
 	@Value("${singlePremiumEndowmentLifeProductId}")
 	private String singlePremiumEndowmentLifeProductId;
 	
+=======
+
+	@Value("${shortTermSinglePremiumCreditLifeProductId}")
+	private String shortTermSinglePremiumCreditLifeProductId;
+
+	@Value("${singlePremiumEndowmentLifeProductId}")
+	private String singlePremiumEndowmentLifeProductId;
+
+>>>>>>> stash
 	@Value("${LUMPSUM}")
 	private String LUMPSUM;
 
@@ -229,7 +239,7 @@ public class LifeProposalService {
 			if (null != groupFarmerProposalDTO.getAgentID()) {
 				List<AgentCommission> agentcommissionList = convertGroupFarmerToAgentCommission(groupFarmerProposal);
 				CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
-				recorder.setCreatedDate(new Date());
+				recorder.setCreatedDate(groupFarmerProposalDTO.getPaymentConfirmDate());
 				agentcommissionList.forEach(agent -> {
 					agent.setRecorder(recorder);
 				});
@@ -538,7 +548,7 @@ public class LifeProposalService {
 			double rate = 1.0;
 			String receiptNo = "";
 			CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
-			recorder.setCreatedDate(new Date());
+			recorder.setCreatedDate(farmerProposalDTO.getPaymentConfirmDate());
 			if (farmerProposalDTO.getPaymentChannel().equalsIgnoreCase("CSH")) {
 				receiptNo = customIdRepo.getNextId("CASH_RECEIPT_ID_GEN", null);
 				payment.setPaymentChannel(PaymentChannel.CASHED);
@@ -559,8 +569,8 @@ public class LifeProposalService {
 			payment.setReceiptNo(receiptNo);
 			payment.setPaymentType(groupFarmerProposal.getPaymentType());
 			payment.setReferenceType(PolicyReferenceType.GROUP_FARMER_PROPOSAL);
-			payment.setConfirmDate(new Date());
-			payment.setPaymentDate(new Date());
+			payment.setConfirmDate(farmerProposalDTO.getPaymentConfirmDate());
+			payment.setPaymentDate(farmerProposalDTO.getPaymentConfirmDate());
 			if (toBankOptional.isPresent()) {
 				payment.setAccountBank(toBankOptional.get());
 			}
@@ -677,30 +687,31 @@ public class LifeProposalService {
 			Payment payment = paymentRepository.findByPaymentReferenceNo(proposal.getId());
 
 			TLF tlf1 = addNewTLF_For_CashDebitForPremium(payment, proposal.getOrganization().getId(), proposal.getBranch(), payment.getReceiptNo(), false, "KYT",
-					proposal.getSalePoint(), proposal.getProposalNo(), proposal.getSubmittedDate());
+					proposal.getSalePoint(), proposal.getProposalNo(), payment.getConfirmDate());
 			TLFList.add(tlf1);
 			TLF tlf2 = addNewTLF_For_PremiumCredit(payment, proposal.getOrganization().getId(), proposal.getBranch(), accountCode, payment.getReceiptNo(), false, "KYT",
-					proposal.getSalePoint(), proposal.getProposalNo(), proposal.getSubmittedDate());
+					proposal.getSalePoint(), proposal.getProposalNo(), payment.getConfirmDate());
 			TLFList.add(tlf2);
 
 			if (payment.getPaymentChannel().equals(PaymentChannel.CHEQUE) || payment.getPaymentChannel().equals(PaymentChannel.SUNDRY)) {
 				String customerId = proposal.getOrganization().getId();
 				TLF tlf3 = addNewTLF_For_PremiumDebitForRCVAndCHQ(payment, customerId, proposal.getBranch(), payment.getAccountBank().getAcode(), false, payment.getReceiptNo(),
-						true, false, "KYT", proposal.getSalePoint(), proposal.getProposalNo(), proposal.getSubmittedDate());
+						true, false, "KYT", proposal.getSalePoint(), proposal.getProposalNo(), payment.getConfirmDate());
 				TLFList.add(tlf3);
 				TLF tlf4 = addNewTLF_For_CashCreditForPremiumForRCVAndCHQ(payment, customerId, proposal.getBranch(), false, payment.getReceiptNo(), true, false, "KYT",
-						proposal.getSalePoint(), proposal.getProposalNo(), proposal.getSubmittedDate());
+						proposal.getSalePoint(), proposal.getProposalNo(), payment.getConfirmDate());
 				TLFList.add(tlf4);
 			}
 
 			if (proposal.getAgent() != null) {
 				double firstAgentCommission = proposal.getAgentCommission();
-				AgentCommission ac = new AgentCommission(proposal.getId(), PolicyReferenceType.GROUP_FARMER_PROPOSAL, proposal.getAgent(), firstAgentCommission, new Date());
+				AgentCommission ac = new AgentCommission(proposal.getId(), PolicyReferenceType.GROUP_FARMER_PROPOSAL, proposal.getAgent(), firstAgentCommission,
+						payment.getConfirmDate());
 				TLF tlf5 = addNewTLF_For_AgentCommissionDr(ac, false, proposal.getBranch(), payment, payment.getId(), false, "KYT", proposal.getSalePoint(),
-						proposal.getProposalNo(), proposal.getSubmittedDate());
+						proposal.getProposalNo(), payment.getConfirmDate());
 				TLFList.add(tlf5);
 				TLF tlf6 = addNewTLF_For_AgentCommissionCredit(ac, false, proposal.getBranch(), payment, payment.getId(), false, "KYT", proposal.getSalePoint(),
-						proposal.getProposalNo(), proposal.getSubmittedDate());
+						proposal.getProposalNo(), payment.getConfirmDate());
 				TLFList.add(tlf6);
 			}
 		} catch (Exception e) {
@@ -892,7 +903,7 @@ public class LifeProposalService {
 		TLF tlf = new TLF();
 		try {
 			CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
-			recorder.setCreatedDate(new Date());
+			recorder.setCreatedDate(startDate);
 			String receiptNo = payment.getReceiptNo();
 			String coaCode = null;
 			String coaCodeMI = null;
@@ -1140,7 +1151,7 @@ public class LifeProposalService {
 		TLF tlf = new TLF();
 		try {
 			CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
-			recorder.setCreatedDate(new Date());
+			recorder.setCreatedDate(startDate);
 			String receiptNo = payment.getReceiptNo();
 			String coaCode = null;
 			String accountName = null;
@@ -1623,7 +1634,11 @@ public class LifeProposalService {
 		return valid;
 	}
 
+<<<<<<< HEAD
 	// for  life payment
+=======
+	// for life payment
+>>>>>>> stash
 	public List<Payment> convertLifePolicyToPayment(List<LifePolicy> lifePolicyList, Date paymentConfirmDate) {
 		List<Payment> paymentList = new ArrayList<Payment>();
 		try {
@@ -1980,6 +1995,7 @@ public class LifeProposalService {
 		return policyList;
 	}
 
+<<<<<<< HEAD
 	
 	/* Single Premium Credit Life Service */
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -2206,6 +2222,232 @@ public class LifeProposalService {
 			beneficiary.setName(name);
 			beneficiary.setContentInfo(content);
 			if(customerOptional.isPresent()) {
+=======
+	/* Single Premium Credit Life Service */
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<LifePolicy> createSinglePremiumCreditLifePolicy(SinglePremiumCreditLifeDTO singlePremiumCreditLifeDTO) {
+		try {
+			List<LifeProposal> singlePremiumCreditLifeProposalList = convertSinglePremiumCreditLifeProposalDTOToProposal(singlePremiumCreditLifeDTO);
+			Date paymentConfirmDate = singlePremiumCreditLifeDTO.getPaymentConfirmDate();
+			// convert lifeproposal to lifepolicy
+			List<LifePolicy> policyList = convertSinglePremiumCreditLifeProposalToPolicy(singlePremiumCreditLifeProposalList);
+
+			// create lifepolicy and return policynoList
+			policyList = lifePolicyRepo.saveAll(policyList);
+
+			// create lifepolicy to payment
+			List<Payment> paymentList = convertLifePolicyToPayment(policyList, paymentConfirmDate);
+			paymentRepository.saveAll(paymentList);
+
+			// create Agent Commission
+			if (null != singlePremiumCreditLifeDTO.getAgentID()) {
+				List<AgentCommission> agentcommissionList = convertLifePolicyToAgentCommission(policyList);
+				CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
+				recorder.setCreatedDate(new Date());
+				agentcommissionList.forEach(agent -> {
+					agent.setRecorder(recorder);
+				});
+				agentCommissionRepo.saveAll(agentcommissionList);
+
+			}
+
+			// create TLF
+			List<TLF> TLFList = convertLifePolicyToTLF(policyList);
+			tlfRepository.saveAll(TLFList);
+			return policyList;
+		} catch (Exception e) {
+			logger.error("JOEERROR:" + e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	public List<LifeProposal> convertSinglePremiumCreditLifeProposalDTOToProposal(SinglePremiumCreditLifeDTO singlePremiumCreditLifeDTO) {
+		List<LifeProposal> lifeProposalList = new ArrayList<>();
+		try {
+			Optional<Branch> branchOptinal = branchService.findById(singlePremiumCreditLifeDTO.getBranchId());
+			Optional<Customer> referralOptional = customerService.findById(singlePremiumCreditLifeDTO.getReferralID());
+			Optional<Customer> customerOptional = customerService.findById(singlePremiumCreditLifeDTO.getCustomerID());
+			Optional<Organization> organizationOptinal = organizationService.findById(singlePremiumCreditLifeDTO.getOrganizationID());
+			Optional<PaymentType> paymentTypeOptional = paymentTypeService.findById(singlePremiumCreditLifeDTO.getPaymentTypeId());
+			Optional<Agent> agentOptional = agentService.findById(singlePremiumCreditLifeDTO.getAgentID());
+			Optional<SaleMan> saleManOptional = saleManService.findById(singlePremiumCreditLifeDTO.getSaleManId());
+			Optional<SalePoint> salePointOptional = salePointService.findById(singlePremiumCreditLifeDTO.getSalePointId());
+
+			// check validation
+			checkValidationProposal(singlePremiumCreditLifeDTO);
+
+			singlePremiumCreditLifeDTO.getProposalInsuredPersonList().forEach(insuredPerson -> {
+				LifeProposal lifeProposal = new LifeProposal();
+				if (singlePremiumCreditLifeDTO.getPaymentChannel().equalsIgnoreCase("TRF")) {
+					lifeProposal.setPaymentChannel(PaymentChannel.TRANSFER);
+					lifeProposal.setToBank(singlePremiumCreditLifeDTO.getToBank());
+					lifeProposal.setFromBank(singlePremiumCreditLifeDTO.getFromBank());
+					lifeProposal.setChequeNo(singlePremiumCreditLifeDTO.getChequeNo());
+				} else if (singlePremiumCreditLifeDTO.getPaymentChannel().equalsIgnoreCase("CSH")) {
+					lifeProposal.setPaymentChannel(PaymentChannel.CASHED);
+				} else if (singlePremiumCreditLifeDTO.getPaymentChannel().equalsIgnoreCase("CHQ")) {
+					lifeProposal.setPaymentChannel(PaymentChannel.CHEQUE);
+					lifeProposal.setChequeNo(singlePremiumCreditLifeDTO.getChequeNo());
+					lifeProposal.setToBank(singlePremiumCreditLifeDTO.getToBank());
+					lifeProposal.setFromBank(singlePremiumCreditLifeDTO.getFromBank());
+				} else if (singlePremiumCreditLifeDTO.getPaymentChannel().equalsIgnoreCase("RCV")) {
+					lifeProposal.setPaymentChannel(PaymentChannel.SUNDRY);
+					lifeProposal.setToBank(singlePremiumCreditLifeDTO.getToBank());
+					lifeProposal.setFromBank(singlePremiumCreditLifeDTO.getFromBank());
+				}
+
+				lifeProposal.getProposalInsuredPersonList().add(createSinglePremiumCreditLifeInsuredPerson(insuredPerson));
+
+				lifeProposal.setComplete(true);
+				lifeProposal.setProposalType(ProposalType.UNDERWRITING);
+				lifeProposal.setSubmittedDate(singlePremiumCreditLifeDTO.getSubmittedDate());
+
+				if (customerOptional.isPresent()) {
+					lifeProposal.setCustomer(customerOptional.get());
+				}
+
+				if (organizationOptinal.isPresent()) {
+					lifeProposal.setOrganization(organizationOptinal.get());
+				}
+
+				if (branchOptinal.isPresent()) {
+					lifeProposal.setBranch(branchOptinal.get());
+				}
+
+				if (referralOptional.isPresent()) {
+					lifeProposal.setReferral(referralOptional.get());
+				}
+
+				if (agentOptional.isPresent()) {
+					lifeProposal.setAgent(agentOptional.get());
+				}
+				if (saleManOptional.isPresent()) {
+					lifeProposal.setSaleMan(saleManOptional.get());
+				}
+				if (salePointOptional.isPresent()) {
+					lifeProposal.setSalePoint(salePointOptional.get());
+				}
+				if (paymentTypeOptional.isPresent()) {
+					lifeProposal.setPaymentType(paymentTypeOptional.get());
+				}
+				CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
+				recorder.setCreatedDate(new Date());
+				lifeProposal.setRecorder(recorder);
+				lifeProposal.setBpmsProposalNo(singlePremiumCreditLifeDTO.getBpmsProposalNo());
+				lifeProposal.setBpmsReceiptNo(singlePremiumCreditLifeDTO.getBpmsReceiptNo());
+				String proposalNo = customIdRepo.getNextId("SINGLE_PREMIUM_CREDIT_LIFE_PROPOSAL_NO", null);
+				lifeProposal.setProposalNo(proposalNo);
+				lifeProposal.setPrefix("ISLIF001");
+				lifeProposalList.add(lifeProposal);
+			});
+		} catch (DAOException e) {
+			throw new SystemException(e.getErrorCode(), e.getMessage());
+		}
+		return lifeProposalList;
+	}
+
+	private void checkValidationProposal(SinglePremiumCreditLifeDTO singlePremiumCreditLifeDTO) {
+		Optional<PaymentType> paymentTypeOptional = paymentTypeService.findById(singlePremiumCreditLifeDTO.getPaymentTypeId());
+
+		if (!paymentTypeOptional.isPresent() || !paymentTypeOptional.get().getId().equals(LUMPSUM)) {
+			throw new SystemException(ErrorCode.INVALID_PAYMENT_TYPE, " Payment Type is invalid, only accept LUMPSUM");
+		}
+	}
+
+	private ProposalInsuredPerson createSinglePremiumCreditLifeInsuredPerson(SinglePremiumCreditLifeProposalInsuredPersonDTO dto) {
+		try {
+			Optional<Product> productOptional = productService.findById(singlePremiumCreditLifeProductId);
+			Optional<Township> townshipOptional = townShipService.findById(dto.getTownshipId());
+			Optional<Occupation> occupationOptional = occupationService.findById(dto.getOccupationID());
+			Optional<Customer> customerOptional = customerService.findById(dto.getCustomerID());
+
+			ResidentAddress residentAddress = new ResidentAddress();
+			residentAddress.setResidentAddress(dto.getResidentAddress());
+			residentAddress.setResidentTownship(townshipOptional.get());
+
+			Name name = new Name();
+			name.setFirstName(dto.getFirstName());
+			name.setMiddleName(dto.getMiddleName());
+			name.setLastName(dto.getLastName());
+
+			ProposalInsuredPerson insuredPerson = new ProposalInsuredPerson();
+
+			insuredPerson.setProduct(productOptional.get());
+			insuredPerson.setInitialId(dto.getInitialId());
+			insuredPerson.setBpmsInsuredPersonId(dto.getBpmsInsuredPersonId());
+			insuredPerson.setProposedSumInsured(dto.getProposedSumInsured());
+			insuredPerson.setProposedPremium(dto.getProposedPremium());
+			insuredPerson.setApprovedSumInsured(dto.getApprovedSumInsured());
+			insuredPerson.setApprovedPremium(dto.getApprovedPremium());
+			insuredPerson.setBasicTermPremium(dto.getBasicTermPremium());
+			insuredPerson.setIdType(IdType.valueOf(dto.getIdType()));
+			insuredPerson.setIdNo(dto.getIdNo());
+			insuredPerson.setFatherName(dto.getFatherName());
+			insuredPerson.setStartDate(dto.getStartDate());
+			insuredPerson.setEndDate(dto.getEndDate());
+			insuredPerson.setDateOfBirth(dto.getDateOfBirth());
+			insuredPerson.setAge(DateUtils.getAgeForNextYear(dto.getDateOfBirth()));
+			insuredPerson.setPeriodMonth(12);
+			insuredPerson.setGender(Gender.valueOf(dto.getGender()));
+			insuredPerson.setResidentAddress(residentAddress);
+			insuredPerson.setClsOfHealth(ClassificationOfHealth.FIRSTCLASS);
+			insuredPerson.setName(name);
+			CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
+			recorder.setCreatedDate(new Date());
+			insuredPerson.setRecorder(recorder);
+			if (occupationOptional.isPresent()) {
+				insuredPerson.setOccupation(occupationOptional.get());
+			}
+			if (customerOptional.isPresent()) {
+				insuredPerson.setCustomer(customerOptional.get());
+			} else {
+				insuredPerson.setCustomer(createNewCustomer(insuredPerson));
+				insuredPerson.setNewCustomer(true);
+			}
+
+			String insPersonCodeNo = customIdRepo.getNextId("LIFE_INSUREDPERSON_CODENO_ID_GEN", null);
+			insuredPerson.setInsPersonCodeNo(insPersonCodeNo);
+			insuredPerson.setPrefix("ISLIF008");
+			dto.getInsuredPersonBeneficiariesList().forEach(beneficiary -> {
+				insuredPerson.getInsuredPersonBeneficiariesList().add(createSinglePremiumCreditLifeInsuredPersonBeneficiareis(beneficiary));
+			});
+			return insuredPerson;
+		} catch (DAOException e) {
+			throw new SystemException(e.getErrorCode(), e.getMessage());
+		}
+	}
+
+	public InsuredPersonBeneficiaries createSinglePremiumCreditLifeInsuredPersonBeneficiareis(SinglePremiumCreditLifeInsuredPersonBeneficiaryDTO dto) {
+		try {
+			Optional<Township> townshipOptional = townShipService.findById(dto.getTownshipId());
+			Optional<RelationShip> relationshipOptional = relationshipService.findById(dto.getRelationshipID());
+			Optional<Customer> customerOptional = customerService.findById(dto.getCustomerID());
+			Optional<Organization> organizationOptional = organizationService.findById(dto.getOrganizationID());
+			ResidentAddress residentAddress = new ResidentAddress();
+			residentAddress.setResidentAddress(dto.getResidentAddress());
+
+			residentAddress.setResidentTownship(townshipOptional.get());
+
+			Name name = new Name();
+			name.setFirstName(dto.getFirstName());
+			name.setMiddleName(dto.getMiddleName());
+			name.setLastName(dto.getLastName());
+
+			ContentInfo content = new ContentInfo();
+			content.setPhone(dto.getContentInfo() != null ? dto.getContentInfo().getPhoneOrMoblieNo() : null);
+
+			InsuredPersonBeneficiaries beneficiary = new InsuredPersonBeneficiaries();
+			beneficiary.setInitialId(dto.getInitialId());
+			beneficiary.setDateOfBirth(dto.getDob());
+			beneficiary.setPercentage(dto.getPercentage());
+			beneficiary.setIdType(IdType.valueOf(dto.getIdType()));
+			beneficiary.setIdNo(dto.getIdNo());
+			beneficiary.setGender(Gender.valueOf(dto.getGender()));
+			beneficiary.setResidentAddress(residentAddress);
+			beneficiary.setName(name);
+			beneficiary.setContentInfo(content);
+			if (customerOptional.isPresent()) {
+>>>>>>> stash
 				beneficiary.setCustomer(customerOptional.get());
 			}
 			if (organizationOptional.isPresent()) {
