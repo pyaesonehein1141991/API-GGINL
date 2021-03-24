@@ -1762,6 +1762,8 @@ public class LifeProposalService {
 					policyReferenceType = PolicyReferenceType.SHORT_TERM_SINGLE_PREMIUM_CREDIT_LIFE_POLICY;
 				} else if (productId.equals(singlePremiumEndowmentLifeProductId)) {
 					policyReferenceType = PolicyReferenceType.SINGLE_PREMIUM_ENDOWMENT_LIFE_POLICY;
+				} else if (productId.equals(simpleLifeProductId)) {
+					policyReferenceType = PolicyReferenceType.SIMPLE_LIFE_POLICY;
 				}
 				payment.setReferenceType(policyReferenceType);
 				payment.setConfirmDate(paymentConfirmDate);
