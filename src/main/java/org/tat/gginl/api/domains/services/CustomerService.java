@@ -26,17 +26,19 @@ public class CustomerService {
 		return customerRepository.findAllColumnName();
 	}
 
+	public Customer findCustomerByIdNoAndIdType(String idNo, String idType) {
+		return customerRepository.findCustomerByIdNoAndIdType(idNo, idType);
+	}
+
 	@Transactional
 	public Optional<Customer> findById(String id) throws DAOException {
 		if (!StringUtils.isBlank(id)) {
 			if (customerRepository.findById(id).isPresent()) {
 				return customerRepository.findById(id);
-			}
-			else {
+			} else {
 				throw new DAOException(ErrorCode.SYSTEM_ERROR_RESOURCE_NOT_FOUND, id + " not found in Customer");
 			}
-		}
-		else {
+		} else {
 			return Optional.empty();
 		}
 

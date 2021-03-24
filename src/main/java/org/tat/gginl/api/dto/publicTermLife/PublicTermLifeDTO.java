@@ -75,6 +75,6 @@ public class PublicTermLifeDTO {
 	@ApiModelProperty(position = 16, example = "2019-12-16", required = true)
 	@NotNull(message = "Payment Confirm Date is mandatory")
 	@JsonDeserialize(using = DateHandler.class)
-	private Date paymentConfirmDate;
+	private Date PaymentConfirmDate;
 
 }

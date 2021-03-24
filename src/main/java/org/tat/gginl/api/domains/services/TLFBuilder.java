@@ -1,16 +1,17 @@
-package org.tat.gginl.api.common;
+package org.tat.gginl.api.domains.services;
 
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.tat.gginl.api.common.Utils;
 import org.tat.gginl.api.common.emumdata.DoubleEntry;
 import org.tat.gginl.api.common.emumdata.PaymentChannel;
 import org.tat.gginl.api.common.emumdata.PolicyReferenceType;
-import org.tat.gginl.api.common.emumdata.Status;
 import org.tat.gginl.api.domains.Payment;
 import org.tat.gginl.api.domains.TLF;
 
-@Service("TLFBuilder")
+@Service
 public class TLFBuilder {
 
 	private boolean isRenewal;
@@ -19,8 +20,9 @@ public class TLFBuilder {
 	private double rate;
 	private String currency;
 	private String chequeNo;
-	private String status;
-	private String tranCode;
+	// private String status;
+	// private String tranCode;
+	private String tranTypeId;
 	private String enoNo;
 	private String referenceNo;
 	private String bankId;
@@ -31,6 +33,26 @@ public class TLFBuilder {
 	private String tlfNo;
 	private Date settlementDate;
 	private PolicyReferenceType referenceType;
+
+	@Value("${KYATID}")
+	private String kyatId;
+
+	@Value("${CSCREDIT}")
+	private String CSCREDIT;
+	@Value("${CSDEBIT}")
+	private String CSDEBIT;
+	@Value("${TRCREDIT}")
+	private String TRCREDIT;
+	@Value("${TRDEBIT}")
+	private String TRDEBIT;
+
+	{
+		this.kyatId = "ISSYS0210001000000000129032013";
+		this.CSCREDIT = "GGLITRANTP000001";
+		this.CSDEBIT = "GGLITRANTP000002";
+		this.TRCREDIT = "GGLITRANTP000004";
+		this.TRDEBIT = "GGLITRANTP000003";
+	}
 
 	public TLFBuilder() {
 	}
@@ -51,18 +73,22 @@ public class TLFBuilder {
 				this.chequeNo = chequeNo;
 				this.bankId = bankId;
 
-				this.status = Status.TCV;
-				this.tranCode = TranCode.TRCREDIT;
+				// this.status = Status.TCV;
+				// this.tranCode = TranCode.TRCREDIT;
+				this.tranTypeId = TRCREDIT;
 			} else if (PaymentChannel.CASHED.equals(paymentChannel)) {
-				this.status = Status.CCV;
-				this.tranCode = TranCode.CSCREDIT;
+				// this.status = Status.CCV;
+				// this.tranCode = TranCode.CSCREDIT;
+				this.tranTypeId = CSCREDIT;
 			} else if (PaymentChannel.TRANSFER.equals(paymentChannel)) {
-				this.status = Status.TCV;
-				this.tranCode = TranCode.TRCREDIT;
+				// this.status = Status.TCV;
+				// this.tranCode = TranCode.TRCREDIT;
+				this.tranTypeId = TRCREDIT;
 			} else if (PaymentChannel.SUNDRY.equals(paymentChannel)) {
 				this.bankId = bankId;
-				this.status = Status.TCV;
-				this.tranCode = TranCode.TRCREDIT;
+				// this.status = Status.TCV;
+				// this.tranCode = TranCode.TRCREDIT;
+				this.tranTypeId = TRCREDIT;
 			}
 
 			// debit
@@ -71,18 +97,23 @@ public class TLFBuilder {
 				this.chequeNo = chequeNo;
 				this.bankId = bankId;
 
-				this.status = Status.TDV;
-				this.tranCode = TranCode.TRDEBIT;
+				// this.status = Status.TDV;
+				// this.tranCode = TranCode.TRDEBIT;
+				this.tranTypeId = TRDEBIT;
 			} else if (PaymentChannel.CASHED.equals(paymentChannel)) {
-				this.status = Status.CDV;
-				this.tranCode = TranCode.CSDEBIT;
+				// this.status = Status.CDV;
+				// this.tranCode = TranCode.CSDEBIT;
+				this.tranTypeId = CSDEBIT;
 			} else if (PaymentChannel.TRANSFER.equals(paymentChannel)) {
-				this.status = Status.TDV;
-				this.tranCode = TranCode.TRDEBIT;
+				// this.status = Status.TDV;
+				// this.tranCode = TranCode.TRDEBIT;
+				this.tranTypeId = TRDEBIT;
 			} else if (PaymentChannel.SUNDRY.equals(paymentChannel)) {
 				this.bankId = bankId;
-				this.status = Status.TDV;
-				this.tranCode = TranCode.TRDEBIT;
+
+				// this.status = Status.TDV;
+				// this.tranCode = TranCode.TRDEBIT;
+				this.tranTypeId = TRDEBIT;
 			}
 
 		}
@@ -100,18 +131,22 @@ public class TLFBuilder {
 				this.chequeNo = payment.getChequeNo();
 				this.bankId = payment.getBank().getId();
 
-				this.status = Status.TCV;
-				this.tranCode = TranCode.TRCREDIT;
+				// this.status = Status.TCV;
+				// this.tranCode = TranCode.TRCREDIT;
+				this.tranTypeId = TRCREDIT;
 			} else if (PaymentChannel.CASHED.equals(payment.getPaymentChannel())) {
-				this.status = Status.CCV;
-				this.tranCode = TranCode.CSCREDIT;
+				// this.status = Status.CCV;
+				// this.tranCode = TranCode.CSCREDIT;
+				this.tranTypeId = CSCREDIT;
 			} else if (PaymentChannel.TRANSFER.equals(payment.getPaymentChannel())) {
-				this.status = Status.TCV;
-				this.tranCode = TranCode.TRCREDIT;
+				// this.status = Status.TCV;
+				// this.tranCode = TranCode.TRCREDIT;
+				this.tranTypeId = TRCREDIT;
 			} else if (PaymentChannel.SUNDRY.equals(payment.getPaymentChannel())) {
 				this.bankId = payment.getAccountBank().getId();
-				this.status = Status.TCV;
-				this.tranCode = TranCode.TRCREDIT;
+				// this.status = Status.TCV;
+				// this.tranCode = TranCode.TRCREDIT;
+				this.tranTypeId = TRCREDIT;
 			}
 
 			// debit
@@ -119,18 +154,24 @@ public class TLFBuilder {
 			if (PaymentChannel.CHEQUE.equals(payment.getPaymentChannel())) {
 				chequeNo = payment.getChequeNo();
 				bankId = payment.getBank().getId();
-				this.status = Status.TDV;
-				this.tranCode = TranCode.TRDEBIT;
+
+				// this.status = Status.TDV;
+				// this.tranCode = TranCode.TRDEBIT;
+				this.tranTypeId = TRDEBIT;
 			} else if (PaymentChannel.CASHED.equals(payment.getPaymentChannel())) {
-				this.status = Status.CDV;
-				this.tranCode = TranCode.CSDEBIT;
+				// this.status = Status.CDV;
+				// this.tranCode = TranCode.CSDEBIT;
+				this.tranTypeId = CSDEBIT;
 			} else if (PaymentChannel.TRANSFER.equals(payment.getPaymentChannel())) {
-				this.status = Status.TDV;
-				this.tranCode = TranCode.TRDEBIT;
+				// this.status = Status.TDV;
+				// this.tranCode = TranCode.TRDEBIT;
+				this.tranTypeId = TRDEBIT;
 			} else if (PaymentChannel.SUNDRY.equals(payment.getPaymentChannel())) {
 				bankId = payment.getAccountBank().getId();
-				this.status = Status.TDV;
-				this.tranCode = TranCode.TRDEBIT;
+
+				// this.status = Status.TDV;
+				// this.tranCode = TranCode.TRDEBIT;
+				this.tranTypeId = TRDEBIT;
 			}
 		}
 	}
@@ -148,7 +189,7 @@ public class TLFBuilder {
 		this.isRenewal = isRenewal;
 		this.tlfNo = tlfNo;
 
-		this.currency = payment.getCur() == null ? "KYT" : payment.getCur();
+		this.currency = kyatId;
 		this.rate = payment.getRate();
 		this.settlementDate = new Date();
 		if (rate > 1) {
@@ -171,7 +212,7 @@ public class TLFBuilder {
 		this.referenceNo = referenceNo;
 		this.referenceType = refType;
 		this.isRenewal = isRenewal;
-		this.currency = "KYT";
+		this.currency = kyatId;
 		this.rate = 1.0;
 		this.settlementDate = new Date();
 	}
@@ -197,11 +238,11 @@ public class TLFBuilder {
 	}
 
 	/* With TranCode and Status, Payment */
-	public TLFBuilder(String tranCode, String status, double homeAmount, String customerId, String branchId, String coaId, String tlfNo, String narration, Payment payment,
-			boolean isRenewal) {
+	public TLFBuilder(String tranTypeId, double homeAmount, String customerId, String branchId, String coaId, String tlfNo, String narration, Payment payment, boolean isRenewal) {
 		this(payment, isRenewal);
-		this.tranCode = tranCode;
-		this.status = status;
+		// this.tranCode = tranCode;
+		// this.status = status;
+		this.tranTypeId = tranTypeId;
 		this.homeAmount = Utils.getTwoDecimalPoint(homeAmount);
 		this.localAmount = Utils.getTwoDecimalPoint(homeAmount);
 		this.customerId = customerId;
@@ -210,16 +251,17 @@ public class TLFBuilder {
 		this.narration = narration;
 		this.isRenewal = isRenewal;
 		this.tlfNo = tlfNo;
-		this.currency = "KYT";
+		this.currency = kyatId;
 		this.rate = 1.0;
 		this.settlementDate = new Date();
 	}
 
 	/* With TranCode and Status, Without Payment */
-	public TLFBuilder(String tranCode, String status, double homeAmount, String customerId, String branchId, String coaId, String tlfNo, String narration, String enoNo,
-			String referenceNo, PolicyReferenceType refType, boolean isRenewal, String cur, double rate) {
-		this.tranCode = tranCode;
-		this.status = status;
+	public TLFBuilder(String tranTypeId, double homeAmount, String customerId, String branchId, String coaId, String tlfNo, String narration, String enoNo, String referenceNo,
+			PolicyReferenceType refType, boolean isRenewal, String cur, double rate) {
+		// this.tranCode = tranCode;
+		// this.status = status;
+		this.tranTypeId = tranTypeId;
 		this.homeAmount = Utils.getTwoDecimalPoint(homeAmount);
 		this.localAmount = Utils.getTwoDecimalPoint(homeAmount);
 		this.customerId = customerId;
@@ -230,7 +272,7 @@ public class TLFBuilder {
 		this.referenceNo = referenceNo;
 		this.referenceType = refType;
 		this.tlfNo = tlfNo;
-		this.currency = cur;
+		this.currency = kyatId;
 		this.rate = rate;
 		this.settlementDate = new Date();
 		if (rate > 1) {
@@ -240,7 +282,7 @@ public class TLFBuilder {
 	}
 
 	public TLF getTLFInstance() {
-		TLF tlf = new TLF(homeAmount, localAmount, rate, currency, chequeNo, status, tranCode, enoNo, referenceNo, bankId, customerId, branchId, coaId, narration, settlementDate,
+		TLF tlf = new TLF(homeAmount, localAmount, rate, currency, chequeNo, tranTypeId, enoNo, referenceNo, bankId, customerId, branchId, coaId, narration, settlementDate,
 				referenceType, isRenewal, tlfNo);
 		tlf.setPaid(false);
 		tlf.setClearing(false);

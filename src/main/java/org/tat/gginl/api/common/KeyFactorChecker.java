@@ -109,8 +109,7 @@ public class KeyFactorChecker {
 			InputStream in = classLoader.getResourceAsStream("/keyfactor-id-config.properties");
 			idConfig.load(in);
 			in.close();
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Failed to load keyfactor-id-config.properties");
 		}

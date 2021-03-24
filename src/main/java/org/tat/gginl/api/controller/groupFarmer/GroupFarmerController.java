@@ -14,6 +14,7 @@ import org.tat.gginl.api.domains.LifePolicy;
 import org.tat.gginl.api.domains.services.LifeProposalService;
 import org.tat.gginl.api.dto.ResponseDTO;
 import org.tat.gginl.api.dto.groupFarmerDTO.FarmerProposalDTO;
+import org.tat.gginl.api.dto.groupFarmerDTO.GroupFarmerProposalInsuredPersonDTO;
 import org.tat.gginl.api.dto.groupFarmerDTO.GroupFarmerResponseDTO;
 
 import io.swagger.annotations.Api;
@@ -31,27 +32,27 @@ public class GroupFarmerController {
 
 	@PostMapping("/submitproposal")
 
-	@ApiResponses(value = { @ApiResponse(code = 400, message = "Something went wrong"),
-			@ApiResponse(code = 403, message = "Access denied"),
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Something went wrong"), @ApiResponse(code = 403, message = "Access denied"),
 			@ApiResponse(code = 500, message = "Expired or invalid JWT token") })
 	@ApiOperation(value = "${GroupFarmerController.submitproposal}")
 	public ResponseDTO<Object> submitproposal(@Valid @RequestBody FarmerProposalDTO groupFarmerProposalDTO) {
-//		try {
+		// try {
 		List<LifePolicy> policyList = new ArrayList<>();
+		List<String> customerIdList = new ArrayList<>();
+		for (GroupFarmerProposalInsuredPersonDTO a : groupFarmerProposalDTO.getProposalInsuredPersonList()) {
+			// System.out.println("CustomerID: " + a.getCustomerID());
+			a.setCustomerID("ISSYS001000005575112092016");
+		}
+
 		// create farmer proposal
 		policyList = lifeProposalService.createGroupFarmerProposalToPolicy(groupFarmerProposalDTO);
 		// create response object
 		List<GroupFarmerResponseDTO> responseList = new ArrayList<GroupFarmerResponseDTO>();
 
 		policyList.forEach(policy -> {
-			GroupFarmerResponseDTO dto = GroupFarmerResponseDTO.builder()
-					.bpmsInsuredPersonId(policy.getPolicyInsuredPersonList().get(0).getBpmsInsuredPersonId())
-					.proposalNo(policy.getProposalNo()).policyNo(policy.getPolicyNo())
-					.groupProposalNo(policy.getGroupFarmerProposalNo())
-					.customerId(policy.getPolicyInsuredPersonList().get(0).isNewCustomer()
-							? policy.getPolicyInsuredPersonList().get(0).getCustomer().getId()
-							: null)
-					.build();
+			GroupFarmerResponseDTO dto = GroupFarmerResponseDTO.builder().bpmsInsuredPersonId(policy.getPolicyInsuredPersonList().get(0).getBpmsInsuredPersonId())
+					.proposalNo(policy.getProposalNo()).policyNo(policy.getPolicyNo()).groupProposalNo(policy.getGroupFarmerProposalNo())
+					.customerId(policy.getPolicyInsuredPersonList().get(0).isNewCustomer() ? policy.getPolicyInsuredPersonList().get(0).getCustomer().getId() : null).build();
 
 			responseList.add(dto);
 		});
@@ -59,11 +60,11 @@ public class GroupFarmerController {
 		ResponseDTO<Object> responseDTO = ResponseDTO.builder().status("Success!").responseBody(responseList).build();
 		return responseDTO;
 	}
-//		catch(Exception e)
-//		{
-//			e.getMessage();
-//		}
-//		return null;
-//	}
+	// catch(Exception e)
+	// {
+	// e.getMessage();
+	// }
+	// return null;
+	// }
 
 }

@@ -10,8 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
-
-
 @Entity
 @Table(name = TableName.COASETUP)
 @TableGenerator(name = "COASETUP_GEN", table = "ID_GEN", pkColumnName = "GEN_NAME", valueColumnName = "GEN_VAL", pkColumnValue = "COASETUP_GEN", allocationSize = 10)
@@ -21,13 +19,21 @@ public class CoaSetup implements Serializable {
 	@Id
 	@Column(name = "ACNAME")
 	private String acccountName;
-	@Column(name = "ACODE")
+
+	@Column(name = "CCOAID")
+	// @Column(name = "ACODE")
 	private String accountCode;
-	@Column(name = "BRANCHCODE")
+
+	@Column(name = "BRANCHID")
+	// @Column(name = "BRANCHCODE")
 	private String branchCode;
-	@Column(name = "DCODE")
+
+	@Column(name = "DEPARTMENTID")
+	// @Column(name = "DCODE")
 	private String dCode;
-	@Column(name = "CUR")
+
+	@Column(name = "CURRENCYID")
+	// @Column(name = "CUR")
 	private String currency;
 
 	public String getAcccountName() {

@@ -7,23 +7,20 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.tat.gginl.api.common.AccountPayment;
 import org.tat.gginl.api.common.COACode;
 import org.tat.gginl.api.common.CommonCreateAndUpateMarks;
-import org.tat.gginl.api.common.CurrencyUtils;
 import org.tat.gginl.api.common.IPolicy;
 import org.tat.gginl.api.common.ProductIDConfig;
-import org.tat.gginl.api.common.TLFBuilder;
-import org.tat.gginl.api.common.TranCode;
 import org.tat.gginl.api.common.Utils;
 import org.tat.gginl.api.common.emumdata.AgentCommissionEntryType;
 import org.tat.gginl.api.common.emumdata.DoubleEntry;
 import org.tat.gginl.api.common.emumdata.PaymentChannel;
 import org.tat.gginl.api.common.emumdata.PolicyReferenceType;
-import org.tat.gginl.api.common.emumdata.Status;
 import org.tat.gginl.api.domains.AgentCommission;
 import org.tat.gginl.api.domains.Bank;
 import org.tat.gginl.api.domains.Branch;
@@ -74,6 +71,21 @@ public class PaymentService {
 
 	@Autowired
 	private AgentCommissionRepository agentCommissionRepository;
+
+	@Value("${KYATID}")
+	private String kyatId;
+
+	@Value("${CSCREDIT}")
+	private String CSCREDIT;
+	@Value("${CSDEBIT}")
+	private String CSDEBIT;
+	@Value("${TRCREDIT}")
+	private String TRCREDIT;
+	@Value("${TRDEBIT}")
+	private String TRDEBIT;
+
+	@Value("${farmerProductId}")
+	private String farmerpProductId;
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Payment> paymentBillCollection(BillCollectionDTO billCollectionDTO) {
@@ -136,7 +148,7 @@ public class PaymentService {
 
 				payments.add(payment);
 
-				payments = extendPaymentTimes(payments, paymentBranch.get(), CurrencyUtils.getCurrencyCode(null));
+				payments = extendPaymentTimes(payments, paymentBranch.get(), kyatId);
 
 			}
 		} catch (DAOException e) {
@@ -228,7 +240,7 @@ public class PaymentService {
 				customerId = lifePolicy.getCustomer() != null ? lifePolicy.getCustomer().getId() : lifePolicy.getOrganization().getId();
 			}
 			String accountCode = lifePolicy.getPolicyInsuredPersonList().get(0).getProduct().getProductGroup().getAccountCode();
-			String currencyCode = CurrencyUtils.getCurrencyCode(null);
+			String currencyCode = kyatId;
 			List<AccountPayment> accountPaymentList = new ArrayList<AccountPayment>();
 			String receiptNo = payment.getReceiptNo();
 			accountPaymentList.add(new AccountPayment(accountCode, payment));
@@ -257,7 +269,7 @@ public class PaymentService {
 				customerId = lifePolicy.getCustomer() != null ? lifePolicy.getCustomer().getId() : lifePolicy.getOrganization().getId();
 			}
 			String accountCode = lifePolicy.getPolicyInsuredPersonList().get(0).getProduct().getProductGroup().getAccountCode();
-			String currencyCode = CurrencyUtils.getCurrencyCode(null);
+			String currencyCode = kyatId;
 			List<AccountPayment> accountPaymentList = new ArrayList<AccountPayment>();
 			String receiptNo = payment.getReceiptNo();
 			accountPaymentList.add(new AccountPayment(accountCode, payment));
@@ -312,8 +324,8 @@ public class PaymentService {
 				homeAmount = payment.getRenewalNetPremium();
 			}
 			LifePolicy lifePolicy = lifePolicyRepository.getOne(payment.getReferenceNo());
-			String coaCode = paymentRepository.findCheckOfAccountNameByCode(accountName, proposalBranch.getBranchCode(), currenyCode);
-			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.CREDIT, homeAmount, customerId, branch.getBranchCode(), coaCode, tlfNo,
+			String coaCode = paymentRepository.findCheckOfAccountNameByCode(accountName, proposalBranch.getId(), currenyCode);
+			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.CREDIT, homeAmount, customerId, branch.getId(), coaCode, tlfNo,
 					getNarrationPremiumPayableForInterBranch(payment, proposalBranch.getName()), payment, isRenewal);
 			TLF tlf = tlfBuilder.getTLFInstance();
 			tlf.setSalePoint(salePoint);
@@ -367,10 +379,10 @@ public class PaymentService {
 						break;
 				}
 
-				accountName = paymentRepository.findCheckOfAccountNameByCode(coaCode, branch.getBranchCode(), currencyCode);
+				accountName = paymentRepository.findCheckOfAccountNameByCode(coaCode, branch.getId(), currencyCode);
 				double serviceCharges = Utils.getTwoDecimalPoint(payment.getServicesCharges());
 				narration = getNarrationSCST(payment, isRenewal);
-				TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.CREDIT, serviceCharges, customerId, branch.getBranchCode(), accountName, tlfNo, narration, payment, isRenewal);
+				TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.CREDIT, serviceCharges, customerId, branch.getId(), accountName, tlfNo, narration, payment, isRenewal);
 				TLF tlf = tlfBuilder.getTLFInstance();
 				// setIDPrefixForInsert(tlf);
 				tlf.setPaid(true);
@@ -391,10 +403,10 @@ public class PaymentService {
 						coaCode = COACode.STAMP_FEES;
 						break;
 				}
-				String accountName = paymentRepository.findCheckOfAccountNameByCode(coaCode, branch.getBranchCode(), currencyCode);
+				String accountName = paymentRepository.findCheckOfAccountNameByCode(coaCode, branch.getId(), currencyCode);
 				double stampFees = Utils.getTwoDecimalPoint(payment.getStampFees());
 				narration = "Stamp fees for " + payment.getReceiptNo();
-				TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.CREDIT, stampFees, customerId, branch.getBranchCode(), accountName, tlfNo, narration, payment, isRenewal);
+				TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.CREDIT, stampFees, customerId, branch.getId(), accountName, tlfNo, narration, payment, isRenewal);
 				TLF tlf = tlfBuilder.getTLFInstance();
 				tlf.setPaid(true);
 				tlf.setSettlementDate(payment.getConfirmDate());
@@ -478,10 +490,10 @@ public class PaymentService {
 			LifePolicy lifePolicy = lifePolicyRepository.getOne(payment.getReferenceNo());
 			if (payment.getServicesCharges() > 0 || payment.getStampFees() > 0) {
 				if (payment.getPaymentChannel().equals(PaymentChannel.TRANSFER)) {
-					coaCode = payment.getAccountBank() == null ? paymentRepository.findCheckOfAccountNameByCode(COACode.CHEQUE, branch.getBranchCode(), currencyCode)
-							: payment.getAccountBank().getAcode();
+					coaCode = payment.getAccountBank() == null ? paymentRepository.findCheckOfAccountNameByCode(COACode.CHEQUE, branch.getId(), currencyCode)
+							: paymentRepository.findCCOAByCode(payment.getAccountBank().getAcode(), branch.getId(), currencyCode);
 				} else if (payment.getPaymentChannel().equals(PaymentChannel.CASHED)) {
-					coaCode = paymentRepository.findCheckOfAccountNameByCode(COACode.CASH, branch.getBranchCode(), currencyCode);
+					coaCode = paymentRepository.findCheckOfAccountNameByCode(COACode.CASH, branch.getId(), currencyCode);
 				} else if (PaymentChannel.CHEQUE.equals(payment.getPaymentChannel())) {
 					String coaCodeType = "";
 					switch (payment.getReferenceType()) {
@@ -538,14 +550,14 @@ public class PaymentService {
 						default:
 							break;
 					}
-					coaCode = paymentRepository.findCheckOfAccountNameByCode(coaCodeType, branch.getBranchCode(), currencyCode);
+					coaCode = paymentRepository.findCheckOfAccountNameByCode(coaCodeType, branch.getId(), currencyCode);
 				}
 			}
 
 			if (payment.getServicesCharges() > 0) {
 				narration = getNarrationSCST(payment, isRenewal);
 				double sericeCharges = Utils.getTwoDecimalPoint(payment.getServicesCharges());
-				TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.DEBIT, sericeCharges, customerId, branch.getBranchCode(), coaCode, tlfNo, narration, payment, isRenewal);
+				TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.DEBIT, sericeCharges, customerId, branch.getId(), coaCode, tlfNo, narration, payment, isRenewal);
 				TLF tlf = tlfBuilder.getTLFInstance();
 				tlf.setPaymentChannel(payment.getPaymentChannel());
 				tlf.setSettlementDate(payment.getConfirmDate());
@@ -562,7 +574,7 @@ public class PaymentService {
 				narration = "Stamp fees for " + payment.getReceiptNo();
 				double stampFees = Utils.getTwoDecimalPoint(payment.getStampFees());
 
-				TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.DEBIT, stampFees, customerId, branch.getBranchCode(), coaCode, tlfNo, narration, payment, isRenewal);
+				TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.DEBIT, stampFees, customerId, branch.getId(), coaCode, tlfNo, narration, payment, isRenewal);
 				TLF tlf = tlfBuilder.getTLFInstance();
 				// setIDPrefixForInsert(tlf);
 				tlf.setPaymentChannel(payment.getPaymentChannel());
@@ -587,9 +599,9 @@ public class PaymentService {
 			if (isRenewal) {
 				homeAmount = payment.getRenewalNetPremium();
 			}
-			String coaCode = paymentRepository.findCheckOfAccountNameByCode(accountName, branch.getBranchCode(), currenyCode);
-			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.CREDIT, homeAmount, customerId, branch.getBranchCode(), coaCode, tlfNo, getNarrationPremium(payment, isRenewal),
-					payment, isRenewal);
+			String coaCode = paymentRepository.findCheckOfAccountNameByCode(accountName, branch.getId(), currenyCode);
+			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.CREDIT, homeAmount, customerId, branch.getId(), coaCode, tlfNo, getNarrationPremium(payment, isRenewal), payment,
+					isRenewal);
 			TLF tlf = tlfBuilder.getTLFInstance();
 			tlf.setPaymentChannel(payment.getPaymentChannel());
 			tlf.setSalePoint(salePoint);
@@ -634,10 +646,10 @@ public class PaymentService {
 			homeAmount = totalNetPremium;
 			// TLF COAID
 			if (PaymentChannel.TRANSFER.equals(payment.getPaymentChannel())) {
-				coaCode = payment.getAccountBank() == null ? paymentRepository.findCheckOfAccountNameByCode(COACode.CHEQUE, branch.getBranchCode(), currencyCode)
-						: payment.getAccountBank().getAcode();
+				coaCode = payment.getAccountBank() == null ? paymentRepository.findCheckOfAccountNameByCode(COACode.CHEQUE, branch.getId(), currencyCode)
+						: paymentRepository.findCCOAByCode(payment.getAccountBank().getAcode(), branch.getId(), currencyCode);
 			} else if (PaymentChannel.CASHED.equals(payment.getPaymentChannel())) {
-				coaCode = paymentRepository.findCheckOfAccountNameByCode(COACode.CASH, branch.getBranchCode(), currencyCode);
+				coaCode = paymentRepository.findCheckOfAccountNameByCode(COACode.CASH, branch.getId(), currencyCode);
 			} else if (PaymentChannel.CHEQUE.equals(payment.getPaymentChannel())) {
 				String coaCodeType = "";
 				switch (payment.getReferenceType()) {
@@ -694,7 +706,7 @@ public class PaymentService {
 					default:
 						break;
 				}
-				coaCode = paymentRepository.findCheckOfAccountNameByCode(coaCodeType, branch.getBranchCode(), currencyCode);
+				coaCode = paymentRepository.findCheckOfAccountNameByCode(coaCodeType, branch.getId(), currencyCode);
 			} else if (PaymentChannel.SUNDRY.equals(payment.getPaymentChannel())) {
 				String coaCodeType = "";
 				switch (payment.getReferenceType()) {
@@ -745,11 +757,11 @@ public class PaymentService {
 					default:
 						break;
 				}
-				coaCode = paymentRepository.findCheckOfAccountNameByCode(coaCodeType, branch.getBranchCode(), currencyCode);
+				coaCode = paymentRepository.findCheckOfAccountNameByCode(coaCodeType, branch.getId(), currencyCode);
 			}
 
-			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.DEBIT, homeAmount, customerId, branch.getBranchCode(), coaCode, tlfNo, getNarrationPremium(payment, isRenewal),
-					payment, isRenewal);
+			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.DEBIT, homeAmount, customerId, branch.getId(), coaCode, tlfNo, getNarrationPremium(payment, isRenewal), payment,
+					isRenewal);
 			TLF tlf = tlfBuilder.getTLFInstance();
 			tlf.setSalePoint(salePoint);
 			tlf.setSettlementDate(payment.getConfirmDate());
@@ -818,13 +830,13 @@ public class PaymentService {
 			// TLF COAID
 			String coaCode = "";
 			if (payment.getAccountBank() == null) {
-				coaCode = paymentRepository.findCheckOfAccountNameByCode(accountName, branch.getBranchCode(), currencyCode);
+				coaCode = paymentRepository.findCheckOfAccountNameByCode(accountName, branch.getId(), currencyCode);
 			} else {
-				coaCode = payment.getAccountBank().getAcode();
+				coaCode = paymentRepository.findCCOAByCode(payment.getAccountBank().getAcode(), branch.getId(), currencyCode);
 			}
 
-			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.DEBIT, homeAmount, customerId, branch.getBranchCode(), coaCode, tlfNo, getNarrationPremium(payment, isRenewal),
-					payment, isRenewal);
+			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.DEBIT, homeAmount, customerId, branch.getId(), coaCode, tlfNo, getNarrationPremium(payment, isRenewal), payment,
+					isRenewal);
 			TLF tlf = tlfBuilder.getTLFInstance();
 			tlf.setPaymentChannel(payment.getPaymentChannel());
 			tlf.setSalePoint(salePoint);
@@ -1053,14 +1065,14 @@ public class PaymentService {
 			switch (payment.getPaymentChannel()) {
 				case TRANSFER: {
 					if (payment.getAccountBank() == null) {
-						coaCode = paymentRepository.findCheckOfAccountNameByCode(COACode.CHEQUE, branch.getBranchCode(), currencyCode);
+						coaCode = paymentRepository.findCheckOfAccountNameByCode(COACode.CHEQUE, branch.getId(), currencyCode);
 					} else {
-						coaCode = payment.getAccountBank().getAcode();
+						coaCode = paymentRepository.findCCOAByCode(payment.getAccountBank().getAcode(), branch.getId(), currencyCode);
 					}
 				}
 					break;
 				case CASHED:
-					coaCode = paymentRepository.findCheckOfAccountNameByCode(COACode.CASH, branch.getBranchCode(), currencyCode);
+					coaCode = paymentRepository.findCheckOfAccountNameByCode(COACode.CASH, branch.getId(), currencyCode);
 					break;
 				case CHEQUE: {
 					String coaCodeType = "";
@@ -1118,7 +1130,7 @@ public class PaymentService {
 						default:
 							break;
 					}
-					coaCode = paymentRepository.findCheckOfAccountNameByCode(coaCodeType, branch.getBranchCode(), currencyCode);
+					coaCode = paymentRepository.findCheckOfAccountNameByCode(coaCodeType, branch.getId(), currencyCode);
 				}
 					break;
 				case SUNDRY: {
@@ -1173,13 +1185,13 @@ public class PaymentService {
 						default:
 							break;
 					}
-					coaCode = paymentRepository.findCheckOfAccountNameByCode(coaCodeType, branch.getBranchCode(), currencyCode);
+					coaCode = paymentRepository.findCheckOfAccountNameByCode(coaCodeType, branch.getId(), currencyCode);
 				}
 					break;
 			}
 			// TLF Narration
 			narration = "Cash refund for " + enoNo;
-			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.CREDIT, homeAmount, customerId, branch.getBranchCode(), coaCode, tlfNo, narration, payment, isRenewal);
+			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.CREDIT, homeAmount, customerId, branch.getId(), coaCode, tlfNo, narration, payment, isRenewal);
 			TLF tlf = tlfBuilder.getTLFInstance();
 			tlf.setClearing(isClearing);
 			tlf.setPaymentChannel(payment.getPaymentChannel());
@@ -1198,7 +1210,7 @@ public class PaymentService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	private void addAgentcommissionLifeProposalBillCollection(LifePolicy policy, Payment payment) {
 		try {
-			String currencyCode = CurrencyUtils.getCurrencyCode(null);
+			String currencyCode = kyatId;
 			int paymentType = policy.getPaymentType().getMonth();
 			double commissionPercent = 0.00;
 			int toterm = payment.getToTerm();
@@ -1362,13 +1374,18 @@ public class PaymentService {
 					break;
 			}
 
-			accountName = paymentRepository.findCheckOfAccountNameByCode(coaCode, branch.getBranchCode(), currencyCode);
+			accountName = paymentRepository.findCheckOfAccountNameByCode(coaCode, branch.getId(), currencyCode);
 			commission = Utils.getTwoDecimalPoint(ac.getCommission());
 			String narration = getNarrationAgent(payment, ac, isRenewal);
 			String cur = payment.getCur();
 			double rate = payment.getRate();
-			TLFBuilder tlfBuilder = new TLFBuilder(TranCode.TRCREDIT, Status.TCV, commission, ac.getAgent().getId(), branch.getBranchCode(), accountName, receiptNo, narration, eno,
-					ac.getReferenceNo(), ac.getReferenceType(), isRenewal, cur, rate);
+			// TLFBuilder tlfBuilder = new TLFBuilder(TranCode.TRCREDIT,
+			// Status.TCV, commission, ac.getAgent().getId(),
+			// branch.getBranchCode(), accountName, receiptNo, narration, eno,
+			// ac.getReferenceNo(), ac.getReferenceType(), isRenewal, cur,
+			// rate);
+			TLFBuilder tlfBuilder = new TLFBuilder(TRCREDIT, commission, ac.getAgent().getId(), branch.getId(), accountName, receiptNo, narration, eno, ac.getReferenceNo(),
+					ac.getReferenceType(), isRenewal, cur, rate);
 			TLF tlf = tlfBuilder.getTLFInstance();
 			if (ac.getReferenceType().equals(PolicyReferenceType.SNAKE_BITE_POLICY)) {
 				tlf.setPaid(true);
@@ -1534,14 +1551,20 @@ public class PaymentService {
 			double rate = payment.getRate();
 			String narration = getNarrationAgent(payment, ac, isRenewal);
 
-			accountName = paymentRepository.findCheckOfAccountNameByCode(coaCode, branch.getBranchCode(), currencyCode);
+			accountName = paymentRepository.findCheckOfAccountNameByCode(coaCode, branch.getId(), currencyCode);
 			ownCommission = Utils.getTwoDecimalPoint(ac.getCommission());
 			if (ac.getReferenceType().equals(PolicyReferenceType.SNAKE_BITE_POLICY)) {
 				tlf.setPaid(true);
 			}
 
-			TLFBuilder tlfBuilder = new TLFBuilder(TranCode.TRDEBIT, Status.TDV, ownCommission, ac.getAgent().getId(), branch.getBranchCode(), accountName, receiptNo, narration,
-					eno, ac.getReferenceNo(), ac.getReferenceType(), isRenewal, cur, rate);
+			// TLFBuilder tlfBuilder = new TLFBuilder(TranCode.TRDEBIT,
+			// Status.TDV, ownCommission, ac.getAgent().getId(),
+			// branch.getBranchCode(), accountName, receiptNo, narration,
+			// eno, ac.getReferenceNo(), ac.getReferenceType(), isRenewal, cur,
+			// rate);
+
+			TLFBuilder tlfBuilder = new TLFBuilder(TRDEBIT, ownCommission, ac.getAgent().getId(), branch.getId(), accountName, receiptNo, narration, eno, ac.getReferenceNo(),
+					ac.getReferenceType(), isRenewal, cur, rate);
 			tlf = tlfBuilder.getTLFInstance();
 			tlf.setPaymentChannel(payment.getPaymentChannel());
 			tlf.setSalePoint(salePoint);
@@ -1559,7 +1582,7 @@ public class PaymentService {
 
 	private List<AgentCommission> getAgentCommissionsForLifeBillCollection(LifePolicy lifePolicy, Payment payment, ShortEndowmentExtraValue extraValue) {
 		List<AgentCommission> agentCommissionList = new ArrayList<AgentCommission>();
-		String currencyCode = CurrencyUtils.getCurrencyCode(null);
+		String currencyCode = kyatId;
 		Product product = lifePolicy.getPolicyInsuredPersonList().get(0).getProduct();
 		int paymentType = 0;
 		double commissionPercent = 0.00;
@@ -1655,12 +1678,12 @@ public class PaymentService {
 			homeAmount = totalNetPremium;
 			// TLF COAID
 			if (PaymentChannel.TRANSFER.equals(payment.getPaymentChannel())) {
-				coaCode = paymentRepository.findCheckOfAccountNameByCode(userBranch.getReceivableACName(), userBranch.getBranchCode(), currencyCode);
+				coaCode = paymentRepository.findCheckOfAccountNameByCode(userBranch.getReceivableACName(), userBranch.getId(), currencyCode);
 			} else if (PaymentChannel.CASHED.equals(payment.getPaymentChannel())) {
 				// coaCode =
 				// paymentDAO.findCheckOfAccountNameByCode(COACode.CASH,
 				// branch.getBranchCode(), currencyCode);
-				coaCode = paymentRepository.findCheckOfAccountNameByCode(userBranch.getReceivableACName(), userBranch.getBranchCode(), currencyCode);
+				coaCode = paymentRepository.findCheckOfAccountNameByCode(userBranch.getReceivableACName(), userBranch.getId(), currencyCode);
 			} else if (PaymentChannel.CHEQUE.equals(payment.getPaymentChannel())) {
 				String coaCodeType = "";
 				switch (payment.getReferenceType()) {
@@ -1717,7 +1740,7 @@ public class PaymentService {
 					default:
 						break;
 				}
-				coaCode = paymentRepository.findCheckOfAccountNameByCode(userBranch.getReceivableACName(), userBranch.getBranchCode(), currencyCode);
+				coaCode = paymentRepository.findCheckOfAccountNameByCode(userBranch.getReceivableACName(), userBranch.getId(), currencyCode);
 			} else if (PaymentChannel.SUNDRY.equals(payment.getPaymentChannel())) {
 				String coaCodeType = "";
 				switch (payment.getReferenceType()) {
@@ -1769,10 +1792,10 @@ public class PaymentService {
 					default:
 						break;
 				}
-				coaCode = paymentRepository.findCheckOfAccountNameByCode(userBranch.getReceivableACName(), userBranch.getBranchCode(), currencyCode);
+				coaCode = paymentRepository.findCheckOfAccountNameByCode(userBranch.getReceivableACName(), userBranch.getId(), currencyCode);
 			}
 
-			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.DEBIT, homeAmount, customerId, proposalBranch.getBranchCode(), coaCode, tlfNo,
+			TLFBuilder tlfBuilder = new TLFBuilder(DoubleEntry.DEBIT, homeAmount, customerId, proposalBranch.getId(), coaCode, tlfNo,
 					getNarrationReceiablePremiumForInterBranch(payment, isRenewal, userBranch.getName()), payment, isRenewal);
 			TLF tlf = tlfBuilder.getTLFInstance();
 			tlf.setSalePoint(salePoint);

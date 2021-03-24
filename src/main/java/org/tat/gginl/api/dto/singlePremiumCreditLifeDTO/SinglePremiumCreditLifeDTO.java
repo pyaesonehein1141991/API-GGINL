@@ -7,7 +7,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.tat.gginl.api.configuration.DateHandler;
-import org.tat.gginl.api.dto.publicTermLife.PublicTermLifeProposalInsuredPersonDTO;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -73,11 +72,11 @@ public class SinglePremiumCreditLifeDTO {
 	@ApiModelProperty(position = 15, example = "BPMS/CSH/0001", required = true)
 	private String bpmsReceiptNo;
 
-	@ApiModelProperty(position = 16, example = "2019-12-16", required = true)
+	@ApiModelProperty(position = 22, example = "2019-12-16", required = true)
 	@NotNull(message = "Payment Confirm Date is mandatory")
 	@JsonDeserialize(using = DateHandler.class)
-	private Date paymentConfirmDate;
-	
+	private Date PaymentConfirmDate;
+
 	@ApiModelProperty(position = 17, example = "ISSYS033000009784102042019", required = true)
 	private String organizationID;
 
