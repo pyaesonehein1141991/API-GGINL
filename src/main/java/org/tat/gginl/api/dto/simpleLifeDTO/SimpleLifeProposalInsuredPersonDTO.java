@@ -108,7 +108,7 @@ public class SimpleLifeProposalInsuredPersonDTO {
   private int feet;
   
   @ApiModelProperty(position = 24, example = "7")
-  private int inches;
+  private double inches;
   
   @ApiModelProperty(position = 25, example = "Death Cover", required = true)
   @NotNull(message = "coverOptions is mandatory")

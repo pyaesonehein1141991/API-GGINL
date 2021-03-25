@@ -39,6 +39,7 @@ import org.tat.gginl.api.common.emumdata.EndorsementStatus;
 import org.tat.gginl.api.common.emumdata.PaymentChannel;
 import org.tat.gginl.api.common.emumdata.ProposalStatus;
 import org.tat.gginl.api.common.emumdata.ProposalType;
+import org.tat.gginl.api.common.emumdata.SaleChannelType;
 import org.tat.gginl.api.common.emumdata.UserType;
 
 @Entity
@@ -72,6 +73,9 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
 
 	@Enumerated(value = EnumType.STRING)
 	private ClassificationOfHealth customerClsOfHealth;
+	
+	@Enumerated(EnumType.STRING)
+	private SaleChannelType saleChannelType;
 
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "BRANCHID", referencedColumnName = "ID")
@@ -261,6 +265,14 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
 
 	public void setCustomerClsOfHealth(ClassificationOfHealth customerClsOfHealth) {
 		this.customerClsOfHealth = customerClsOfHealth;
+	}
+
+	public SaleChannelType getSaleChannelType() {
+		return saleChannelType;
+	}
+
+	public void setSaleChannelType(SaleChannelType saleChannelType) {
+		this.saleChannelType = saleChannelType;
 	}
 
 	public List<Attachment> getCustomerMedicalCheckUpAttachmentList() {
@@ -738,6 +750,7 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
 		result = prime * result + (complete ? 1231 : 1237);
 		result = prime * result + ((customer == null) ? 0 : customer.hashCode());
 		result = prime * result + ((customerClsOfHealth == null) ? 0 : customerClsOfHealth.hashCode());
+		result = prime * result + ((saleChannelType == null) ? 0 : saleChannelType.hashCode());
 		result = prime * result + ((customerMedicalCheckUpAttachmentList == null) ? 0 : customerMedicalCheckUpAttachmentList.hashCode());
 		result = prime * result + ((fromBank == null) ? 0 : fromBank.hashCode());
 		result = prime * result + ((groupFarmerProposal == null) ? 0 : groupFarmerProposal.hashCode());
@@ -801,6 +814,8 @@ public class LifeProposal implements Serializable, IDataModel, IProposal {
 		} else if (!customer.equals(other.customer))
 			return false;
 		if (customerClsOfHealth != other.customerClsOfHealth)
+			return false;
+		if (saleChannelType != other.saleChannelType)
 			return false;
 		if (customerMedicalCheckUpAttachmentList == null) {
 			if (other.customerMedicalCheckUpAttachmentList != null)

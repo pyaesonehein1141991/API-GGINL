@@ -36,7 +36,10 @@ import org.tat.gginl.api.common.emumdata.ClassificationOfHealth;
 import org.tat.gginl.api.common.emumdata.EndorsementStatus;
 import org.tat.gginl.api.common.emumdata.Gender;
 import org.tat.gginl.api.common.emumdata.IdType;
+import org.tat.gginl.api.common.emumdata.PeriodType;
 import org.tat.gginl.api.common.emumdata.SumInsuredType;
+import org.tat.gginl.api.common.emumdata.SurveyAnswerOne;
+import org.tat.gginl.api.common.emumdata.SurveyAnswerTwo;
 import org.tat.gginl.api.domains.Attachment;
 import org.tat.gginl.api.domains.Customer;
 import org.tat.gginl.api.domains.GradeInfo;
@@ -73,6 +76,10 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 	private String prefix;
 	@Column(name = "PERIODOFMONTH")
 	private int periodMonth;
+	@Column(name = "PERIODOFYEAR")
+	private int periodYear;
+	@Column(name = "PERIODOFWEEK")
+	private int periodWeek;
 	@Column(name = "AGE")
 	private int age;
 	private int paymentTerm;
@@ -96,6 +103,12 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 	private IdType parentIdType;
 	private Date parentDOB;
 	private int unit;
+	
+	private int weight;
+	private int height;
+	private double bmi;
+	private SurveyAnswerOne surveyquestionOne;
+	private SurveyAnswerTwo surveyquestionTwo;
 
 	@Temporal(TemporalType.DATE)
 	private Date dateOfBirth;
@@ -120,6 +133,9 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 
 	@Enumerated(value = EnumType.STRING)
 	private ClassificationOfHealth clsOfHealth;
+	
+	@Enumerated(value = EnumType.STRING)
+	private PeriodType periodType;
 
 	@Embedded
 	private ResidentAddress residentAddress;
@@ -241,6 +257,15 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 		this.bpmsInsuredPersonId = insuredPerson.getBpmsInsuredPersonId();
 		this.newCustomer = insuredPerson.isNewCustomer();
 		this.sumInsuredType = insuredPerson.getSumInsuredType();
+		this.periodType = insuredPerson.getPeriodType();
+		this.bmi = insuredPerson.getBmi();
+		this.weight = insuredPerson.getWeight();
+		this.height = insuredPerson.getHeight();
+		this.surveyquestionOne = insuredPerson.getSurveyquestionOne();
+		this.surveyquestionTwo = insuredPerson.getSurveyquestionTwo();
+		this.periodWeek = insuredPerson.getPeriodWeek();
+		this.periodYear = insuredPerson.getPeriodYear();
+		
 		for (InsuredPersonAttachment attachment : insuredPerson.getAttachmentList()) {
 			addAttachment(new PolicyInsuredPersonAttachment(attachment));
 		}
@@ -465,6 +490,22 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 
 	public void setPeriodMonth(int periodMonth) {
 		this.periodMonth = periodMonth;
+	}
+	
+	public int getPeriodYear() {
+		return periodYear;
+	}
+
+	public void setPeriodYear(int periodYear) {
+		this.periodYear = periodYear;
+	}
+
+	public int getPeriodWeek() {
+		return periodWeek;
+	}
+
+	public void setPeriodWeek(int periodWeek) {
+		this.periodWeek = periodWeek;
 	}
 
 	public Date getStartDate() {
@@ -844,6 +885,54 @@ public class PolicyInsuredPerson implements IInsuredItem, Serializable {
 
 	public void setUnit(int unit) {
 		this.unit = unit;
+	}
+	
+	public int getWeight() {
+		return weight;
+	}
+
+	public void setWeight(int weight) {
+		this.weight = weight;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public double getBmi() {
+		return bmi;
+	}
+
+	public void setBmi(double bmi) {
+		this.bmi = bmi;
+	}
+
+	public SurveyAnswerOne getSurveyquestionOne() {
+		return surveyquestionOne;
+	}
+
+	public void setSurveyquestionOne(SurveyAnswerOne surveyquestionOne) {
+		this.surveyquestionOne = surveyquestionOne;
+	}
+
+	public SurveyAnswerTwo getSurveyquestionTwo() {
+		return surveyquestionTwo;
+	}
+
+	public void setSurveyquestionTwo(SurveyAnswerTwo surveyquestionTwo) {
+		this.surveyquestionTwo = surveyquestionTwo;
+	}
+
+	public PeriodType getPeriodType() {
+		return periodType;
+	}
+
+	public void setPeriodType(PeriodType periodType) {
+		this.periodType = periodType;
 	}
 
 	public CommonCreateAndUpateMarks getRecorder() {

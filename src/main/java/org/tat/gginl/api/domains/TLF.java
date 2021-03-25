@@ -96,6 +96,9 @@ public class TLF implements Serializable {
 
 	@Column(name = "BPMSRECEIPTNO")
 	private String bpmsReceiptNo;
+	
+	@Column(name = "GGINLRECEIPTNO")
+	private String gginlReceiptNo;
 
 	@Version
 	private int version;
@@ -333,6 +336,14 @@ public class TLF implements Serializable {
 
 	public void setBranchId(String branchId) {
 		this.branchId = branchId;
+	}
+	
+	public String getGginlReceiptNo() {
+		return gginlReceiptNo;
+	}
+
+	public void setGginlReceiptNo(String gginlReceiptNo) {
+		this.gginlReceiptNo = gginlReceiptNo;
 	}
 
 	public double getRate() {

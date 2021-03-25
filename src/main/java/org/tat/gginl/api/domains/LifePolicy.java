@@ -40,6 +40,7 @@ import org.tat.gginl.api.common.emumdata.EndorsementStatus;
 import org.tat.gginl.api.common.emumdata.InsuranceType;
 import org.tat.gginl.api.common.emumdata.PaymentChannel;
 import org.tat.gginl.api.common.emumdata.PolicyStatus;
+import org.tat.gginl.api.common.emumdata.SaleChannelType;
 
 @Entity
 @Table(name = TableName.LIFEPOLICY)
@@ -66,6 +67,10 @@ public class LifePolicy implements IPolicy, Serializable, ISorter {
 	private String endorsementNo;
 	private boolean isMigrated;
 	private boolean hasExtraValue;
+	
+	private String gginlProposalId;
+	private String gginlReceiptNo;
+	private String appId;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date commenmanceDate;
@@ -91,6 +96,9 @@ public class LifePolicy implements IPolicy, Serializable, ISorter {
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "CUSTOMERID", referencedColumnName = "ID")
 	private Customer customer;
+	
+	@Enumerated(EnumType.STRING)
+	private SaleChannelType saleChannelType;
 
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "REFERRALID", referencedColumnName = "ID")
@@ -176,6 +184,10 @@ public class LifePolicy implements IPolicy, Serializable, ISorter {
 		this.lifeProposal = lifeProposal;
 		this.isSkipPaymentTLF = lifeProposal.isSkipPaymentTLF();
 		this.isEndorsementApplied = false;
+		this.saleChannelType = lifeProposal.getSaleChannelType();
+		this.gginlProposalId = lifeProposal.getGginlProposalId();
+		this.gginlReceiptNo = lifeProposal.getGginlReceiptNo();
+		this.appId = lifeProposal.getAppId();
 
 		if (null != lifeProposal.getSalePoint()) {
 			this.salePoint = lifeProposal.getSalePoint();
@@ -273,6 +285,14 @@ public class LifePolicy implements IPolicy, Serializable, ISorter {
 			this.id = FormatID.formatId(id, getPrefix(), 10);
 		}
 	}
+	
+	public SaleChannelType getSaleChannelType() {
+		return saleChannelType;
+	}
+
+	public void setSaleChannelType(SaleChannelType saleChannelType) {
+		this.saleChannelType = saleChannelType;
+	}
 
 	public void overwriteId(String id) {
 		this.id = id;
@@ -292,6 +312,30 @@ public class LifePolicy implements IPolicy, Serializable, ISorter {
 
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
+	}
+	
+	public String getGginlProposalId() {
+		return gginlProposalId;
+	}
+
+	public void setGginlProposalId(String gginlProposalId) {
+		this.gginlProposalId = gginlProposalId;
+	}
+
+	public String getGginlReceiptNo() {
+		return gginlReceiptNo;
+	}
+
+	public void setGginlReceiptNo(String gginlReceiptNo) {
+		this.gginlReceiptNo = gginlReceiptNo;
+	}
+
+	public String getAppId() {
+		return appId;
+	}
+
+	public void setAppId(String appId) {
+		this.appId = appId;
 	}
 
 	public Organization getOrganization() {
@@ -1044,6 +1088,11 @@ public class LifePolicy implements IPolicy, Serializable, ISorter {
 		if (Double.doubleToLongBits(standardExcess) != Double.doubleToLongBits(other.standardExcess))
 			return false;
 		if (Double.doubleToLongBits(totalDiscountAmount) != Double.doubleToLongBits(other.totalDiscountAmount))
+			return false;
+		if (saleChannelType == null) {
+			if (other.saleChannelType != null)
+				return false;
+		} else if (!saleChannelType.equals(other.saleChannelType))
 			return false;
 		if (version != other.version)
 			return false;

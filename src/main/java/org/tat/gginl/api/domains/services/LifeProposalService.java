@@ -1,5 +1,10 @@
 package org.tat.gginl.api.domains.services;
 
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.Year;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -40,6 +45,7 @@ import org.tat.gginl.api.common.emumdata.PeriodType;
 import org.tat.gginl.api.common.emumdata.PolicyReferenceType;
 import org.tat.gginl.api.common.emumdata.PolicyStatus;
 import org.tat.gginl.api.common.emumdata.ProposalType;
+import org.tat.gginl.api.common.emumdata.SaleChannelType;
 import org.tat.gginl.api.common.emumdata.SurveyAnswerOne;
 import org.tat.gginl.api.common.emumdata.SurveyAnswerTwo;
 import org.tat.gginl.api.domains.Agent;
@@ -670,19 +676,23 @@ public class LifeProposalService {
 
 				TLF premiumDebitTLF = addNewTLF_For_CashDebitForPremium(payment, customerId, policyBranch, payment.getReceiptNo(), false, currencyCode, lifePolicy.getSalePoint(),
 						lifePolicy.getPolicyNo(), payment.getConfirmDate());
+				premiumDebitTLF.setGginlReceiptNo(lifePolicy.getGginlReceiptNo());
 				TLFList.add(premiumDebitTLF);
 
 				TLF premiumCreditTLF = addNewTLF_For_PremiumCredit(payment, customerId, policyBranch, accountCode, payment.getReceiptNo(), false, currencyCode,
 						lifePolicy.getSalePoint(), lifePolicy.getPolicyNo(), payment.getConfirmDate());
+				premiumCreditTLF.setGginlReceiptNo(lifePolicy.getGginlReceiptNo());
 				TLFList.add(premiumCreditTLF);
 
 				if (lifePolicy.getPaymentChannel().equals(PaymentChannel.CHEQUE) || lifePolicy.getPaymentChannel().equals(PaymentChannel.SUNDRY)) {
 					TLF tlf3 = addNewTLF_For_PremiumDebitForRCVAndCHQ(payment, customerId, policyBranch, payment.getAccountBank().getAcode(), false, payment.getReceiptNo(), true,
 							false, currencyCode, lifePolicy.getSalePoint(), lifePolicy.getPolicyNo(), payment.getConfirmDate());
+					tlf3.setGginlReceiptNo(lifePolicy.getGginlReceiptNo());
 					TLFList.add(tlf3);
 
 					TLF tlf4 = addNewTLF_For_CashCreditForPremiumForRCVAndCHQ(payment, customerId, policyBranch, false, payment.getReceiptNo(), true, false, kyatId,
 							lifePolicy.getSalePoint(), lifePolicy.getPolicyNo(), payment.getConfirmDate());
+					tlf4.setGginlReceiptNo(lifePolicy.getGginlReceiptNo());
 					TLFList.add(tlf4);
 				}
 
@@ -709,10 +719,12 @@ public class LifeProposalService {
 
 					TLF tlf5 = addNewTLF_For_AgentCommissionDr(ac, false, lifePolicy.getBranch(), payment, payment.getId(), false, kyatId, lifePolicy.getSalePoint(),
 							lifePolicy.getPolicyNo(), payment.getConfirmDate());
+					tlf5.setGginlReceiptNo(lifePolicy.getGginlReceiptNo());
 					TLFList.add(tlf5);
 
 					TLF tlf6 = addNewTLF_For_AgentCommissionCredit(ac, false, lifePolicy.getBranch(), payment, payment.getId(), false, kyatId, lifePolicy.getSalePoint(),
 							lifePolicy.getPolicyNo(), payment.getConfirmDate());
+					tlf6.setGginlReceiptNo(lifePolicy.getGginlReceiptNo());
 					TLFList.add(tlf6);
 
 				}
@@ -1775,6 +1787,7 @@ public class LifeProposalService {
 					payment.setBank(fromBankOptional.get());
 				}
 				payment.setBpmsReceiptNo(lifePolicy.getBpmsReceiptNo());
+				payment.setGginlReceiptNo(lifePolicy.getGginlReceiptNo());
 				payment.setReferenceNo(lifePolicy.getId());
 				payment.setBasicPremium(lifePolicy.getTotalBasicTermPremium());
 				payment.setAddOnPremium(lifePolicy.getTotalAddOnTermPremium());
@@ -1816,15 +1829,20 @@ public class LifeProposalService {
 					policyReferecncetype = PolicyReferenceType.SHORT_TERM_SINGLE_PREMIUM_CREDIT_LIFE_POLICY;
 				} else if (product.getId().equals(singlePremiumEndowmentLifeProductId)) {
 					policyReferecncetype = PolicyReferenceType.SINGLE_PREMIUM_ENDOWMENT_LIFE_POLICY;
+				} else if(product.getId().equals(simpleLifeProductId)) {
+					policyReferecncetype = PolicyReferenceType.SIMPLE_LIFE_POLICY;
 				}
 				double commissionPercent = product.getFirstCommission();
 				Payment payment = paymentRepository.findByPaymentReferenceNo(lifePolicy.getId());
 				double rate = payment.getRate();
 				double firstAgentCommission = lifePolicy.getAgentCommission();
 				Date startDate = payment.getConfirmDate();
-				agentCommissionList.add(new AgentCommission(lifePolicy.getId(), policyReferecncetype, lifePolicy.getAgent(), firstAgentCommission, startDate,
+				
+				AgentCommission agentCommission = new AgentCommission(lifePolicy.getId(), policyReferecncetype, lifePolicy.getAgent(), firstAgentCommission, startDate,
 						payment.getReceiptNo(), lifePolicy.getTotalTermPremium(), commissionPercent, AgentCommissionEntryType.UNDERWRITING, rate, (rate * firstAgentCommission),
-						"KYT", (rate * lifePolicy.getTotalTermPremium()), payment.getBpmsReceiptNo()));
+						"KYT", (rate * lifePolicy.getTotalTermPremium()), payment.getBpmsReceiptNo());
+				agentCommission.setGginlReceiptNo(lifePolicy.getGginlReceiptNo());
+				agentCommissionList.add(agentCommission);
 			});
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2433,6 +2451,7 @@ public class LifeProposalService {
 				}
 				if (referralOptional.isPresent()) {
 					lifeProposal.setReferral(referralOptional.get());
+					lifeProposal.setSaleChannelType(SaleChannelType.REFERRAL);
 				}
 				if (organizationOptional.isPresent()) {
 					lifeProposal.setOrganization(organizationOptional.get());
@@ -2442,9 +2461,11 @@ public class LifeProposalService {
 				}
 				if (agentOptional.isPresent()) {
 					lifeProposal.setAgent(agentOptional.get());
+					lifeProposal.setSaleChannelType(SaleChannelType.AGENT);
 				}
 				if (saleManOptional.isPresent()) {
 					lifeProposal.setSaleMan(saleManOptional.get());
+					lifeProposal.setSaleChannelType(SaleChannelType.SALEMAN);
 				}
 				if (salePointOptional.isPresent()) {
 					lifeProposal.setSalePoint(salePointOptional.get());
@@ -2493,11 +2514,18 @@ public class LifeProposalService {
 			policy.setActivedPolicyEndDate(policy.getPolicyInsuredPersonList().get(0).getEndDate());
 			policy.setCommenmanceDate(proposal.getSubmittedDate());
 			policy.setLastPaymentTerm(1);
+			policy.setPaymentEndDate(policy.getPolicyInsuredPersonList().get(0).getEndDate());
 
 			policy.setPolicyStatus(PolicyStatus.INFORCE);
 			CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
 			recorder.setCreatedDate(new Date());
 			policy.setRecorder(recorder);
+			policy.getPolicyInsuredPersonList().forEach(insuredPerson -> {
+				insuredPerson.getPolicyInsuredPersonBeneficiariesList().forEach(beneficiary -> {
+					beneficiary.setRecorder(recorder);
+				});
+			});
+			
 			policyList.add(policy);
 		});
 		return policyList;
@@ -2552,7 +2580,11 @@ public class LifeProposalService {
 			insuredPerson.setIdNo(dto.getIdNo());
 			insuredPerson.setFatherName(dto.getFatherName());
 			insuredPerson.setStartDate(dto.getStartDate());
+			
+			// calculate endDate based on period
+//			insuredPerson.setEndDate(getEndDate(dto.getStartDate(), dto.getPeriodType(), dto.getPeriodOfInsurance()));
 			insuredPerson.setEndDate(dto.getEndDate());
+			
 			insuredPerson.setDateOfBirth(dto.getDateOfBirth());
 			insuredPerson.setGender(Gender.valueOf(dto.getGender()));
 			insuredPerson.setResidentAddress(residentAddress);
@@ -2572,7 +2604,8 @@ public class LifeProposalService {
 					break;
 			}
 			insuredPerson.setWeight(dto.getWeight());
-			insuredPerson.setHeight(dto.getFeet() * 12 + dto.getInches());
+			insuredPerson.setHeight(dto.getFeet() * 12 + (int) dto.getInches());
+			insuredPerson.setBmi(getBMI(dto.getFeet(), (int) dto.getInches(), dto.getWeight()));
 			insuredPerson.setSurveyquestionOne(SurveyAnswerOne.valueOf(dto.getSurveyAnswerOne()));
 			insuredPerson.setSurveyquestionTwo(SurveyAnswerTwo.valueOf(dto.getSurveyAnswerTwo()));
 
@@ -2581,6 +2614,7 @@ public class LifeProposalService {
 			CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
 			recorder.setCreatedDate(new Date());
 			insuredPerson.setRecorder(recorder);
+			insuredPerson.setApproved(true);
 
 			// if (customerOptional.isPresent()) {
 			// insuredPerson.setCustomer(customerOptional.get());
@@ -2687,6 +2721,47 @@ public class LifeProposalService {
 
 		return insuredPersonKeyFactorValue;
 	}
+	
+	public double getBMI(int feets, int inches, int weight) {
+
+		// 1 inch = 0.08333 feet
+		double heightInFeetDbl = feets + (inches * 0.08333);
+		// long heightInFeet = Math.round(heightInFeetDbl);
+
+		// 1lb = 0.45kg
+		double weightInKg = weight * 0.45;
+
+		// 1ft = 0.3048 meter
+		double heightInMeter = heightInFeetDbl * 0.3048;
+
+		// long bmiWeight = Math.round(weightInKg / (heightInMeter *
+		// heightInMeter));
+		double bmiWeight = weightInKg / (heightInMeter * heightInMeter);
+
+		if (feets == 0 || weight == 0 || bmiWeight == 0) {
+			return 0;
+		}
+
+		DecimalFormat df = new DecimalFormat("#.##");
+		String bmiWeightStr = df.format(bmiWeight);
+		
+		return Double.parseDouble(bmiWeightStr);
+	}
+	
+	public Date getEndDate(Date startDate, PeriodType periodType, int periodOfInsurance) {
+
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(startDate);
+		if (periodType == PeriodType.YEAR) {
+			cal.add(Calendar.YEAR, periodOfInsurance);
+		} else if (periodType == PeriodType.MONTH) {
+			cal.add(Calendar.MONTH, periodOfInsurance);
+		} else if (periodType == PeriodType.WEEK) {
+			cal.add(Calendar.DAY_OF_MONTH, periodOfInsurance * 7);
+		}
+
+		return cal.getTime();
+	}
 
 	private InsuredPersonBeneficiaries createSimpleLifeInsuredPersonBeneficiareis(SimpleLifeInsuredPersonBeneficiaryDTO dto) {
 		try {
@@ -2712,6 +2787,15 @@ public class LifeProposalService {
 			InsuredPersonBeneficiaries beneficiary = new InsuredPersonBeneficiaries();
 			beneficiary.setInitialId(dto.getInitialId());
 			beneficiary.setDateOfBirth(dto.getDob());
+			
+			// setting age
+//			LocalDate dateOfBirth = dto.getDob().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+//			LocalDate now = LocalDate.now();
+//			Period period = Period.between(dateOfBirth, now);
+//			beneficiary.setAge(period.getYears());
+			
+			beneficiary.setAge(getAgeForNextYear(dto.getDob()));
+			
 			beneficiary.setPercentage(dto.getPercentage());
 			beneficiary.setIdType(IdType.valueOf(dto.getIdType()));
 			beneficiary.setIdNo(dto.getIdNo());
@@ -2731,6 +2815,27 @@ public class LifeProposalService {
 			return beneficiary;
 		} catch (DAOException e) {
 			throw new SystemException(e.getErrorCode(), e.getMessage());
+		}
+	}
+	
+	public int getAgeForNextYear(Date dateOfBirth) {
+		Calendar cal_1 = Calendar.getInstance();
+		int currentYear = cal_1.get(Calendar.YEAR);
+		Calendar cal_2 = Calendar.getInstance();
+		cal_2.setTime(dateOfBirth);
+		cal_2.set(Calendar.YEAR, currentYear);
+		if (new Date().after(cal_2.getTime())) {
+			Calendar cal_3 = Calendar.getInstance();
+			cal_3.setTime(dateOfBirth);
+			int year_1 = cal_3.get(Calendar.YEAR);
+			int year_2 = cal_1.get(Calendar.YEAR) + 1;
+			return year_2 - year_1;
+		} else {
+			Calendar cal_3 = Calendar.getInstance();
+			cal_3.setTime(dateOfBirth);
+			int year_1 = cal_3.get(Calendar.YEAR);
+			int year_2 = cal_1.get(Calendar.YEAR);
+			return year_2 - year_1;
 		}
 	}
 

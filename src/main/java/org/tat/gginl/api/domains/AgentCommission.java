@@ -80,6 +80,9 @@ public class AgentCommission implements IDataModel {
 	
 	@Column(name = "BPMSRECEIPTNO")
 	private String bpmsReceiptNo;
+	
+	@Column(name = "GGINLRECEIPTNO")
+	private String gginlReceiptNo;
 
 
 	@OneToOne(fetch = FetchType.LAZY)
@@ -350,6 +353,14 @@ public class AgentCommission implements IDataModel {
 
 	public void setPercentage(double percentage) {
 		this.percentage = percentage;
+	}
+	
+	public String getGginlReceiptNo() {
+		return gginlReceiptNo;
+	}
+
+	public void setGginlReceiptNo(String gginlReceiptNo) {
+		this.gginlReceiptNo = gginlReceiptNo;
 	}
 
 	public double getHomeCommission() {
