@@ -1,10 +1,6 @@
 package org.tat.gginl.api.domains.services;
 
 import java.text.DecimalFormat;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.Year;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -31,6 +27,7 @@ import org.tat.gginl.api.common.KeyFactor;
 import org.tat.gginl.api.common.Name;
 import org.tat.gginl.api.common.PolicyInsuredPerson;
 import org.tat.gginl.api.common.PolicyInsuredPersonBeneficiaries;
+import org.tat.gginl.api.common.ReferenceType;
 import org.tat.gginl.api.common.ResidentAddress;
 import org.tat.gginl.api.common.Utils;
 import org.tat.gginl.api.common.emumdata.AgentCommissionEntryType;
@@ -48,6 +45,7 @@ import org.tat.gginl.api.common.emumdata.ProposalType;
 import org.tat.gginl.api.common.emumdata.SaleChannelType;
 import org.tat.gginl.api.common.emumdata.SurveyAnswerOne;
 import org.tat.gginl.api.common.emumdata.SurveyAnswerTwo;
+import org.tat.gginl.api.domains.AcceptedInfo;
 import org.tat.gginl.api.domains.Agent;
 import org.tat.gginl.api.domains.AgentCommission;
 import org.tat.gginl.api.domains.Bank;
@@ -75,6 +73,7 @@ import org.tat.gginl.api.domains.StateCode;
 import org.tat.gginl.api.domains.TLF;
 import org.tat.gginl.api.domains.Township;
 import org.tat.gginl.api.domains.TownshipCode;
+import org.tat.gginl.api.domains.repository.AcceptedInfoRepository;
 import org.tat.gginl.api.domains.repository.AgentCommissionRepository;
 import org.tat.gginl.api.domains.repository.CustomerRepository;
 import org.tat.gginl.api.domains.repository.GroupFarmerRepository;
@@ -166,6 +165,9 @@ public class LifeProposalService {
 
 	@Autowired
 	private GroupFarmerRepository groupFarmerRepository;
+
+	@Autowired
+	private AcceptedInfoRepository acceptedInfoRepo;
 
 	@Autowired
 	private GradeInfoService gradeInfoService;
@@ -2458,8 +2460,14 @@ public class LifeProposalService {
 							workflowDate);
 					i++;
 				}
-
 			}
+
+			// convert lifeproposal to acceptedInfo
+			policyList.forEach(simpleLifePolicy -> {
+				AcceptedInfo acceptedInfo = convertLifeProposalToAcceptedInfo(simpleLifePolicy,
+						simpleLifePolicy.getLifeProposal());
+				acceptedInfoRepo.save(acceptedInfo);
+			});
 
 			// create lifepolicy to payment
 			List<Payment> paymentList = convertLifePolicyToPayment(policyList, paymentConfirmDate);
@@ -2474,7 +2482,6 @@ public class LifeProposalService {
 					agent.setRecorder(recorder);
 				});
 				agentCommissionRepo.saveAll(agentcommissionList);
-
 			}
 
 			// create TLF
@@ -2485,6 +2492,34 @@ public class LifeProposalService {
 			logger.error("JOEERROR:" + e.getMessage(), e);
 			throw e;
 		}
+	}
+
+	public AcceptedInfo convertLifeProposalToAcceptedInfo(LifePolicy lifePolicy, LifeProposal lifeProposal) {
+
+		AcceptedInfo acceptedInfo = new AcceptedInfo();
+		acceptedInfo.setReferenceNo(lifePolicy.getLifeProposal().getId());
+
+		Product product = lifePolicy.getInsuredPersonInfo().get(0).getProduct();
+
+		if (product.getId().equals(studentLifeProductId)) {
+			acceptedInfo.setReferenceType(ReferenceType.STUDENT_LIFE_PROPOSAL);
+		} else if (product.getId().equals(publicTermLifeProductId)) {
+			acceptedInfo.setReferenceType(ReferenceType.PUBLIC_TERM_LIFE_PROPOSAL);
+		} else if (product.getId().equals(singlePremiumCreditLifeProductId)) {
+			acceptedInfo.setReferenceType(ReferenceType.SINGLE_PREMIUM_CREDIT_LIFE_PROPOSAL);
+		} else if (product.getId().equals(shortTermSinglePremiumCreditLifeProductId)) {
+			acceptedInfo.setReferenceType(ReferenceType.SHORT_TERM_SINGLE_PREMIUM_CREDIT_LIFE_PROPOSAL);
+		} else if (product.getId().equals(singlePremiumEndowmentLifeProductId)) {
+			acceptedInfo.setReferenceType(ReferenceType.SINGLE_PREMIUM_ENDOWMENT_LIFE_PROPOSAL);
+		} else if (product.getId().equals(simpleLifeProductId)) {
+			acceptedInfo.setReferenceType(ReferenceType.SIMPLE_LIFE_PROPOSAL);
+		}
+		acceptedInfo.setBasicPremium(lifeProposal.getApprovedPremium());
+		acceptedInfo.setAddOnPremium(lifeProposal.getApprovedAddOnPremium());
+		acceptedInfo.setPaymentType(lifeProposal.getPaymentType());
+
+		return acceptedInfo;
+
 	}
 
 	public List<LifeProposal> convertSimpleLifeProposalDTOToProposal(SimpleLifeDTO simpleLifeDTO) {
