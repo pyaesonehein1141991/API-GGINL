@@ -14,6 +14,7 @@ import java.util.Date;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -32,6 +33,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import org.tat.gginl.api.common.CommonCreateAndUpateMarks;
 import org.tat.gginl.api.common.FormatID;
 import org.tat.gginl.api.common.ReferenceType;
 import org.tat.gginl.api.common.TableName;
@@ -132,6 +134,9 @@ public class AcceptedInfo implements Serializable {
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "PAYMENTTYPEID", referencedColumnName = "ID")
 	private PaymentType paymentType;
+	
+	@Embedded
+	private CommonCreateAndUpateMarks recorder;
 
 	@Version
 	private int version;
@@ -596,6 +601,14 @@ public class AcceptedInfo implements Serializable {
 			this.penaltyPremium = penaltyPremium.doubleValue();
 		}
 	}
+	
+	public CommonCreateAndUpateMarks getRecorder() {
+		return recorder;
+	}
+
+	public void setRecorder(CommonCreateAndUpateMarks recorder) {
+		this.recorder = recorder;
+	}
 
 	public int getVersion() {
 		return version;
@@ -629,6 +642,7 @@ public class AcceptedInfo implements Serializable {
 		result = prime * result + ((referenceNo == null) ? 0 : referenceNo.hashCode());
 		result = prime * result + ((referenceType == null) ? 0 : referenceType.hashCode());
 		result = prime * result + ((servicesCharges == null) ? 0 : servicesCharges.hashCode());
+		result = prime * result + ((recorder == null) ? 0 : recorder.hashCode());
 		temp = Double.doubleToLongBits(stampFees);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + version;
@@ -689,6 +703,11 @@ public class AcceptedInfo implements Serializable {
 		} else if (!servicesCharges.equals(other.servicesCharges))
 			return false;
 		if (Double.doubleToLongBits(stampFees) != Double.doubleToLongBits(other.stampFees))
+			return false;
+		if (recorder == null) {
+			if (other.recorder != null)
+				return false;
+		} else if (!recorder.equals(other.recorder))
 			return false;
 		if (version != other.version)
 			return false;

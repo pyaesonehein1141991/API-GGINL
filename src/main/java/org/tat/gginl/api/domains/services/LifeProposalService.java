@@ -2516,6 +2516,10 @@ public class LifeProposalService {
 		acceptedInfo.setBasicPremium(lifePolicy.getLifeProposal().getApprovedPremium());
 		acceptedInfo.setAddOnPremium(lifePolicy.getLifeProposal().getApprovedAddOnPremium());
 		acceptedInfo.setPaymentType(lifePolicy.getLifeProposal().getPaymentType());
+		
+		CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
+		recorder.setCreatedDate(new Date());
+		acceptedInfo.setRecorder(recorder);
 
 		return acceptedInfo;
 
