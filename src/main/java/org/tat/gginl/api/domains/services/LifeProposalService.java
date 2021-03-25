@@ -2464,8 +2464,7 @@ public class LifeProposalService {
 
 			// convert lifeproposal to acceptedInfo
 			policyList.forEach(simpleLifePolicy -> {
-				AcceptedInfo acceptedInfo = convertLifeProposalToAcceptedInfo(simpleLifePolicy,
-						simpleLifePolicy.getLifeProposal());
+				AcceptedInfo acceptedInfo = convertLifeProposalToAcceptedInfo(simpleLifePolicy);
 				acceptedInfoRepo.save(acceptedInfo);
 			});
 
@@ -2494,7 +2493,7 @@ public class LifeProposalService {
 		}
 	}
 
-	public AcceptedInfo convertLifeProposalToAcceptedInfo(LifePolicy lifePolicy, LifeProposal lifeProposal) {
+	public AcceptedInfo convertLifeProposalToAcceptedInfo(LifePolicy lifePolicy) {
 
 		AcceptedInfo acceptedInfo = new AcceptedInfo();
 		acceptedInfo.setReferenceNo(lifePolicy.getLifeProposal().getId());
@@ -2514,9 +2513,9 @@ public class LifeProposalService {
 		} else if (product.getId().equals(simpleLifeProductId)) {
 			acceptedInfo.setReferenceType(ReferenceType.SIMPLE_LIFE_PROPOSAL);
 		}
-		acceptedInfo.setBasicPremium(lifeProposal.getApprovedPremium());
-		acceptedInfo.setAddOnPremium(lifeProposal.getApprovedAddOnPremium());
-		acceptedInfo.setPaymentType(lifeProposal.getPaymentType());
+		acceptedInfo.setBasicPremium(lifePolicy.getLifeProposal().getApprovedPremium());
+		acceptedInfo.setAddOnPremium(lifePolicy.getLifeProposal().getApprovedAddOnPremium());
+		acceptedInfo.setPaymentType(lifePolicy.getLifeProposal().getPaymentType());
 
 		return acceptedInfo;
 
