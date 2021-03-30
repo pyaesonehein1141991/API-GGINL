@@ -36,7 +36,7 @@ public class SimpleLifeController {
   @ApiResponses(value = {@ApiResponse(code = 400, message = "Something went wrong"),
       @ApiResponse(code = 403, message = "Access denied"),
       @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
-  @ApiOperation(value = "${SampleLifeController.submitProposal}")
+  @ApiOperation(value = "${SimpleLifeController.submitProposal}")
   public ResponseDTO<Object> submitproposal(
       @ApiParam("Submit SampleLife Proposal") @Valid @RequestBody SimpleLifeDTO sampleLifeProposalDTO) {
     List<LifePolicy> policyList = new ArrayList<>();

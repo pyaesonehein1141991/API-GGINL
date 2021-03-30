@@ -1,6 +1,7 @@
 package org.tat.gginl.api.domains.services.productServices;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import org.tat.gginl.api.common.CommonCreateAndUpateMarks;
 import org.tat.gginl.api.common.ContentInfo;
 import org.tat.gginl.api.common.DateUtils;
 import org.tat.gginl.api.common.Name;
+import org.tat.gginl.api.common.ReferenceType;
 import org.tat.gginl.api.common.ResidentAddress;
 import org.tat.gginl.api.common.emumdata.ClassificationOfHealth;
 import org.tat.gginl.api.common.emumdata.Gender;
@@ -24,6 +26,7 @@ import org.tat.gginl.api.common.emumdata.IdType;
 import org.tat.gginl.api.common.emumdata.PaymentChannel;
 import org.tat.gginl.api.common.emumdata.PolicyStatus;
 import org.tat.gginl.api.common.emumdata.ProposalType;
+import org.tat.gginl.api.domains.AcceptedInfo;
 import org.tat.gginl.api.domains.Agent;
 import org.tat.gginl.api.domains.AgentCommission;
 import org.tat.gginl.api.domains.Branch;
@@ -42,8 +45,10 @@ import org.tat.gginl.api.domains.SaleMan;
 import org.tat.gginl.api.domains.SalePoint;
 import org.tat.gginl.api.domains.TLF;
 import org.tat.gginl.api.domains.Township;
+import org.tat.gginl.api.domains.repository.AcceptedInfoRepository;
 import org.tat.gginl.api.domains.repository.AgentCommissionRepository;
 import org.tat.gginl.api.domains.repository.LifePolicyRepository;
+import org.tat.gginl.api.domains.repository.LifeProposalRepository;
 import org.tat.gginl.api.domains.repository.PaymentRepository;
 import org.tat.gginl.api.domains.repository.TLFRepository;
 import org.tat.gginl.api.domains.services.AgentService;
@@ -72,8 +77,11 @@ import org.tat.gginl.api.exception.SystemException;
 @Service
 @PropertySource("classpath:keyfactor-id-config.properties")
 public class SinglePremiumEndowmentLifeService {
-	
+
 	Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	@Autowired
+	private LifeProposalRepository lifeProposalRepo;
 
 	@Autowired
 	private LifePolicyRepository lifePolicyRepo;
@@ -86,13 +94,13 @@ public class SinglePremiumEndowmentLifeService {
 
 	@Autowired
 	private OrganizationService organizationService;
-	
+
 	@Autowired
 	private LifeProposalService lifeProposalService;
 
 	@Autowired
 	private PaymentTypeService paymentTypeService;
-	
+
 	@Autowired
 	private RelationshipService relationshipService;
 
@@ -125,37 +133,68 @@ public class SinglePremiumEndowmentLifeService {
 
 	@Autowired
 	private AgentCommissionRepository agentCommissionRepo;
+	
+	@Autowired
+	private AcceptedInfoRepository acceptedInfoRepo;
 
 	@Value("${LUMPSUM}")
 	private String LUMPSUM;
-	
+
 	@Value("${INSUPERSON_PREFIX}")
 	private String insuredPersonPrefix;
-	
+
 	@Value("${LIFEPROPOSAL_PREFIX}")
 	private String lifeProposalPrefix;
-	
+
 	@Value("${INSUPERSON_BENE_PREFIX}")
 	private String insuPersonBenePrefix;
 
 	@Value("${singlePremiumEndowmentLifeProductId}")
 	private String singlePremiumEndowmentLifeProductId;
-	
+
 	public static final String LIFE_INSUREDPERSON_CODENO_ID_GEN = "LIFE_INSUREDPERSON_CODENO_ID_GEN";
 	public static final String SINGLE_PREMIUM_ENDOWMENT_LIFE_PROPOSAL_NO = "SINGLE_PREMIUM_ENDOWMENT_LIFE_PROPOSAL_NO";
-	public static final String SINGLE_PREMIUM_ENDOWMENT_LIFE_POLICY_NO = "SINGLE_PREMIUM_ENDOWMENT_LIFE_POLICY_NO"; 
+	public static final String SINGLE_PREMIUM_ENDOWMENT_LIFE_POLICY_NO = "SINGLE_PREMIUM_ENDOWMENT_LIFE_POLICY_NO";
 
 	/* Single Premium Endowment Life Service */
 	@Transactional(propagation = Propagation.REQUIRED)
-	public List<LifePolicy> createSinglePremiumEndowmentLifePolicy(SinglePremiumEndowmentLifeDTO singlePremiumEndowmentLifeDTO) {
+	public List<LifePolicy> createSinglePremiumEndowmentLifePolicy(
+			SinglePremiumEndowmentLifeDTO singlePremiumEndowmentLifeDTO) {
 		try {
-			List<LifeProposal> singlePremiumEndowmentLifeProposalList = convertSinglePremiumEndowmentLifeProposalDTOToProposal(singlePremiumEndowmentLifeDTO);
+			List<LifeProposal> singlePremiumEndowmentLifeProposalList = convertSinglePremiumEndowmentLifeProposalDTOToProposal(
+					singlePremiumEndowmentLifeDTO);
 			Date paymentConfirmDate = singlePremiumEndowmentLifeDTO.getPaymentConfirmDate();
 			// convert lifeproposal to lifepolicy
-			List<LifePolicy> policyList = convertSinglePremiumEndowmentLifeProposalToPolicy(singlePremiumEndowmentLifeProposalList);
+			List<LifePolicy> policyList = convertSinglePremiumEndowmentLifeProposalToPolicy(
+					singlePremiumEndowmentLifeProposalList);
 
 			// create lifepolicy and return policynoList
 			policyList = lifePolicyRepo.saveAll(policyList);
+
+			// create Workflow His
+			List<String> workflowTaskList = Arrays.asList("SURVEY", "APPROVAL", "INFORM", "CONFIRMATION", "APPROVAL",
+					"PAYMENT", "ISSUING");
+
+			String referenceType = "SINGLE_PREMIUM_ENDOWMENT_LIFE_PROPOSAL";
+			String createdDate = DateUtils.formattedSqlDate(new Date());
+			String workflowDate = DateUtils.formattedSqlDate(new Date());
+			for (LifePolicy lifePolicy : policyList) {
+				int i = 0;
+				String referenceNo = lifePolicy.getLifeProposal().getId();
+				for (String workflowTask : workflowTaskList) {
+					String id = DateUtils.formattedSqlDate(new Date())
+							.concat(lifePolicy.getLifeProposal().getProposalNo()).concat(String.valueOf(i));
+					lifeProposalRepo.saveToWorkflowHistory(id, referenceNo, referenceType, workflowTask, createdDate,
+							workflowDate);
+					i++;
+				}
+			}
+
+			// convert lifeproposal to acceptedInfo
+			policyList.forEach(publicTermLifePolicy -> {
+				AcceptedInfo acceptedInfo = convertLifeProposalToAcceptedInfo(publicTermLifePolicy);
+				acceptedInfoRepo.save(acceptedInfo);
+			});
 
 			// create lifepolicy to payment
 			List<Payment> paymentList = lifeProposalService.convertLifePolicyToPayment(policyList, paymentConfirmDate);
@@ -163,7 +202,8 @@ public class SinglePremiumEndowmentLifeService {
 
 			// create Agent Commission
 			if (null != singlePremiumEndowmentLifeDTO.getAgentID()) {
-				List<AgentCommission> agentcommissionList = lifeProposalService.convertLifePolicyToAgentCommission(policyList);
+				List<AgentCommission> agentcommissionList = lifeProposalService
+						.convertLifePolicyToAgentCommission(policyList);
 				CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
 				recorder.setCreatedDate(new Date());
 				agentcommissionList.forEach(agent -> {
@@ -183,7 +223,8 @@ public class SinglePremiumEndowmentLifeService {
 		}
 	}
 
-	public List<LifeProposal> convertSinglePremiumEndowmentLifeProposalDTOToProposal(SinglePremiumEndowmentLifeDTO singlePremiumEndowmentLifeDTO) {
+	public List<LifeProposal> convertSinglePremiumEndowmentLifeProposalDTOToProposal(
+			SinglePremiumEndowmentLifeDTO singlePremiumEndowmentLifeDTO) {
 		List<LifeProposal> lifeProposalList = new ArrayList<>();
 		try {
 			Optional<Branch> branchOptinal = branchService.findById(singlePremiumEndowmentLifeDTO.getBranchId());
@@ -194,8 +235,7 @@ public class SinglePremiumEndowmentLifeService {
 			Optional<PaymentType> paymentTypeOptional = paymentTypeService
 					.findById(singlePremiumEndowmentLifeDTO.getPaymentTypeId());
 			Optional<Agent> agentOptional = agentService.findById(singlePremiumEndowmentLifeDTO.getAgentID());
-			Optional<SaleMan> saleManOptional = saleManService
-					.findById(singlePremiumEndowmentLifeDTO.getSaleManId());
+			Optional<SaleMan> saleManOptional = saleManService.findById(singlePremiumEndowmentLifeDTO.getSaleManId());
 			Optional<SalePoint> salePointOptional = salePointService
 					.findById(singlePremiumEndowmentLifeDTO.getSalePointId());
 
@@ -222,7 +262,8 @@ public class SinglePremiumEndowmentLifeService {
 					lifeProposal.setFromBank(singlePremiumEndowmentLifeDTO.getFromBank());
 				}
 
-				lifeProposal.getProposalInsuredPersonList().add(createSinglePremiumEndowmentLifeInsuredPerson(insuredPerson));
+				lifeProposal.getProposalInsuredPersonList()
+						.add(createSinglePremiumEndowmentLifeInsuredPerson(insuredPerson));
 
 				lifeProposal.setComplete(true);
 				lifeProposal.setProposalType(ProposalType.UNDERWRITING);
@@ -267,9 +308,9 @@ public class SinglePremiumEndowmentLifeService {
 		}
 		return lifeProposalList;
 	}
-	
 
-	private ProposalInsuredPerson createSinglePremiumEndowmentLifeInsuredPerson(SinglePremiumEndowmentLifeProposalInsuredPersonDTO dto) {
+	private ProposalInsuredPerson createSinglePremiumEndowmentLifeInsuredPerson(
+			SinglePremiumEndowmentLifeProposalInsuredPersonDTO dto) {
 		try {
 			Optional<Product> productOptional = productService.findById(singlePremiumEndowmentLifeProductId);
 			Optional<Township> townshipOptional = townShipService.findById(dto.getTownshipId());
@@ -324,15 +365,17 @@ public class SinglePremiumEndowmentLifeService {
 			insuredPerson.setInsPersonCodeNo(insPersonCodeNo);
 			insuredPerson.setPrefix(insuredPersonPrefix);
 			dto.getInsuredPersonBeneficiariesList().forEach(beneficiary -> {
-				insuredPerson.getInsuredPersonBeneficiariesList().add(createSinglePremiumEndowmentLifeInsuredPersonBeneficiareis(beneficiary));
+				insuredPerson.getInsuredPersonBeneficiariesList()
+						.add(createSinglePremiumEndowmentLifeInsuredPersonBeneficiareis(beneficiary));
 			});
 			return insuredPerson;
 		} catch (DAOException e) {
 			throw new SystemException(e.getErrorCode(), e.getMessage());
 		}
 	}
-	
-	private InsuredPersonBeneficiaries createSinglePremiumEndowmentLifeInsuredPersonBeneficiareis(SinglePremiumEndowmentLifeInsuredPersonBeneficiaryDTO dto) {
+
+	private InsuredPersonBeneficiaries createSinglePremiumEndowmentLifeInsuredPersonBeneficiareis(
+			SinglePremiumEndowmentLifeInsuredPersonBeneficiaryDTO dto) {
 		try {
 			Optional<Township> townshipOptional = townShipService.findById(dto.getTownshipId());
 			Optional<RelationShip> relationshipOptional = relationshipService.findById(dto.getRelationshipID());
@@ -346,9 +389,9 @@ public class SinglePremiumEndowmentLifeService {
 			name.setFirstName(dto.getFirstName());
 			name.setMiddleName(dto.getMiddleName());
 			name.setLastName(dto.getLastName());
-			
+
 			ContentInfo content = new ContentInfo();
-			content.setPhone(dto.getContentInfo()!= null ? dto.getContentInfo().getPhoneOrMoblieNo() : null);
+			content.setPhone(dto.getContentInfo() != null ? dto.getContentInfo().getPhoneOrMoblieNo() : null);
 
 			InsuredPersonBeneficiaries beneficiary = new InsuredPersonBeneficiaries();
 			beneficiary.setInitialId(dto.getInitialId());
@@ -360,7 +403,7 @@ public class SinglePremiumEndowmentLifeService {
 			beneficiary.setResidentAddress(residentAddress);
 			beneficiary.setName(name);
 			beneficiary.setContentInfo(content);
-			if(customerOptional.isPresent()) {
+			if (customerOptional.isPresent()) {
 				beneficiary.setCustomer(customerOptional.get());
 			}
 			if (relationshipOptional.isPresent()) {
@@ -378,7 +421,8 @@ public class SinglePremiumEndowmentLifeService {
 		}
 	}
 
-	private List<LifePolicy> convertSinglePremiumEndowmentLifeProposalToPolicy(List<LifeProposal> singlePremiumEndowmentLifeProposalList) {
+	private List<LifePolicy> convertSinglePremiumEndowmentLifeProposalToPolicy(
+			List<LifeProposal> singlePremiumEndowmentLifeProposalList) {
 		List<LifePolicy> policyList = new ArrayList<>();
 		singlePremiumEndowmentLifeProposalList.forEach(proposal -> {
 			LifePolicy policy = new LifePolicy(proposal);
@@ -401,5 +445,28 @@ public class SinglePremiumEndowmentLifeService {
 			policyList.add(policy);
 		});
 		return policyList;
+	}
+	
+	public AcceptedInfo convertLifeProposalToAcceptedInfo(LifePolicy lifePolicy) {
+
+		AcceptedInfo acceptedInfo = new AcceptedInfo();
+		acceptedInfo.setReferenceNo(lifePolicy.getLifeProposal().getId());
+
+		Product product = lifePolicy.getInsuredPersonInfo().get(0).getProduct();
+
+		if (product.getId().equals(singlePremiumEndowmentLifeProductId)) {
+			acceptedInfo.setReferenceType(ReferenceType.SINGLE_PREMIUM_ENDOWMENT_LIFE_PROPOSAL);
+		}
+		acceptedInfo.setBasicPremium(lifePolicy.getLifeProposal().getApprovedPremium());
+		acceptedInfo.setAddOnPremium(lifePolicy.getLifeProposal().getApprovedAddOnPremium());
+		acceptedInfo.setPaymentType(lifePolicy.getLifeProposal().getPaymentType());
+		acceptedInfo.setServicesCharges(0.0);
+
+		CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
+		recorder.setCreatedDate(new Date());
+		acceptedInfo.setRecorder(recorder);
+
+		return acceptedInfo;
+
 	}
 }

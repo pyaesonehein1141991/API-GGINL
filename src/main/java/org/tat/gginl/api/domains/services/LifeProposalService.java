@@ -238,7 +238,8 @@ public class LifeProposalService {
 			policyList = lifePolicyRepo.saveAll(policyList);
 
 			// create Workflow His
-			List<String> workflowTaskList = Arrays.asList("ISSUING");
+			List<String> workflowTaskList = Arrays.asList("SURVEY", "APPROVAL", "INFORM", "CONFIRMATION", "APPROVAL",
+					"PAYMENT", "ISSUING");
 
 			String referenceType = "FARMER_PROPOSAL";
 			String createdDate = DateUtils.formattedSqlDate(new Date());
@@ -253,8 +254,13 @@ public class LifeProposalService {
 							workflowDate);
 					i++;
 				}
-
 			}
+
+			// convert lifeproposal to acceptedInfo
+			policyList.forEach(farmerPolicy -> {
+				AcceptedInfo acceptedInfo = convertLifeProposalToAcceptedInfo(farmerPolicy);
+				acceptedInfoRepo.save(acceptedInfo);
+			});
 
 			List<Payment> paymentList = convertGroupFarmerToPayment(groupFarmerProposal, groupFarmerProposalDTO);
 			paymentRepository.saveAll(paymentList);
@@ -1369,6 +1375,12 @@ public class LifeProposalService {
 				i++;
 			}
 
+			// convert lifeproposal to acceptedInfo
+			policyList.forEach(studentLifePolicy -> {
+				AcceptedInfo acceptedInfo = convertLifeProposalToAcceptedInfo(studentLifePolicy);
+				acceptedInfoRepo.save(acceptedInfo);
+			});
+
 			// create lifepolicy to payment
 			List<Payment> paymentList = convertLifePolicyToPayment(policyList, paymentConfirmDate);
 			paymentRepository.saveAll(paymentList);
@@ -1920,6 +1932,31 @@ public class LifeProposalService {
 			// create lifepolicy and return policynoList
 			policyList = lifePolicyRepo.saveAll(policyList);
 
+			// create Workflow His
+			List<String> workflowTaskList = Arrays.asList("SURVEY", "APPROVAL", "INFORM", "CONFIRMATION", "APPROVAL",
+					"PAYMENT", "ISSUING");
+
+			String referenceType = "PUBLIC_TERM_LIFE_PROPOSAL";
+			String createdDate = DateUtils.formattedSqlDate(new Date());
+			String workflowDate = DateUtils.formattedSqlDate(new Date());
+			for (LifePolicy lifePolicy : policyList) {
+				int i = 0;
+				String referenceNo = lifePolicy.getLifeProposal().getId();
+				for (String workflowTask : workflowTaskList) {
+					String id = DateUtils.formattedSqlDate(new Date())
+							.concat(lifePolicy.getLifeProposal().getProposalNo()).concat(String.valueOf(i));
+					lifeProposalRepo.saveToWorkflowHistory(id, referenceNo, referenceType, workflowTask, createdDate,
+							workflowDate);
+					i++;
+				}
+			}
+
+			// convert lifeproposal to acceptedInfo
+			policyList.forEach(publicTermLifePolicy -> {
+				AcceptedInfo acceptedInfo = convertLifeProposalToAcceptedInfo(publicTermLifePolicy);
+				acceptedInfoRepo.save(acceptedInfo);
+			});
+
 			// create lifepolicy to payment
 			List<Payment> paymentList = convertLifePolicyToPayment(policyList, paymentConfirmDate);
 			paymentRepository.saveAll(paymentList);
@@ -2164,6 +2201,31 @@ public class LifeProposalService {
 
 			// create lifepolicy and return policynoList
 			policyList = lifePolicyRepo.saveAll(policyList);
+
+			// create Workflow His
+			List<String> workflowTaskList = Arrays.asList("SURVEY", "APPROVAL", "INFORM", "CONFIRMATION", "APPROVAL",
+					"PAYMENT", "ISSUING");
+
+			String referenceType = "SINGLE_PREMIUM_CREDIT_LIFE_PROPOSAL";
+			String createdDate = DateUtils.formattedSqlDate(new Date());
+			String workflowDate = DateUtils.formattedSqlDate(new Date());
+			for (LifePolicy lifePolicy : policyList) {
+				int i = 0;
+				String referenceNo = lifePolicy.getLifeProposal().getId();
+				for (String workflowTask : workflowTaskList) {
+					String id = DateUtils.formattedSqlDate(new Date())
+							.concat(lifePolicy.getLifeProposal().getProposalNo()).concat(String.valueOf(i));
+					lifeProposalRepo.saveToWorkflowHistory(id, referenceNo, referenceType, workflowTask, createdDate,
+							workflowDate);
+					i++;
+				}
+			}
+
+			// convert lifeproposal to acceptedInfo
+			policyList.forEach(publicTermLifePolicy -> {
+				AcceptedInfo acceptedInfo = convertLifeProposalToAcceptedInfo(publicTermLifePolicy);
+				acceptedInfoRepo.save(acceptedInfo);
+			});
 
 			// create lifepolicy to payment
 			List<Payment> paymentList = convertLifePolicyToPayment(policyList, paymentConfirmDate);
@@ -2445,7 +2507,8 @@ public class LifeProposalService {
 			policyList = lifePolicyRepo.saveAll(policyList);
 
 			// create Workflow His
-			List<String> workflowTaskList = Arrays.asList("ISSUING");
+			List<String> workflowTaskList = Arrays.asList("SURVEY", "APPROVAL", "INFORM", "CONFIRMATION", "APPROVAL",
+					"PAYMENT", "ISSUING");
 
 			String referenceType = "SIMPLE_LIFE_PROPOSAL";
 			String createdDate = DateUtils.formattedSqlDate(new Date());
@@ -2516,7 +2579,8 @@ public class LifeProposalService {
 		acceptedInfo.setBasicPremium(lifePolicy.getLifeProposal().getApprovedPremium());
 		acceptedInfo.setAddOnPremium(lifePolicy.getLifeProposal().getApprovedAddOnPremium());
 		acceptedInfo.setPaymentType(lifePolicy.getLifeProposal().getPaymentType());
-		
+		acceptedInfo.setServicesCharges(0.0);
+
 		CommonCreateAndUpateMarks recorder = new CommonCreateAndUpateMarks();
 		recorder.setCreatedDate(new Date());
 		acceptedInfo.setRecorder(recorder);
